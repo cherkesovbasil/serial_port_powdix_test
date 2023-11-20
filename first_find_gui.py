@@ -10,6 +10,7 @@ class Gui:
     """Графический интерфейс"""
 
     def __init__(self):
+        self.restart_button = None
         self.frame_for_find_device = None
         self.device_signature = None
         self.status_text_box = None
@@ -241,20 +242,24 @@ class Gui:
 
         def start():
             self.status_text_box.delete(0, END)
-            restart_button.destroy()
+            self.restart_button.destroy()
             self.frame_for_find_device.destroy()
             self.device_signature = com_ports()
+            no_signature()
             return
 
-        if not self.device_signature:
-            self.status_text_box.delete(0, END)
-            self.status_text_box.insert(END, "Не удаётся найти устройство. Проверьте")
-            self.status_text_box.insert(END, "правильность подключения устройства и")
-            self.status_text_box.insert(END, "перезапустите поиск")
-            self.status_text_box.update()
-            restart_button = Button(frame_for_status_full_auto, text="RESTART PROCESS", relief=GROOVE,
-                                    background="brown1", command=start)
-            restart_button.pack(side=TOP, fill=X)
+        def no_signature():
+            if not self.device_signature:
+                self.status_text_box.delete(0, END)
+                self.status_text_box.insert(END, "Не удаётся найти устройство. Проверьте")
+                self.status_text_box.insert(END, "правильность подключения устройства и")
+                self.status_text_box.insert(END, "перезапустите поиск")
+                self.status_text_box.update()
+                self.restart_button = Button(frame_for_status_full_auto, text="RESTART PROCESS", relief=GROOVE,
+                                             background="brown1", command=start)
+                self.restart_button.pack(side=TOP, fill=X)
+
+        no_signature()
 
         return self.device_signature
     # ВОЗВРАЩАЕТ СИГНАТУРУ В ФОРМАТЕ "poa_request"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
