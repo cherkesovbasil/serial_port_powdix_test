@@ -97,6 +97,7 @@ class Gui:
                     if answer:
                         break
 
+
                     com_port_label.config(text="...........")
                     com_port_label.update()
                     time.sleep(0.1)
