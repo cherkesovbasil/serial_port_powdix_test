@@ -275,7 +275,7 @@ class Gui:
         self.start_window.resizable(False, False)
 
         # frame for the main interface
-        frame_for_buttons_start_window = LabelFrame(self.start_window, bg="grey90")
+        frame_for_buttons_start_window = LabelFrame(self.start_window, bg="gray90")
         frame_for_buttons_start_window.pack(side=LEFT, padx=1, pady=1)
 
         # outputs the information about the absolute error in the GUI
