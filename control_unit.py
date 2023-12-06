@@ -6,13 +6,41 @@ class AdjustmentUtility:
     """Главное окно взаимодействия с девайсами"""
 
     def __init__(self):
+        self.auto_button = None
+        self.timeout_combobox = None
+        self.baudrate_combobox = None
+        self.port_combobox = None
+        self.bytesize_combobox = None
+
+        self.sth1_button = None
+        self.sth2_button = None
+        self.sth3_button = None
+        self.as_button = None
+        self.sc_button = None
+        self.ck_button = None
+        self.refind_button = None
+        self.set_button = None
+        self.poa_button = None
+        self.manual_button = None
+
         self.start_window = None
         self.frame_for_units = None
 
     def poa_unit(self):
+
+        # Прописывает с нуля интерфейсный фрейм
         self.frame_for_units.destroy()
         self.frame_for_units = LabelFrame(self.start_window, bg="gray90")
         self.frame_for_units.pack(side=TOP, padx=1, pady=1, fill=X)
+
+        # Изменяет состояние кнопок в окне
+        self.poa_button.configure(bg="green3", state='disabled', relief=RIDGE)
+        self.sth1_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.sth2_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.sth3_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.as_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.sc_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.ck_button.configure(bg="gray60", state='normal', relief=GROOVE)
 
         #
         # Информационное поле полученной и расшифрованной команды
@@ -150,8 +178,8 @@ class AdjustmentUtility:
         wts1_bit = Label(frame_for_wts1, text="0", width=6, height=1, bg="PaleGreen3", relief=SUNKEN)
         wts1_bit.pack(side=LEFT, padx=3, pady=1)
 
-        wts1_label = Label(frame_for_wts1, text=" - Наличие датчика температуры горячей воды", width=40, height=1, bg="PaleGreen3",
-                           relief=SUNKEN, anchor=W)
+        wts1_label = Label(frame_for_wts1, text=" - Наличие датчика температуры горячей воды", width=40, height=1,
+                           bg="PaleGreen3", relief=SUNKEN, anchor=W)
         wts1_label.pack(side=LEFT, padx=3, pady=1)
 
         # интерфейс расшифровки статуса датчика температуры холодной воды
@@ -161,8 +189,8 @@ class AdjustmentUtility:
         wts2_bit = Label(frame_for_wts2, text="0", width=6, height=1, bg="PaleGreen3", relief=SUNKEN)
         wts2_bit.pack(side=LEFT, padx=3, pady=1)
 
-        wts2_label = Label(frame_for_wts2, text=" - Наличие датчика температуры холодной воды", width=40, height=1, bg="PaleGreen3",
-                           relief=SUNKEN, anchor=W)
+        wts2_label = Label(frame_for_wts2, text=" - Наличие датчика температуры холодной воды", width=40, height=1,
+                           bg="PaleGreen3", relief=SUNKEN, anchor=W)
         wts2_label.pack(side=LEFT, padx=3, pady=1)
 
         # интерфейс расшифровки статуса пароводяного клапана
@@ -183,8 +211,8 @@ class AdjustmentUtility:
         key_bit = Label(frame_for_key, text="1", width=6, height=1, bg="PaleGreen3", relief=SUNKEN)
         key_bit.pack(side=LEFT, padx=3, pady=1)
 
-        key_label = Label(frame_for_key, text=" - Ключ системы охлаждения (1 = Work / 0 = Dry)", width=40, height=1, bg="PaleGreen3",
-                          relief=SUNKEN, anchor=W)
+        key_label = Label(frame_for_key, text=" - Ключ системы охлаждения (1 = Work / 0 = Dry)", width=40, height=1,
+                          bg="PaleGreen3", relief=SUNKEN, anchor=W)
         key_label.pack(side=LEFT, padx=3, pady=1)
 
         # интерфейс расшифровки статуса датчика уровня воды
@@ -194,8 +222,8 @@ class AdjustmentUtility:
         wls_bit = Label(frame_for_wls, text="0", width=6, height=1, bg="PaleGreen3", relief=SUNKEN)
         wls_bit.pack(side=LEFT, padx=3, pady=1)
 
-        wls_label = Label(frame_for_wls, text=" - Сработка датчика уровня воды (поплавок)", width=40, height=1, bg="PaleGreen3",
-                          relief=SUNKEN, anchor=W)
+        wls_label = Label(frame_for_wls, text=" - Сработка датчика уровня воды (поплавок)", width=40, height=1,
+                          bg="PaleGreen3", relief=SUNKEN, anchor=W)
         wls_label.pack(side=LEFT, padx=3, pady=1)
 
         # резервный бит reserve_1
@@ -242,8 +270,8 @@ class AdjustmentUtility:
         rfp_bit = Label(frame_for_rfp, text="0", width=6, height=1, bg="PaleGreen3", relief=SUNKEN)
         rfp_bit.pack(side=LEFT, padx=3, pady=1)
 
-        rfp_label = Label(frame_for_rfp, text=" - Включение вентиляторов радиатора", width=40, height=1, bg="PaleGreen3",
-                          relief=SUNKEN, anchor=W)
+        rfp_label = Label(frame_for_rfp, text=" - Включение вентиляторов радиатора", width=40, height=1,
+                          bg="PaleGreen3", relief=SUNKEN, anchor=W)
         rfp_label.pack(side=LEFT, padx=3, pady=1)
 
         # интерфейс расшифровки команды питания помпы
@@ -264,8 +292,8 @@ class AdjustmentUtility:
         acf_bit = Label(frame_for_acf, text="0", width=6, height=1, bg="PaleGreen3", relief=SUNKEN)
         acf_bit.pack(side=LEFT, padx=3, pady=1)
 
-        acf_label = Label(frame_for_acf, text=" - Включение вентилятора воздушного охлажд.", width=40, height=1, bg="PaleGreen3",
-                          relief=SUNKEN, anchor=W)
+        acf_label = Label(frame_for_acf, text=" - Включение вентилятора воздушного охлажд.", width=40, height=1,
+                          bg="PaleGreen3", relief=SUNKEN, anchor=W)
         acf_label.pack(side=LEFT, padx=3, pady=1)
 
         # интерфейс расшифровки команды включения петли безопасности
@@ -334,24 +362,101 @@ class AdjustmentUtility:
         command_label = Label(frame_for_command_label, text="Command unit:", width=14, height=1, bg="gray80")
         command_label.pack(side=LEFT, padx=3, pady=1)
 
-
     def sth1_unit(self):
+
+        # Прописывает с нуля интерфейсный фрейм
         self.frame_for_units.destroy()
+        self.frame_for_units = LabelFrame(self.start_window, bg="gray90")
+        self.frame_for_units.pack(side=TOP, padx=1, pady=1, fill=X)
+
+        # Изменяет состояние кнопок в окне
+        self.poa_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.sth1_button.configure(bg="green3", state='disabled', relief=RIDGE)
+        self.sth2_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.sth3_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.as_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.sc_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.ck_button.configure(bg="gray60", state='normal', relief=GROOVE)
 
     def sth2_unit(self):
+
+        # Прописывает с нуля интерфейсный фрейм
         self.frame_for_units.destroy()
+        self.frame_for_units = LabelFrame(self.start_window, bg="gray90")
+        self.frame_for_units.pack(side=TOP, padx=1, pady=1, fill=X)
+
+        # Изменяет состояние кнопок в окне
+        self.poa_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.sth1_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.sth2_button.configure(bg="green3", state='disabled', relief=RIDGE)
+        self.sth3_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.as_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.sc_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.ck_button.configure(bg="gray60", state='normal', relief=GROOVE)
 
     def sth3_unit(self):
+
+        # Прописывает с нуля интерфейсный фрейм
         self.frame_for_units.destroy()
+        self.frame_for_units = LabelFrame(self.start_window, bg="gray90")
+        self.frame_for_units.pack(side=TOP, padx=1, pady=1, fill=X)
+
+        # Изменяет состояние кнопок в окне
+        self.poa_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.sth1_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.sth2_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.sth3_button.configure(bg="green3", state='disabled', relief=RIDGE)
+        self.as_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.sc_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.ck_button.configure(bg="gray60", state='normal', relief=GROOVE)
 
     def as_unit(self):
+
+        # Прописывает с нуля интерфейсный фрейм
         self.frame_for_units.destroy()
+        self.frame_for_units = LabelFrame(self.start_window, bg="gray90")
+        self.frame_for_units.pack(side=TOP, padx=1, pady=1, fill=X)
+
+        # Изменяет состояние кнопок в окне
+        self.poa_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.sth1_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.sth2_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.sth3_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.as_button.configure(bg="green3", state='disabled', relief=RIDGE)
+        self.sc_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.ck_button.configure(bg="gray60", state='normal', relief=GROOVE)
 
     def sc_unit(self):
+
+        # Прописывает с нуля интерфейсный фрейм
         self.frame_for_units.destroy()
+        self.frame_for_units = LabelFrame(self.start_window, bg="gray90")
+        self.frame_for_units.pack(side=TOP, padx=1, pady=1, fill=X)
+
+        # Изменяет состояние кнопок в окне
+        self.poa_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.sth1_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.sth2_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.sth3_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.as_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.sc_button.configure(bg="green3", state='disabled', relief=RIDGE)
+        self.ck_button.configure(bg="gray60", state='normal', relief=GROOVE)
 
     def ck_unit(self):
+
+        # Прописывает с нуля интерфейсный фрейм
         self.frame_for_units.destroy()
+        self.frame_for_units = LabelFrame(self.start_window, bg="gray90")
+        self.frame_for_units.pack(side=TOP, padx=1, pady=1, fill=X)
+
+        # Изменяет состояние кнопок в окне
+        self.poa_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.sth1_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.sth2_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.sth3_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.as_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.sc_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.ck_button.configure(bg="green3", state='disabled', relief=RIDGE)
 
     def refind_device(self):
         pass
@@ -360,7 +465,46 @@ class AdjustmentUtility:
         pass
 
     def manual_parameters(self):
-        pass
+        self.auto_button.configure(bg="gray60", state="normal", relief=GROOVE)
+        self.manual_button.configure(bg="PaleGreen3", state="disabled", relief=RIDGE)
+        self.frame_for_units.destroy()
+        self.frame_for_units = LabelFrame(self.start_window, bg="gray90")
+        self.frame_for_units.pack(side=TOP, padx=1, pady=1, fill=X)
+        self.poa_button.configure(state='normal', relief=GROOVE)
+        self.sth1_button.configure(state='normal', relief=GROOVE)
+        self.sth2_button.configure(state='normal', relief=GROOVE)
+        self.sth3_button.configure(state='normal', relief=GROOVE)
+        self.as_button.configure(state='normal', relief=GROOVE)
+        self.sc_button.configure(state='normal', relief=GROOVE)
+        self.ck_button.configure(state='normal', relief=GROOVE)
+        self.set_button.configure(state='normal', relief=GROOVE)
+        self.timeout_combobox.configure(state='readonly')
+        self.baudrate_combobox.configure(state='readonly')
+        self.port_combobox.configure(state='readonly')
+        self.bytesize_combobox.configure(state='readonly')
+
+    def auto_parameters(self):
+        self.manual_button.configure(bg="gray60", state="normal", relief=GROOVE)
+        self.auto_button.configure(bg="PaleGreen3", state="disabled", relief=RIDGE)
+        self.frame_for_units.destroy()
+        self.frame_for_units = LabelFrame(self.start_window, bg="gray90")
+        self.frame_for_units.pack(side=TOP, padx=1, pady=1, fill=X)
+        self.poa_button.configure(bg="gray60", state='disabled', relief=RIDGE)
+        self.sth1_button.configure(bg="gray60", state='disabled', relief=RIDGE)
+        self.sth2_button.configure(bg="gray60", state='disabled', relief=RIDGE)
+        self.sth3_button.configure(bg="gray60", state='disabled', relief=RIDGE)
+        self.as_button.configure(bg="gray60", state='disabled', relief=RIDGE)
+        self.sc_button.configure(bg="gray60", state='disabled', relief=RIDGE)
+        self.ck_button.configure(bg="gray60", state='disabled', relief=RIDGE)
+        self.set_button.configure(bg="gray60", state='disabled', relief=RIDGE)
+        self.timeout_combobox.configure(state='disabled')
+        self.timeout_combobox.set('')
+        self.baudrate_combobox.configure(state='disabled')
+        self.baudrate_combobox.set('')
+        self.port_combobox.configure(state='disabled')
+        self.port_combobox.set('')
+        self.bytesize_combobox.configure(state='disabled')
+        self.bytesize_combobox.set('')
 
     def terminal(self):
         pass
@@ -389,74 +533,77 @@ class AdjustmentUtility:
         frame_for_terminal.pack(side=RIGHT, padx=1, pady=1, fill=Y)
 
         # левое поле
-        poa_button = Button(frame_for_device_buttons, text="POA", relief=GROOVE, width=5, height=3, bg="green3",
-                            command=self.poa_unit)
-        poa_button.pack(side=TOP, padx=1, pady=1)
-        sth1_button = Button(frame_for_device_buttons, text="STH-1", relief=GROOVE, width=5, height=3, bg="gray60",
-                             command=self.sth1_unit)
-        sth1_button.pack(side=TOP, padx=1, pady=1)
-        sth2_button = Button(frame_for_device_buttons, text="STH-2", relief=GROOVE, width=5, height=3, bg="gray60",
-                             command=self.sth2_unit)
-        sth2_button.pack(side=TOP, padx=1, pady=1)
-        sth3_button = Button(frame_for_device_buttons, text="STH-3", relief=GROOVE, width=5, height=3, bg="gray60",
-                             command=self.sth3_unit)
-        sth3_button.pack(side=TOP, padx=1, pady=1)
-        as_button = Button(frame_for_device_buttons, text="AS", relief=GROOVE, width=5, height=3, bg="gray60",
-                           command=self.as_unit)
-        as_button.pack(side=TOP, padx=1, pady=1)
-        sc_button = Button(frame_for_device_buttons, text="SC", relief=GROOVE, width=5, height=3, bg="gray60",
-                           command=self.sc_unit)
-        sc_button.pack(side=TOP, padx=1, pady=1)
-        ck_button = Button(frame_for_device_buttons, text="CK", relief=GROOVE, width=5, height=3, bg="gray60",
-                           command=self.ck_unit)
-        ck_button.pack(side=TOP, padx=1, pady=1)
+        self.poa_button = Button(frame_for_device_buttons, text="POA", relief=GROOVE, width=5, height=3, bg="gray60",
+                                 command=self.poa_unit)
+        self.poa_button.pack(side=TOP, padx=1, pady=1)
+        self.sth1_button = Button(frame_for_device_buttons, text="STH-1", relief=GROOVE, width=5, height=3, bg="gray60",
+                                  command=self.sth1_unit)
+        self.sth1_button.pack(side=TOP, padx=1, pady=1)
+        self.sth2_button = Button(frame_for_device_buttons, text="STH-2", relief=GROOVE, width=5, height=3, bg="gray60",
+                                  command=self.sth2_unit)
+        self.sth2_button.pack(side=TOP, padx=1, pady=1)
+        self.sth3_button = Button(frame_for_device_buttons, text="STH-3", relief=GROOVE, width=5, height=3, bg="gray60",
+                                  command=self.sth3_unit)
+        self.sth3_button.pack(side=TOP, padx=1, pady=1)
+        self.as_button = Button(frame_for_device_buttons, text="AS", relief=GROOVE, width=5, height=3, bg="gray60",
+                                command=self.as_unit)
+        self.as_button.pack(side=TOP, padx=1, pady=1)
+        self.sc_button = Button(frame_for_device_buttons, text="SC", relief=GROOVE, width=5, height=3, bg="gray60",
+                                command=self.sc_unit)
+        self.sc_button.pack(side=TOP, padx=1, pady=1)
+        self.ck_button = Button(frame_for_device_buttons, text="CK", relief=GROOVE, width=5, height=3, bg="gray60",
+                                command=self.ck_unit)
+        self.ck_button.pack(side=TOP, padx=1, pady=1)
 
-        refind_button = Button(frame_for_device_buttons, text="⭯", relief=GROOVE, width=5, height=2, bg="brown1",
-                               command=self.refind_device)
-        refind_button.pack(side=BOTTOM, padx=1, pady=1)
+        self.refind_button = Button(frame_for_device_buttons, text="⭯", relief=GROOVE, width=5, height=2, bg="brown1",
+                                    command=self.refind_device)
+        self.refind_button.pack(side=BOTTOM, padx=1, pady=1)
 
         # нижнее поле
-        set_button = Button(frame_for_settings, text="Set", relief=GROOVE, width=8, height=2, bg="gray60",
-                            command=self.set_parameters)
-        set_button.pack(side=RIGHT, padx=3, pady=1)
+        self.set_button = Button(frame_for_settings, text="Set", relief=GROOVE, width=8, height=2, bg="gray60",
+                                 command=self.set_parameters)
+        self.set_button.pack(side=RIGHT, padx=3, pady=1)
 
         bytesize_list = ["8", "16", "∞"]
-        bytesize_combobox = ttk.Combobox(frame_for_settings, values=bytesize_list, width=4, height=2, state="readonly")
-        bytesize_combobox.pack(side=RIGHT, padx=3, pady=1)
+        self.bytesize_combobox = ttk.Combobox(frame_for_settings, values=bytesize_list, width=4, height=2, state="readonly")
+        self.bytesize_combobox.pack(side=RIGHT, padx=3, pady=1)
 
         bytesize_label = Label(frame_for_settings, text="Bytesize:", width=8, height=2, bg="gray90")
         bytesize_label.pack(side=RIGHT, padx=3, pady=1)
 
         timeout_list = ["0.1", "0.3", "0.5", "1.0"]
-        timeout_combobox = ttk.Combobox(frame_for_settings, values=timeout_list, width=4, height=2, state="readonly")
-        timeout_combobox.pack(side=RIGHT, padx=3, pady=1)
+        self.timeout_combobox = ttk.Combobox(frame_for_settings, values=timeout_list, width=4, height=2, state="readonly")
+        self.timeout_combobox.pack(side=RIGHT, padx=3, pady=1)
 
         timeout_label = Label(frame_for_settings, text="Timeout(s):", width=8, height=2, bg="gray90")
         timeout_label.pack(side=RIGHT, padx=3, pady=1)
 
         baudrate_list = ["115200", "500000", "1000000"]
-        port_combobox = ttk.Combobox(frame_for_settings, values=baudrate_list, width=8, height=2, state="readonly")
-        port_combobox.pack(side=RIGHT, padx=3, pady=1)
+        self.baudrate_combobox = ttk.Combobox(frame_for_settings, values=baudrate_list, width=8, height=2, state="readonly")
+        self.baudrate_combobox.pack(side=RIGHT, padx=3, pady=1)
 
         baudrate_label = Label(frame_for_settings, text="Baudrate:", width=8, height=2, bg="gray90")
         baudrate_label.pack(side=RIGHT, padx=3, pady=1)
 
         port_numbers = ["1", "2", "3", "4"]
-        port_combobox = ttk.Combobox(frame_for_settings, values=port_numbers, width=4, height=2, state="readonly")
-        port_combobox.pack(side=RIGHT, padx=3, pady=1)
+        self.port_combobox = ttk.Combobox(frame_for_settings, values=port_numbers, width=4, height=2, state="readonly")
+        self.port_combobox.pack(side=RIGHT, padx=3, pady=1)
 
         port_label = Label(frame_for_settings, text="Serial port (COM):", width=14, height=2, bg="gray90")
         port_label.pack(side=RIGHT, padx=3, pady=1)
 
-        manual_button = Button(frame_for_settings, text="Manual", relief=GROOVE, width=8, height=2, bg="gray60",
-                               command=self.manual_parameters)
-        manual_button.pack(side=LEFT, padx=3, pady=1)
+        self.manual_button = Button(frame_for_settings, text="Manual", relief=GROOVE, width=8, height=2,
+                                    bg="gray60", command=self.manual_parameters)
+        self.manual_button.pack(side=LEFT, padx=3, pady=1)
+
+        self.auto_button = Button(frame_for_settings, text="Auto", relief=GROOVE, width=8, height=2,
+                                    bg="gray60", command=self.auto_parameters, state="disabled")
+        self.auto_button.pack(side=LEFT, pady=1)
 
         # правое поле
-        terminal_button = Button(frame_for_terminal, text="⮞\n⮞\n⮞\n\nT\nE\nR\nM\nI\nN\nA\nL\n\n⮞\n⮞\n⮞", relief=GROOVE, width=2, bg="gray60",
-                               command=self.terminal)
+        terminal_button = Button(frame_for_terminal, text="⮞\n⮞\n⮞\n\nT\nE\nR\nM\nI\nN\nA\nL\n\n⮞\n⮞\n⮞", relief=GROOVE,
+                                 width=2, bg="gray60", command=self.terminal)
         terminal_button.pack(side=RIGHT, fill=Y)
-
 
         # sets the size of the window and places it in the center of the screen
         self.start_window.update_idletasks()  # Updates information after all frames are created
@@ -474,7 +621,16 @@ class AdjustmentUtility:
         h = h - height_main_window // 2
         self.start_window.geometry('+{}+{}'.format(w, h))
 
+        # не ясно, нужно ли то, что ниже
+        self.manual_parameters()
+        ##############################################################
+        ############# УДООООЛИИИИИИ ниже, мэйнлуп оставь######
+        ##############################################################
+        self.poa_unit()
+
         self.start_window.mainloop()
+
+
 
 
 AdjustmentUtility().main_frame_unit()
