@@ -6,12 +6,19 @@ class AdjustmentUtility:
     """Главное окно взаимодействия с девайсами"""
 
     def __init__(self):
-        self.auto_button = None
+        self.frame_for_full_terminal = None
+        self.terminal_open = False
+
+        self.terminal_button = None
+        self.frame_for_terminal = None
+        self.info_text_box = None
+
         self.timeout_combobox = None
         self.baudrate_combobox = None
         self.port_combobox = None
         self.bytesize_combobox = None
 
+        self.auto_button = None
         self.sth1_button = None
         self.sth2_button = None
         self.sth3_button = None
@@ -27,6 +34,24 @@ class AdjustmentUtility:
         self.frame_for_units = None
 
     def poa_unit(self):
+
+        def poa_start_command():
+            pass
+
+        def poa_stop_command():
+            pass
+
+        def poa_version_command():
+            pass
+
+        def poa_status_command():
+            pass
+
+        def poa_dry_command():
+            pass
+
+        def poa_info_command():
+            pass
 
         # Прописывает с нуля интерфейсный фрейм
         self.frame_for_units.destroy()
@@ -362,8 +387,47 @@ class AdjustmentUtility:
         command_label = Label(frame_for_command_label, text="Command unit:", width=14, height=1, bg="gray80")
         command_label.pack(side=LEFT, padx=3, pady=1)
 
-    def sth1_unit(self):
+        # Поле мини-терминала
+        info_text_box = Listbox(self.frame_for_units, relief=GROOVE, width=55, height=6,
+                                selectbackground="grey60")
+        info_text_box.pack(side=LEFT, padx=10, pady=10, fill=X)
 
+        # Поле кнопок управления системой охлаждения
+
+        frame_for_start_stop_buttons = LabelFrame(self.frame_for_units, bg="gray80")
+        frame_for_start_stop_buttons.pack(side=RIGHT, padx=4, pady=1, fill=X)
+
+        frame_for_version_status_buttons = LabelFrame(self.frame_for_units, bg="gray80")
+        frame_for_version_status_buttons.pack(side=RIGHT, padx=4, pady=1, fill=X)
+
+        frame_for_dry_info_buttons = LabelFrame(self.frame_for_units, bg="gray80")
+        frame_for_dry_info_buttons.pack(side=RIGHT, padx=4, pady=1, fill=X)
+
+        start_button = Button(frame_for_start_stop_buttons, text="Start", relief=GROOVE, width=14, height=2,
+                              bg="gray60", command=poa_start_command)
+        start_button.pack(side=TOP, pady=4, padx=4)
+
+        stop_button = Button(frame_for_start_stop_buttons, text="Stop", relief=GROOVE, width=14, height=2,
+                             bg="gray60", command=poa_stop_command)
+        stop_button.pack(side=TOP, pady=4, padx=4)
+
+        version_button = Button(frame_for_version_status_buttons, text="Version", relief=GROOVE, width=14, height=2,
+                                bg="gray60", command=poa_version_command)
+        version_button.pack(side=TOP, pady=4, padx=4)
+
+        status_button = Button(frame_for_version_status_buttons, text="Status", relief=GROOVE, width=14, height=2,
+                               bg="gray60", command=poa_status_command)
+        status_button.pack(side=TOP, pady=4, padx=4)
+
+        dry_button = Button(frame_for_dry_info_buttons, text="Dry", relief=GROOVE, width=14, height=2,
+                            bg="gray60", command=poa_dry_command)
+        dry_button.pack(side=TOP, pady=4, padx=4)
+
+        info_button = Button(frame_for_dry_info_buttons, text="Info", relief=GROOVE, width=14, height=2,
+                             bg="gray60", command=poa_info_command)
+        info_button.pack(side=TOP, pady=4, padx=4)
+
+    def sth1_unit(self):
         # Прописывает с нуля интерфейсный фрейм
         self.frame_for_units.destroy()
         self.frame_for_units = LabelFrame(self.start_window, bg="gray90")
@@ -379,7 +443,6 @@ class AdjustmentUtility:
         self.ck_button.configure(bg="gray60", state='normal', relief=GROOVE)
 
     def sth2_unit(self):
-
         # Прописывает с нуля интерфейсный фрейм
         self.frame_for_units.destroy()
         self.frame_for_units = LabelFrame(self.start_window, bg="gray90")
@@ -395,7 +458,6 @@ class AdjustmentUtility:
         self.ck_button.configure(bg="gray60", state='normal', relief=GROOVE)
 
     def sth3_unit(self):
-
         # Прописывает с нуля интерфейсный фрейм
         self.frame_for_units.destroy()
         self.frame_for_units = LabelFrame(self.start_window, bg="gray90")
@@ -411,7 +473,6 @@ class AdjustmentUtility:
         self.ck_button.configure(bg="gray60", state='normal', relief=GROOVE)
 
     def as_unit(self):
-
         # Прописывает с нуля интерфейсный фрейм
         self.frame_for_units.destroy()
         self.frame_for_units = LabelFrame(self.start_window, bg="gray90")
@@ -427,7 +488,6 @@ class AdjustmentUtility:
         self.ck_button.configure(bg="gray60", state='normal', relief=GROOVE)
 
     def sc_unit(self):
-
         # Прописывает с нуля интерфейсный фрейм
         self.frame_for_units.destroy()
         self.frame_for_units = LabelFrame(self.start_window, bg="gray90")
@@ -443,7 +503,6 @@ class AdjustmentUtility:
         self.ck_button.configure(bg="gray60", state='normal', relief=GROOVE)
 
     def ck_unit(self):
-
         # Прописывает с нуля интерфейсный фрейм
         self.frame_for_units.destroy()
         self.frame_for_units = LabelFrame(self.start_window, bg="gray90")
@@ -484,6 +543,8 @@ class AdjustmentUtility:
         self.bytesize_combobox.configure(state='readonly')
 
     def auto_parameters(self):
+        if self.terminal_open:
+            self.terminal()
         self.manual_button.configure(bg="gray60", state="normal", relief=GROOVE)
         self.auto_button.configure(bg="PaleGreen3", state="disabled", relief=RIDGE)
         self.frame_for_units.destroy()
@@ -507,7 +568,114 @@ class AdjustmentUtility:
         self.bytesize_combobox.set('')
 
     def terminal(self):
-        pass
+        if self.terminal_open:
+            self.terminal_button.configure(text="⮞\n⮞\n⮞\n\nT\nE\nR\nM\nI\nN\nA\nL\n\n⮞\n⮞\n⮞")
+            self.frame_for_full_terminal.destroy()
+        else:
+
+            def clear_left_terminal():
+                left_terminal_text_box.delete(0, END)
+                left_terminal_text_box.update()
+                pass
+
+            def clear_right_terminal():
+                right_terminal_text_box.delete(0, END)
+                right_terminal_text_box.update()
+                pass
+
+            def bit_check_crc():
+                pass
+
+            def string_check_crc():
+                pass
+
+            def send_bit_command():
+                left_terminal_text_box.insert(END, "40 15 74 1C 7E 00 00 68 ⮘ crc ok")
+                left_terminal_text_box.update()
+                left_terminal_text_box.yview(END)
+                pass
+
+            def send_string_command():
+                pass
+
+            self.terminal_button.configure(text="⮜\n⮜\n⮜\n\nT\nE\nR\nM\nI\nN\nA\nL\n\n⮜\n⮜\n⮜")
+
+            # Фреймы основного интерфейса терминала
+            self.frame_for_full_terminal = LabelFrame(self.frame_for_terminal, bg="gray90")
+            self.frame_for_full_terminal.pack(side=RIGHT, padx=1, pady=1, fill=Y)
+
+            frame_for_terminal_windows = LabelFrame(self.frame_for_full_terminal, bg="gray90")
+            frame_for_terminal_windows.pack(side=TOP, padx=1, pady=1, fill=X)
+
+            frame_for_left_window = LabelFrame(frame_for_terminal_windows, bg="gray90", text="Отправленная команда")
+            frame_for_left_window.pack(side=LEFT, padx=1, pady=1, fill=X)
+
+            frame_for_right_window = LabelFrame(frame_for_terminal_windows, bg="gray90", text="Полученная команда")
+            frame_for_right_window.pack(side=RIGHT, padx=1, pady=1, fill=X)
+
+            frame_for_per_byte_command = LabelFrame(self.frame_for_full_terminal, bg="gray90")
+            frame_for_per_byte_command.pack(side=TOP, padx=1, pady=5, fill=X)
+
+            frame_for_text_command = LabelFrame(self.frame_for_full_terminal, bg="gray90")
+            frame_for_text_command.pack(side=TOP, padx=1, pady=1, fill=X)
+
+            # Левое поле терминала
+            left_terminal_text_box = Listbox(frame_for_left_window, relief=GROOVE, width=25, height=25,
+                                             selectbackground="grey60")
+            left_terminal_text_box.pack(side=TOP, padx=1, pady=1, fill=X)
+
+            left_terminal_clear_button = Button(frame_for_left_window, text="Clear", relief=GROOVE, width=25, height=1,
+                                                bg="gray60", command=clear_left_terminal)
+            left_terminal_clear_button.pack(side=TOP, padx=1, pady=1)
+
+            # Правое поле терминала
+            right_terminal_text_box = Listbox(frame_for_right_window, relief=GROOVE, width=25, height=25,
+                                              selectbackground="grey60")
+            right_terminal_text_box.pack(side=TOP, padx=1, pady=1, fill=X)
+
+            right_terminal_clear_button = Button(frame_for_right_window, text="Clear", relief=GROOVE, width=25, height=1,
+                                                 bg="gray60", command=clear_right_terminal)
+            right_terminal_clear_button.pack(side=TOP, padx=1, pady=1)
+
+            # Побитное поле для введения команды
+            bit_1_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=4, selectbackground="grey60")
+            bit_1_entry.pack(side=LEFT, padx=1, pady=1, fill=X)
+            bit_2_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=4, selectbackground="grey60")
+            bit_2_entry.pack(side=LEFT, padx=1, pady=1, fill=X)
+            bit_3_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=4, selectbackground="grey60")
+            bit_3_entry.pack(side=LEFT, padx=1, pady=1, fill=X)
+            bit_4_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=4, selectbackground="grey60")
+            bit_4_entry.pack(side=LEFT, padx=1, pady=1, fill=X)
+            bit_5_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=4, selectbackground="grey60")
+            bit_5_entry.pack(side=LEFT, padx=1, pady=1, fill=X)
+            bit_6_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=4, selectbackground="grey60")
+            bit_6_entry.pack(side=LEFT, padx=1, pady=1, fill=X)
+            bit_7_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=4, selectbackground="grey60")
+            bit_7_entry.pack(side=LEFT, padx=1, pady=1, fill=X)
+            bit_8_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=4, selectbackground="grey60")
+            bit_8_entry.pack(side=LEFT, padx=1, pady=1, fill=X)
+
+            bit_check_crc_button = Button(frame_for_per_byte_command, text="CRC", relief=GROOVE, width=4,
+                                          height=1, bg="gray60", command=bit_check_crc)
+            bit_check_crc_button.pack(side=LEFT, padx=6, pady=1)
+
+            send_bit_command_button = Button(frame_for_per_byte_command, text="Send", relief=GROOVE, width=11,
+                                             height=1, bg="gray60", command=send_bit_command)
+            send_bit_command_button.pack(side=RIGHT, padx=3, pady=1)
+
+            # Построчное поле для введения команды
+            string_entry = Entry(frame_for_text_command, relief=GROOVE, width=39, selectbackground="grey60")
+            string_entry.pack(side=LEFT, padx=1, pady=1, fill=X)
+
+            string_check_crc_button = Button(frame_for_text_command, text="CRC", relief=GROOVE, width=4,
+                                             height=1, bg="gray60", command=string_check_crc)
+            string_check_crc_button.pack(side=LEFT, padx=6, pady=1)
+
+            send_string_command_button = Button(frame_for_text_command, text="Send", relief=GROOVE, width=11,
+                                                height=1, bg="gray60", command=send_string_command)
+            send_string_command_button.pack(side=RIGHT, padx=3, pady=1)
+
+        self.terminal_open = not self.terminal_open
 
     def main_frame_unit(self):
         """Запускает первичное окно с возможностью первичного просмотра баз данных, добавления, удаления, открытия"""
@@ -529,8 +697,8 @@ class AdjustmentUtility:
         frame_for_settings = LabelFrame(self.start_window, bg="gray90")
         frame_for_settings.pack(side=BOTTOM, padx=1, pady=1, fill=X)
 
-        frame_for_terminal = LabelFrame(self.start_window, bg="gray90")
-        frame_for_terminal.pack(side=RIGHT, padx=1, pady=1, fill=Y)
+        self.frame_for_terminal = LabelFrame(self.start_window, bg="gray90")
+        self.frame_for_terminal.pack(side=RIGHT, padx=1, pady=2, fill=Y)
 
         # левое поле
         self.poa_button = Button(frame_for_device_buttons, text="POA", relief=GROOVE, width=5, height=3, bg="gray60",
@@ -565,21 +733,24 @@ class AdjustmentUtility:
         self.set_button.pack(side=RIGHT, padx=3, pady=1)
 
         bytesize_list = ["8", "16", "∞"]
-        self.bytesize_combobox = ttk.Combobox(frame_for_settings, values=bytesize_list, width=4, height=2, state="readonly")
+        self.bytesize_combobox = ttk.Combobox(frame_for_settings, values=bytesize_list, width=4, height=2,
+                                              state="readonly")
         self.bytesize_combobox.pack(side=RIGHT, padx=3, pady=1)
 
         bytesize_label = Label(frame_for_settings, text="Bytesize:", width=8, height=2, bg="gray90")
         bytesize_label.pack(side=RIGHT, padx=3, pady=1)
 
         timeout_list = ["0.1", "0.3", "0.5", "1.0"]
-        self.timeout_combobox = ttk.Combobox(frame_for_settings, values=timeout_list, width=4, height=2, state="readonly")
+        self.timeout_combobox = ttk.Combobox(frame_for_settings, values=timeout_list, width=4, height=2,
+                                             state="readonly")
         self.timeout_combobox.pack(side=RIGHT, padx=3, pady=1)
 
         timeout_label = Label(frame_for_settings, text="Timeout(s):", width=8, height=2, bg="gray90")
         timeout_label.pack(side=RIGHT, padx=3, pady=1)
 
         baudrate_list = ["115200", "500000", "1000000"]
-        self.baudrate_combobox = ttk.Combobox(frame_for_settings, values=baudrate_list, width=8, height=2, state="readonly")
+        self.baudrate_combobox = ttk.Combobox(frame_for_settings, values=baudrate_list, width=8, height=2,
+                                              state="readonly")
         self.baudrate_combobox.pack(side=RIGHT, padx=3, pady=1)
 
         baudrate_label = Label(frame_for_settings, text="Baudrate:", width=8, height=2, bg="gray90")
@@ -597,13 +768,13 @@ class AdjustmentUtility:
         self.manual_button.pack(side=LEFT, padx=3, pady=1)
 
         self.auto_button = Button(frame_for_settings, text="Auto", relief=GROOVE, width=8, height=2,
-                                    bg="gray60", command=self.auto_parameters, state="disabled")
+                                  bg="gray60", command=self.auto_parameters, state="disabled")
         self.auto_button.pack(side=LEFT, pady=1)
 
         # правое поле
-        terminal_button = Button(frame_for_terminal, text="⮞\n⮞\n⮞\n\nT\nE\nR\nM\nI\nN\nA\nL\n\n⮞\n⮞\n⮞", relief=GROOVE,
-                                 width=2, bg="gray60", command=self.terminal)
-        terminal_button.pack(side=RIGHT, fill=Y)
+        self.terminal_button = Button(self.frame_for_terminal, text="⮞\n⮞\n⮞\n\nT\nE\nR\nM\nI\nN\nA\nL\n\n⮞\n⮞\n⮞",
+                                 relief=GROOVE, width=2, bg="gray60", command=self.terminal)
+        self.terminal_button.pack(side=RIGHT, fill=Y)
 
         # sets the size of the window and places it in the center of the screen
         self.start_window.update_idletasks()  # Updates information after all frames are created
@@ -629,8 +800,6 @@ class AdjustmentUtility:
         self.poa_unit()
 
         self.start_window.mainloop()
-
-
 
 
 AdjustmentUtility().main_frame_unit()
