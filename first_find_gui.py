@@ -107,8 +107,8 @@ class Gui:
                         if request_name == "poa_request":
                             poa_label.config(background="deep sky blue")
                             poa_label.update()
-                            answer = request_response.poa_version(comport=extracted_port,
-                                                                  accepted_request=request)
+                            answer = request_response.command_sender(comport=extracted_port,
+                                                                     accepted_request=request)
                             if answer:
                                 poa_label.config(background="SeaGreen1")
                                 poa_label.update()
@@ -121,8 +121,8 @@ class Gui:
                         elif request_name == "sth_1_request":
                             sth1_label.config(background="deep sky blue")
                             sth1_label.update()
-                            answer = request_response.poa_version(comport=extracted_port,
-                                                                  accepted_request=request)
+                            answer = request_response.command_sender(comport=extracted_port,
+                                                                     accepted_request=request)
                             if answer:
                                 sth1_label.config(background="SeaGreen1")
                                 sth1_label.update()
@@ -135,8 +135,8 @@ class Gui:
                         elif request_name == "sth_2_request":
                             sth2_label.config(background="deep sky blue")
                             sth2_label.update()
-                            answer = request_response.poa_version(comport=extracted_port,
-                                                                  accepted_request=request)
+                            answer = request_response.command_sender(comport=extracted_port,
+                                                                     accepted_request=request)
                             if answer:
                                 sth2_label.config(background="SeaGreen1")
                                 sth2_label.update()
@@ -149,8 +149,8 @@ class Gui:
                         elif request_name == "sth_3_request":
                             sth3_label.config(background="deep sky blue")
                             sth3_label.update()
-                            answer = request_response.poa_version(comport=extracted_port,
-                                                                  accepted_request=request)
+                            answer = request_response.command_sender(comport=extracted_port,
+                                                                     accepted_request=request)
                             if answer:
                                 sth3_label.config(background="SeaGreen1")
                                 sth3_label.update()
@@ -163,8 +163,8 @@ class Gui:
                         elif request_name == "sc_request":
                             sc_label.config(background="deep sky blue")
                             sc_label.update()
-                            answer = request_response.poa_version(comport=extracted_port,
-                                                                  accepted_request=request)
+                            answer = request_response.command_sender(comport=extracted_port,
+                                                                     accepted_request=request)
                             if answer:
                                 sc_label.config(background="SeaGreen1")
                                 sc_label.update()

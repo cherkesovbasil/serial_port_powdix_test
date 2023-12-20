@@ -6,15 +6,15 @@ import serial.tools.list_ports
 import request_and_port_list
 
 
-def poa_version(comport=None,
-                user_baudrate=request_and_port_list.com_port_settings["baudrate"],
-                user_timeout=request_and_port_list.com_port_settings["timeout"],
-                user_bytesize=request_and_port_list.com_port_settings["bytesize"],
-                user_parity=request_and_port_list.com_port_settings["parity"],
-                user_stopbits=request_and_port_list.com_port_settings["stopbits"],
-                accepted_request=None
-                ):
-
+def command_sender(comport=request_and_port_list.com_port_settings["comport"],
+                   user_baudrate=request_and_port_list.com_port_settings["baudrate"],
+                   user_timeout=request_and_port_list.com_port_settings["timeout"],
+                   user_bytesize=request_and_port_list.com_port_settings["bytesize"],
+                   user_parity=request_and_port_list.com_port_settings["parity"],
+                   user_stopbits=request_and_port_list.com_port_settings["stopbits"],
+                   accepted_request=None
+                   ):
+    print(comport, user_baudrate, user_timeout, user_bytesize, user_parity, user_stopbits)
     port = serial.Serial(comport, baudrate=user_baudrate, timeout=user_timeout, bytesize=user_bytesize,
                          parity=user_parity, stopbits=user_stopbits, xonxoff=False, rtscts=False)
 
