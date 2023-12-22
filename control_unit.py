@@ -38,7 +38,7 @@ class AdjustmentUtility:
 
     def poa_unit(self):
 
-        def transcript_statuses(recieved_command=None):
+        def transcript_statuses(recieved_command=None, send_command=None):
             if recieved_command:
                 # Верхние поля отображения статусов
                 stat_ctrl_label.config(text="-", bg="gray90")
@@ -134,11 +134,23 @@ class AdjustmentUtility:
 
                     if bit_number == 4:
                         if int(binary_status_sens[bit_number]) == 1:
-                            key_bit.config(text=binary_status_sens[bit_number], bg="PaleGreen3")
-                            key_label.config(bg="PaleGreen3")
+                            if send_command == request_and_port_list.poa_request_dictionary["dry_poa_package"]:
+                                key_bit.config(text=binary_status_sens[bit_number], bg="salmon")
+                                key_label.config(bg="salmon")
+                                if reg_green_status == "green":
+                                    reg_green_status = "red"
+                            else:
+                                key_bit.config(text=binary_status_sens[bit_number], bg="PaleGreen3")
+                                key_label.config(bg="PaleGreen3")
                         else:
-                            key_bit.config(text=binary_status_sens[bit_number], bg="salmon")
-                            key_label.config(bg="salmon")
+                            if send_command == request_and_port_list.poa_request_dictionary["dry_poa_package"]:
+                                key_bit.config(text=binary_status_sens[bit_number], bg="PaleGreen3")
+                                key_label.config(bg="PaleGreen3")
+                            else:
+                                key_bit.config(text=binary_status_sens[bit_number], bg="salmon")
+                                key_label.config(bg="salmon")
+                                if reg_green_status == "green":
+                                    reg_green_status = "red"
 
                     if bit_number == 5:
                         if int(binary_status_sens[bit_number]) == 0:
@@ -204,11 +216,13 @@ class AdjustmentUtility:
                 transcript_statuses(answer)
 
         def poa_dry_command():
+            request_response.command_sender(accepted_request=
+                                            request_and_port_list.poa_request_dictionary["stop_poa_package"])
             answer = request_response.command_sender(accepted_request=
                                                      request_and_port_list.
                                                      poa_request_dictionary["dry_poa_package"])
             if answer:
-                transcript_statuses(answer)
+                transcript_statuses(answer, request_and_port_list.poa_request_dictionary["dry_poa_package"])
 
         def poa_info_command():
             pass
@@ -284,68 +298,68 @@ class AdjustmentUtility:
         frame_for_response_data = LabelFrame(self.frame_for_units, bg="gray95")
         frame_for_response_data.pack(side=TOP, padx=1, pady=1, fill=X)
 
-        device_label = Label(frame_for_response_data, text="40", width=8, height=2, bg="PaleGreen3", relief=SUNKEN)
+        device_label = Label(frame_for_response_data, text="--", width=8, height=2, bg="gray95", relief=SUNKEN)
         device_label.pack(side=LEFT, padx=3, pady=1)
 
-        stat_ctrl_label = Label(frame_for_response_data, text="❌", width=12, height=2, bg="salmon", relief=SUNKEN)
+        stat_ctrl_label = Label(frame_for_response_data, text="--", width=12, height=2, bg="gray95", relief=SUNKEN)
         stat_ctrl_label.pack(side=LEFT, padx=3, pady=1)
 
-        stat_sens_label = Label(frame_for_response_data, text="OK", width=12, height=2, bg="PaleGreen3", relief=SUNKEN)
+        stat_sens_label = Label(frame_for_response_data, text="--", width=12, height=2, bg="gray95", relief=SUNKEN)
         stat_sens_label.pack(side=LEFT, padx=3, pady=1)
 
-        t_max_label = Label(frame_for_response_data, text="23", width=8, height=2, bg="PaleGreen3", relief=SUNKEN)
+        t_max_label = Label(frame_for_response_data, text="--", width=8, height=2, bg="gray95", relief=SUNKEN)
         t_max_label.pack(side=LEFT, padx=3, pady=1)
 
-        t_min_label = Label(frame_for_response_data, text="22", width=8, height=2, bg="PaleGreen3", relief=SUNKEN)
+        t_min_label = Label(frame_for_response_data, text="--", width=8, height=2, bg="gray95", relief=SUNKEN)
         t_min_label.pack(side=LEFT, padx=3, pady=1)
 
-        flow_label = Label(frame_for_response_data, text="3.2", width=8, height=2, bg="PaleGreen3", relief=SUNKEN)
+        flow_label = Label(frame_for_response_data, text="--", width=8, height=2, bg="gray95", relief=SUNKEN)
         flow_label.pack(side=LEFT, padx=3, pady=1)
 
-        errors_label = Label(frame_for_response_data, text="--", width=8, height=2, bg="PaleGreen3", relief=SUNKEN)
+        errors_label = Label(frame_for_response_data, text="--", width=8, height=2, bg="gray95", relief=SUNKEN)
         errors_label.pack(side=LEFT, padx=3, pady=1)
 
-        pwm_1_label = Label(frame_for_response_data, text="70", width=8, height=2, bg="PaleGreen3", relief=SUNKEN)
+        pwm_1_label = Label(frame_for_response_data, text="--", width=8, height=2, bg="gray95", relief=SUNKEN)
         pwm_1_label.pack(side=LEFT, padx=3, pady=1)
 
-        pwm_2_label = Label(frame_for_response_data, text="30", width=8, height=2, bg="PaleGreen3", relief=SUNKEN)
+        pwm_2_label = Label(frame_for_response_data, text="--", width=8, height=2, bg="gray95", relief=SUNKEN)
         pwm_2_label.pack(side=LEFT, padx=3, pady=1)
 
-        crc_label = Label(frame_for_response_data, text="OK", width=8, height=2, bg="PaleGreen3", relief=SUNKEN)
+        crc_label = Label(frame_for_response_data, text="--", width=8, height=2, bg="gray95", relief=SUNKEN)
         crc_label.pack(side=LEFT, padx=3, pady=1)
 
         # поле отображения первичной информации
         frame_for_response_clear_data = LabelFrame(self.frame_for_units, bg="gray95")
         frame_for_response_clear_data.pack(side=TOP, padx=1, pady=1, fill=X)
 
-        device_data = Label(frame_for_response_clear_data, text="40", width=8, height=1, bg="gray90", relief=SUNKEN)
+        device_data = Label(frame_for_response_clear_data, text="--", width=8, height=1, bg="gray90", relief=SUNKEN)
         device_data.pack(side=LEFT, padx=3, pady=1)
 
-        stat_ctrl_data = Label(frame_for_response_clear_data, text="2E", width=12, height=1, bg="gray90", relief=SUNKEN)
+        stat_ctrl_data = Label(frame_for_response_clear_data, text="--", width=12, height=1, bg="gray90", relief=SUNKEN)
         stat_ctrl_data.pack(side=LEFT, padx=3, pady=1)
 
-        stat_sens_data = Label(frame_for_response_clear_data, text="08", width=12, height=1, bg="gray90", relief=SUNKEN)
+        stat_sens_data = Label(frame_for_response_clear_data, text="--", width=12, height=1, bg="gray90", relief=SUNKEN)
         stat_sens_data.pack(side=LEFT, padx=3, pady=1)
 
-        t_max_data = Label(frame_for_response_clear_data, text="78", width=8, height=1, bg="gray90", relief=SUNKEN)
+        t_max_data = Label(frame_for_response_clear_data, text="--", width=8, height=1, bg="gray90", relief=SUNKEN)
         t_max_data.pack(side=LEFT, padx=3, pady=1)
 
-        t_min_data = Label(frame_for_response_clear_data, text="13", width=8, height=1, bg="gray90", relief=SUNKEN)
+        t_min_data = Label(frame_for_response_clear_data, text="--", width=8, height=1, bg="gray90", relief=SUNKEN)
         t_min_data.pack(side=LEFT, padx=3, pady=1)
 
-        flow_data = Label(frame_for_response_clear_data, text="36", width=8, height=1, bg="gray90", relief=SUNKEN)
+        flow_data = Label(frame_for_response_clear_data, text="--", width=8, height=1, bg="gray90", relief=SUNKEN)
         flow_data.pack(side=LEFT, padx=3, pady=1)
 
-        errors_data = Label(frame_for_response_clear_data, text="00", width=8, height=1, bg="gray90", relief=SUNKEN)
+        errors_data = Label(frame_for_response_clear_data, text="--", width=8, height=1, bg="gray90", relief=SUNKEN)
         errors_data.pack(side=LEFT, padx=3, pady=1)
 
-        pwm_1_data = Label(frame_for_response_clear_data, text="25", width=8, height=1, bg="gray90", relief=SUNKEN)
+        pwm_1_data = Label(frame_for_response_clear_data, text="--", width=8, height=1, bg="gray90", relief=SUNKEN)
         pwm_1_data.pack(side=LEFT, padx=3, pady=1)
 
-        pwm_2_data = Label(frame_for_response_clear_data, text="15", width=8, height=1, bg="gray90", relief=SUNKEN)
+        pwm_2_data = Label(frame_for_response_clear_data, text="--", width=8, height=1, bg="gray90", relief=SUNKEN)
         pwm_2_data.pack(side=LEFT, padx=3, pady=1)
 
-        crc_data = Label(frame_for_response_clear_data, text="3C", width=8, height=1, bg="gray90", relief=SUNKEN)
+        crc_data = Label(frame_for_response_clear_data, text="--", width=8, height=1, bg="gray90", relief=SUNKEN)
         crc_data.pack(side=LEFT, padx=3, pady=1)
 
         # фреймы для расшифровки статусов
@@ -366,21 +380,21 @@ class AdjustmentUtility:
         frame_for_rfp = LabelFrame(frame_for_status_control, bg="gray95")
         frame_for_rfp.pack(side=TOP, padx=1, pady=1, fill=X)
 
-        rfp_bit = Label(frame_for_rfp, text="0", width=6, height=1, bg="PaleGreen3", relief=SUNKEN)
+        rfp_bit = Label(frame_for_rfp, text="-", width=6, height=1, bg="gray95", relief=SUNKEN)
         rfp_bit.pack(side=LEFT, padx=3, pady=1)
 
         rfp_label = Label(frame_for_rfp, text=" - Включение вентиляторов радиатора", width=40, height=1,
-                          bg="PaleGreen3", relief=SUNKEN, anchor=W)
+                          bg="gray95", relief=SUNKEN, anchor=W)
         rfp_label.pack(side=LEFT, padx=3, pady=1)
 
         # интерфейс расшифровки команды питания помпы
         frame_for_wpp = LabelFrame(frame_for_status_control, bg="gray95")
         frame_for_wpp.pack(side=TOP, padx=1, pady=1, fill=X)
 
-        wpp_bit = Label(frame_for_wpp, text="1", width=6, height=1, bg="PaleGreen3", relief=SUNKEN)
+        wpp_bit = Label(frame_for_wpp, text="-", width=6, height=1, bg="gray95", relief=SUNKEN)
         wpp_bit.pack(side=LEFT, padx=3, pady=1)
 
-        wpp_label = Label(frame_for_wpp, text=" - Включение питания помпы", width=40, height=1, bg="PaleGreen3",
+        wpp_label = Label(frame_for_wpp, text=" - Включение питания помпы", width=40, height=1, bg="gray95",
                           relief=SUNKEN, anchor=W)
         wpp_label.pack(side=LEFT, padx=3, pady=1)
 
@@ -388,21 +402,21 @@ class AdjustmentUtility:
         frame_for_acf = LabelFrame(frame_for_status_control, bg="gray95")
         frame_for_acf.pack(side=TOP, padx=1, pady=1, fill=X)
 
-        acf_bit = Label(frame_for_acf, text="0", width=6, height=1, bg="PaleGreen3", relief=SUNKEN)
+        acf_bit = Label(frame_for_acf, text="-", width=6, height=1, bg="gray95", relief=SUNKEN)
         acf_bit.pack(side=LEFT, padx=3, pady=1)
 
         acf_label = Label(frame_for_acf, text=" - Включение вентилятора воздушного охлажд.", width=40, height=1,
-                          bg="PaleGreen3", relief=SUNKEN, anchor=W)
+                          bg="gray95", relief=SUNKEN, anchor=W)
         acf_label.pack(side=LEFT, padx=3, pady=1)
 
         # интерфейс расшифровки команды включения петли безопасности
         frame_for_srs = LabelFrame(frame_for_status_control, bg="gray95")
         frame_for_srs.pack(side=TOP, padx=1, pady=1, fill=X)
 
-        srs_bit = Label(frame_for_srs, text="0", width=6, height=1, bg="salmon", relief=SUNKEN)
+        srs_bit = Label(frame_for_srs, text="-", width=6, height=1, bg="gray95", relief=SUNKEN)
         srs_bit.pack(side=LEFT, padx=3, pady=1)
 
-        srs_label = Label(frame_for_srs, text=" - Включение петли безопасности", width=40, height=1, bg="salmon",
+        srs_label = Label(frame_for_srs, text=" - Включение петли безопасности", width=40, height=1, bg="gray95",
                           relief=SUNKEN, anchor=W)
         srs_label.pack(side=LEFT, padx=3, pady=1)
 
@@ -410,10 +424,10 @@ class AdjustmentUtility:
         frame_for_beeper = LabelFrame(frame_for_status_control, bg="gray95")
         frame_for_beeper.pack(side=TOP, padx=1, pady=1, fill=X)
 
-        beeper_bit = Label(frame_for_beeper, text="1", width=6, height=1, bg="salmon", relief=SUNKEN)
+        beeper_bit = Label(frame_for_beeper, text="-", width=6, height=1, bg="gray95", relief=SUNKEN)
         beeper_bit.pack(side=LEFT, padx=3, pady=1)
 
-        beeper_label = Label(frame_for_beeper, text=" - Включение звукового сигнала", width=40, height=1, bg="salmon",
+        beeper_label = Label(frame_for_beeper, text=" - Включение звукового сигнала", width=40, height=1, bg="gray95",
                              relief=SUNKEN, anchor=W)
         beeper_label.pack(side=LEFT, padx=3, pady=1)
 
@@ -421,10 +435,10 @@ class AdjustmentUtility:
         frame_for_rfe = LabelFrame(frame_for_status_control, bg="gray95")
         frame_for_rfe.pack(side=TOP, padx=1, pady=1, fill=X)
 
-        rfe_bit = Label(frame_for_rfe, text="0", width=6, height=1, bg="PaleGreen3", relief=SUNKEN)
+        rfe_bit = Label(frame_for_rfe, text="-", width=6, height=1, bg="gray95", relief=SUNKEN)
         rfe_bit.pack(side=LEFT, padx=3, pady=1)
 
-        rfe_label = Label(frame_for_rfe, text=" - Включение bRadiator_Fan_En???", width=40, height=1, bg="PaleGreen3",
+        rfe_label = Label(frame_for_rfe, text=" - Включение bRadiator_Fan_En???", width=40, height=1, bg="gray95",
                           relief=SUNKEN, anchor=W)
         rfe_label.pack(side=LEFT, padx=3, pady=1)
 
@@ -432,10 +446,10 @@ class AdjustmentUtility:
         frame_for_reserve_4 = LabelFrame(frame_for_status_control, bg="gray95")
         frame_for_reserve_4.pack(side=TOP, padx=1, pady=1, fill=X)
 
-        reserve_4_bit = Label(frame_for_reserve_4, text="0", width=6, height=1, bg="PaleGreen3", relief=SUNKEN)
+        reserve_4_bit = Label(frame_for_reserve_4, text="-", width=6, height=1, bg="gray95", relief=SUNKEN)
         reserve_4_bit.pack(side=LEFT, padx=3, pady=1)
 
-        reserve_4_label = Label(frame_for_reserve_4, text=" - Reserve", width=40, height=1, bg="PaleGreen3",
+        reserve_4_label = Label(frame_for_reserve_4, text=" - Reserve", width=40, height=1, bg="gray95",
                                 relief=SUNKEN, anchor=W)
         reserve_4_label.pack(side=LEFT, padx=3, pady=1)
 
@@ -443,10 +457,10 @@ class AdjustmentUtility:
         frame_for_reserve_5 = LabelFrame(frame_for_status_control, bg="gray95")
         frame_for_reserve_5.pack(side=TOP, padx=1, pady=1, fill=X)
 
-        reserve_5_bit = Label(frame_for_reserve_5, text="0", width=6, height=1, bg="PaleGreen3", relief=SUNKEN)
+        reserve_5_bit = Label(frame_for_reserve_5, text="-", width=6, height=1, bg="gray95", relief=SUNKEN)
         reserve_5_bit.pack(side=LEFT, padx=3, pady=1)
 
-        reserve_5_label = Label(frame_for_reserve_5, text=" - Reserve", width=40, height=1, bg="PaleGreen3",
+        reserve_5_label = Label(frame_for_reserve_5, text=" - Reserve", width=40, height=1, bg="gray95",
                                 relief=SUNKEN, anchor=W)
         reserve_5_label.pack(side=LEFT, padx=3, pady=1)
 
@@ -458,32 +472,32 @@ class AdjustmentUtility:
         frame_for_wts1 = LabelFrame(frame_for_status_sensors, bg="gray95")
         frame_for_wts1.pack(side=TOP, padx=1, pady=1, fill=X)
 
-        wts1_bit = Label(frame_for_wts1, text="0", width=6, height=1, bg="PaleGreen3", relief=SUNKEN)
+        wts1_bit = Label(frame_for_wts1, text="-", width=6, height=1, bg="gray95", relief=SUNKEN)
         wts1_bit.pack(side=LEFT, padx=3, pady=1)
 
         wts1_label = Label(frame_for_wts1, text=" - Наличие датчика температуры горячей воды", width=40, height=1,
-                           bg="PaleGreen3", relief=SUNKEN, anchor=W)
+                           bg="gray95", relief=SUNKEN, anchor=W)
         wts1_label.pack(side=LEFT, padx=3, pady=1)
 
         # интерфейс расшифровки статуса датчика температуры холодной воды
         frame_for_wts2 = LabelFrame(frame_for_status_sensors, bg="gray95")
         frame_for_wts2.pack(side=TOP, padx=1, pady=1, fill=X)
 
-        wts2_bit = Label(frame_for_wts2, text="0", width=6, height=1, bg="PaleGreen3", relief=SUNKEN)
+        wts2_bit = Label(frame_for_wts2, text="-", width=6, height=1, bg="gray95", relief=SUNKEN)
         wts2_bit.pack(side=LEFT, padx=3, pady=1)
 
         wts2_label = Label(frame_for_wts2, text=" - Наличие датчика температуры холодной воды", width=40, height=1,
-                           bg="PaleGreen3", relief=SUNKEN, anchor=W)
+                           bg="gray95", relief=SUNKEN, anchor=W)
         wts2_label.pack(side=LEFT, padx=3, pady=1)
 
         # интерфейс расшифровки статуса пароводяного клапана
         frame_for_svs = LabelFrame(frame_for_status_sensors, bg="gray95")
         frame_for_svs.pack(side=TOP, padx=1, pady=1, fill=X)
 
-        svs_bit = Label(frame_for_svs, text="0", width=6, height=1, bg="PaleGreen3", relief=SUNKEN)
+        svs_bit = Label(frame_for_svs, text="-", width=6, height=1, bg="gray95", relief=SUNKEN)
         svs_bit.pack(side=LEFT, padx=3, pady=1)
 
-        svs_label = Label(frame_for_svs, text=" - Сработка пароводяного клапана", width=40, height=1, bg="PaleGreen3",
+        svs_label = Label(frame_for_svs, text=" - Сработка пароводяного клапана", width=40, height=1, bg="gray95",
                           relief=SUNKEN, anchor=W)
         svs_label.pack(side=LEFT, padx=3, pady=1)
 
@@ -491,32 +505,32 @@ class AdjustmentUtility:
         frame_for_key = LabelFrame(frame_for_status_sensors, bg="gray95")
         frame_for_key.pack(side=TOP, padx=1, pady=1, fill=X)
 
-        key_bit = Label(frame_for_key, text="1", width=6, height=1, bg="PaleGreen3", relief=SUNKEN)
+        key_bit = Label(frame_for_key, text="-", width=6, height=1, bg="gray95", relief=SUNKEN)
         key_bit.pack(side=LEFT, padx=3, pady=1)
 
         key_label = Label(frame_for_key, text=" - Ключ системы охлаждения (1 = Work / 0 = Dry)", width=40, height=1,
-                          bg="PaleGreen3", relief=SUNKEN, anchor=W)
+                          bg="gray95", relief=SUNKEN, anchor=W)
         key_label.pack(side=LEFT, padx=3, pady=1)
 
         # интерфейс расшифровки статуса датчика уровня воды
         frame_for_wls = LabelFrame(frame_for_status_sensors, bg="gray95")
         frame_for_wls.pack(side=TOP, padx=1, pady=1, fill=X)
 
-        wls_bit = Label(frame_for_wls, text="0", width=6, height=1, bg="PaleGreen3", relief=SUNKEN)
+        wls_bit = Label(frame_for_wls, text="-", width=6, height=1, bg="gray95", relief=SUNKEN)
         wls_bit.pack(side=LEFT, padx=3, pady=1)
 
         wls_label = Label(frame_for_wls, text=" - Сработка датчика уровня воды (поплавок)", width=40, height=1,
-                          bg="PaleGreen3", relief=SUNKEN, anchor=W)
+                          bg="gray95", relief=SUNKEN, anchor=W)
         wls_label.pack(side=LEFT, padx=3, pady=1)
 
         # резервный бит reserve_1
         frame_for_reserve_1 = LabelFrame(frame_for_status_sensors, bg="gray95")
         frame_for_reserve_1.pack(side=TOP, padx=1, pady=1, fill=X)
 
-        reserve_1_bit = Label(frame_for_reserve_1, text="0", width=6, height=1, bg="PaleGreen3", relief=SUNKEN)
+        reserve_1_bit = Label(frame_for_reserve_1, text="-", width=6, height=1, bg="gray95", relief=SUNKEN)
         reserve_1_bit.pack(side=LEFT, padx=3, pady=1)
 
-        reserve_1_label = Label(frame_for_reserve_1, text=" - Reserve", width=40, height=1, bg="PaleGreen3",
+        reserve_1_label = Label(frame_for_reserve_1, text=" - Reserve", width=40, height=1, bg="gray95",
                                 relief=SUNKEN, anchor=W)
         reserve_1_label.pack(side=LEFT, padx=3, pady=1)
 
@@ -524,10 +538,10 @@ class AdjustmentUtility:
         frame_for_reserve_2 = LabelFrame(frame_for_status_sensors, bg="gray95")
         frame_for_reserve_2.pack(side=TOP, padx=1, pady=1, fill=X)
 
-        reserve_2_bit = Label(frame_for_reserve_2, text="0", width=6, height=1, bg="PaleGreen3", relief=SUNKEN)
+        reserve_2_bit = Label(frame_for_reserve_2, text="-", width=6, height=1, bg="gray95", relief=SUNKEN)
         reserve_2_bit.pack(side=LEFT, padx=3, pady=1)
 
-        reserve_2_label = Label(frame_for_reserve_2, text=" - Reserve", width=40, height=1, bg="PaleGreen3",
+        reserve_2_label = Label(frame_for_reserve_2, text=" - Reserve", width=40, height=1, bg="gray95",
                                 relief=SUNKEN, anchor=W)
         reserve_2_label.pack(side=LEFT, padx=3, pady=1)
 
@@ -535,10 +549,10 @@ class AdjustmentUtility:
         frame_for_reserve_3 = LabelFrame(frame_for_status_sensors, bg="gray95")
         frame_for_reserve_3.pack(side=TOP, padx=1, pady=1, fill=X)
 
-        reserve_3_bit = Label(frame_for_reserve_3, text="0", width=6, height=1, bg="PaleGreen3", relief=SUNKEN)
+        reserve_3_bit = Label(frame_for_reserve_3, text="-", width=6, height=1, bg="gray95", relief=SUNKEN)
         reserve_3_bit.pack(side=LEFT, padx=3, pady=1)
 
-        reserve_3_label = Label(frame_for_reserve_3, text=" - Reserve", width=40, height=1, bg="PaleGreen3",
+        reserve_3_label = Label(frame_for_reserve_3, text=" - Reserve", width=40, height=1, bg="gray95",
                                 relief=SUNKEN, anchor=W)
         reserve_3_label.pack(side=LEFT, padx=3, pady=1)
 
