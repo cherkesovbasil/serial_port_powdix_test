@@ -95,7 +95,8 @@ class AdjustmentUtility:
                 stat_sens_data.config(text=status_sens_hex.upper(), bg="gray90")
 
                 # Расшифровки и отображение Статуса сенсоров
-                reg_green_status = "green"
+                red_green_status_sens = "green"
+                red_green_status_ctrl = "green"
 
                 for bit_number in range(0, 8):
                     if bit_number == 0:
@@ -103,32 +104,32 @@ class AdjustmentUtility:
                             reserve_3_bit.config(text=binary_status_sens[bit_number], bg="PaleGreen3")
                             reserve_3_label.config(bg="PaleGreen3")
                         else:
-                            if reg_green_status == "green":
-                                reg_green_status = "red"
+                            if red_green_status_sens == "green":
+                                red_green_status_sens = "red"
 
                     if bit_number == 1:
                         if int(binary_status_sens[bit_number]) == 0:
                             reserve_2_bit.config(text=binary_status_sens[bit_number], bg="PaleGreen3")
                             reserve_2_label.config(bg="PaleGreen3")
                         else:
-                            if reg_green_status == "green":
-                                reg_green_status = "red"
+                            if red_green_status_sens == "green":
+                                red_green_status_sens = "red"
 
                     if bit_number == 2:
                         if int(binary_status_sens[bit_number]) == 0:
                             reserve_1_bit.config(text=binary_status_sens[bit_number], bg="PaleGreen3")
                             reserve_1_label.config(bg="PaleGreen3")
                         else:
-                            if reg_green_status == "green":
-                                reg_green_status = "red"
+                            if red_green_status_sens == "green":
+                                red_green_status_sens = "red"
 
                     if bit_number == 3:
                         if int(binary_status_sens[bit_number]) == 0:
                             wls_bit.config(text=binary_status_sens[bit_number], bg="PaleGreen3")
                             wls_label.config(bg="PaleGreen3")
                         else:
-                            if reg_green_status == "green":
-                                reg_green_status = "red"
+                            if red_green_status_sens == "green":
+                                red_green_status_sens = "red"
                             wls_bit.config(text=binary_status_sens[bit_number], bg="salmon")
                             wls_label.config(bg="salmon")
 
@@ -137,8 +138,8 @@ class AdjustmentUtility:
                             if send_command == request_and_port_list.poa_request_dictionary["dry_poa_package"]:
                                 key_bit.config(text=binary_status_sens[bit_number], bg="salmon")
                                 key_label.config(bg="salmon")
-                                if reg_green_status == "green":
-                                    reg_green_status = "red"
+                                if red_green_status_sens == "green":
+                                    red_green_status_sens = "red"
                             else:
                                 key_bit.config(text=binary_status_sens[bit_number], bg="PaleGreen3")
                                 key_label.config(bg="PaleGreen3")
@@ -149,16 +150,16 @@ class AdjustmentUtility:
                             else:
                                 key_bit.config(text=binary_status_sens[bit_number], bg="salmon")
                                 key_label.config(bg="salmon")
-                                if reg_green_status == "green":
-                                    reg_green_status = "red"
+                                if red_green_status_sens == "green":
+                                    red_green_status_sens = "red"
 
                     if bit_number == 5:
                         if int(binary_status_sens[bit_number]) == 0:
                             svs_bit.config(text=binary_status_sens[bit_number], bg="PaleGreen3")
                             svs_label.config(bg="PaleGreen3")
                         else:
-                            if reg_green_status == "green":
-                                reg_green_status = "red"
+                            if red_green_status_sens == "green":
+                                red_green_status_sens = "red"
                             svs_bit.config(text=binary_status_sens[bit_number], bg="salmon")
                             svs_label.config(bg="salmon")
 
@@ -167,8 +168,8 @@ class AdjustmentUtility:
                             wts2_bit.config(text=binary_status_sens[bit_number], bg="PaleGreen3")
                             wts2_label.config(bg="PaleGreen3")
                         else:
-                            if reg_green_status == "green":
-                                reg_green_status = "red"
+                            if red_green_status_sens == "green":
+                                red_green_status_sens = "red"
                             wts2_bit.config(text=binary_status_sens[bit_number], bg="salmon")
                             wts2_label.config(bg="salmon")
 
@@ -177,16 +178,103 @@ class AdjustmentUtility:
                             wts1_bit.config(text=binary_status_sens[bit_number], bg="PaleGreen3")
                             wts1_label.config(bg="PaleGreen3")
                         else:
-                            if reg_green_status == "green":
-                                reg_green_status = "red"
+                            if red_green_status_sens == "green":
+                                red_green_status_sens = "red"
                             wts1_bit.config(text=binary_status_sens[bit_number], bg="salmon")
                             wts1_label.config(bg="salmon")
                             pass
 
-                    if reg_green_status == "green":
+                    if red_green_status_sens == "green":
                         stat_sens_label.config(text="OK", bg="PaleGreen3")
                     else:
                         stat_sens_label.config(text="❌", bg="salmon")
+
+                #
+                # Раскидка битов и статусов по Статус контроль
+                #
+
+                for bit_number in range(0, 8):
+                    if bit_number == 0:
+                        if int(binary_status_ctrl[bit_number]) == 0:
+                            reserve_5_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
+                            reserve_5_label.config(bg="PaleGreen3")
+                        else:
+                            if red_green_status_ctrl == "green":
+                                red_green_status_ctrl = "red"
+
+                    if bit_number == 1:
+                        if int(binary_status_ctrl[bit_number]) == 0:
+                            reserve_4_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
+                            reserve_4_label.config(bg="PaleGreen3")
+                        else:
+                            if red_green_status_ctrl == "green":
+                                red_green_status_ctrl = "red"
+
+                    if bit_number == 2:
+                        if int(binary_status_ctrl[bit_number]) == 0:
+                            rfe_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
+                            rfe_label.config(bg="PaleGreen3")
+                        else:
+                            if red_green_status_ctrl == "green":
+                                red_green_status_ctrl = "red"
+                            rfe_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
+                            rfe_label.config(bg="salmon")
+
+                    if bit_number == 3:
+                        if int(binary_status_ctrl[bit_number]) == 0:
+                            beeper_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
+                            beeper_label.config(bg="PaleGreen3")
+                        else:
+                            if red_green_status_ctrl == "green":
+                                red_green_status_ctrl = "red"
+                            beeper_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
+                            beeper_label.config(bg="salmon")
+
+                    if bit_number == 4:
+                        if int(binary_status_ctrl[bit_number]) == 0:
+                            srs_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
+                            srs_label.config(bg="PaleGreen3")
+                        else:
+                            if red_green_status_ctrl == "green":
+                                red_green_status_ctrl = "red"
+                            srs_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
+                            srs_label.config(bg="salmon")
+
+                    if bit_number == 5:
+                        if int(binary_status_ctrl[bit_number]) == 0:
+                            acf_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
+                            acf_label.config(bg="PaleGreen3")
+                        else:
+                            if red_green_status_ctrl == "green":
+                                red_green_status_ctrl = "red"
+                            acf_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
+                            acf_label.config(bg="salmon")
+
+                    if bit_number == 6:
+                        if int(binary_status_ctrl[bit_number]) == 0:
+                            wpp_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
+                            wpp_label.config(bg="PaleGreen3")
+                        else:
+                            if red_green_status_ctrl == "green":
+                                red_green_status_ctrl = "red"
+                            wpp_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
+                            wpp_label.config(bg="salmon")
+
+                    if bit_number == 7:
+                        if int(binary_status_ctrl[bit_number]) == 0:
+                            rfp_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
+                            rfp_label.config(bg="PaleGreen3")
+                        else:
+                            if red_green_status_ctrl == "green":
+                                red_green_status_ctrl = "red"
+                            rfp_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
+                            rfp_label.config(bg="salmon")
+                            pass
+
+                    if red_green_status_ctrl == "green":
+                        stat_ctrl_label.config(text="OK", bg="PaleGreen3")
+                    else:
+                        stat_ctrl_label.config(text="❌", bg="salmon")
 
                 pass
 
@@ -199,9 +287,10 @@ class AdjustmentUtility:
                 transcript_statuses(answer)
 
         def poa_stop_command():
-            request_response.command_sender(accepted_request=
-                                            request_and_port_list.poa_request_dictionary["stop_poa_package"])
-            pass
+            answer = request_response.command_sender(accepted_request=
+                                                     request_and_port_list.poa_request_dictionary["stop_poa_package"])
+            if answer:
+                transcript_statuses(answer)
 
         def poa_version_command():
             request_response.command_sender(accepted_request=request_and_port_list.
