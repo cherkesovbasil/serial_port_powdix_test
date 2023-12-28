@@ -1,3 +1,4 @@
+import tkinter.font
 from tkinter import *
 from tkinter import ttk
 
@@ -38,49 +39,152 @@ class AdjustmentUtility:
 
     def poa_unit(self):
 
+        def all_grey():
+            # Верхние поля отображения статусов
+            stat_ctrl_label.config(text="-", bg="gray90")
+            stat_sens_label.config(text="-", bg="gray90")
+            stat_ctrl_data.config(text="-", bg="gray90")
+            stat_sens_label.config(text="-", bg="gray90")
+
+            # Status sensors - all grey
+            wts1_bit.config(text="-", bg="gray90")
+            wts1_label.config(bg="gray90")
+            wts2_bit.config(text="-", bg="gray90")
+            wts2_label.config(bg="gray90")
+            svs_bit.config(text="-", bg="gray90")
+            svs_label.config(bg="gray90")
+            key_bit.config(text="-", bg="gray90")
+            key_label.config(bg="gray90")
+            wls_bit.config(text="-", bg="gray90")
+            wls_label.config(bg="gray90")
+            reserve_1_bit.config(text="-", bg="gray90")
+            reserve_1_label.config(bg="gray90")
+            reserve_2_bit.config(text="-", bg="gray90")
+            reserve_2_label.config(bg="gray90")
+            reserve_3_bit.config(text="-", bg="gray90")
+            reserve_3_label.config(bg="gray90")
+
+            # Status control - all grey
+            rfp_bit.config(text="-", bg="gray90")
+            rfp_label.config(bg="gray90")
+            wpp_bit.config(text="-", bg="gray90")
+            wpp_label.config(bg="gray90")
+            acf_bit.config(text="-", bg="gray90")
+            acf_label.config(bg="gray90")
+            srs_bit.config(text="-", bg="gray90")
+            srs_label.config(bg="gray90")
+            beeper_bit.config(text="-", bg="gray90")
+            beeper_label.config(bg="gray90")
+            rfe_bit.config(text="-", bg="gray90")
+            rfe_label.config(bg="gray90")
+            reserve_4_bit.config(text="-", bg="gray90")
+            reserve_4_label.config(bg="gray90")
+            reserve_5_bit.config(text="-", bg="gray90")
+            reserve_5_label.config(bg="gray90")
+
+        def transcript_other_stuff(recieved_command=None, send_command=None):
+
+            # Превращает из хексов в бины всю остальную команду
+
+            # расшифровка поля Device
+            def transcript_status_device():
+                device_hex = recieved_command[0] + recieved_command[1]
+                if device_hex == "40":
+                    device_label.config(text="OK", bg="PaleGreen3")
+                else:
+                    device_label.config(text="❌", bg="salmon")
+                device_data.config(text=device_hex.upper())
+
+            # расшифровка поля t_max
+            def transcript_status_t_max():
+                t_max_hex = recieved_command[6] + recieved_command[7]
+                t_max_dec = int(t_max_hex, 16)
+                if 10 <= t_max_dec <= 40:
+                    t_max_label.config(bg="PaleGreen3")
+                else:
+                    t_max_label.config(bg="salmon")
+                t_max_label.config(text=str(t_max_dec).upper())
+                t_max_data.config(text=t_max_hex)
+
+            # расшифровка поля t_min
+            def transcript_status_t_min():
+                t_min_hex = recieved_command[8] + recieved_command[9]
+                t_min_dec = int(t_min_hex, 16)
+                if 10 <= t_min_dec <= 40:
+                    t_min_label.config(bg="PaleGreen3")
+                else:
+                    t_min_label.config(bg="salmon")
+                t_min_label.config(text=str(t_min_dec).upper())
+                t_min_data.config(text=t_min_hex)
+
+            # расшифровка поля flow
+            def transcript_status_flow():
+                flow_hex = recieved_command[10] + recieved_command[11]
+                flow_dec = int(flow_hex, 16)
+                flow_real = round(float(flow_dec/73), 2)
+                if 2.5 <= flow_real <= 5:
+                    flow_label.config(bg="PaleGreen3")
+                else:
+                    flow_label.config(bg="salmon")
+                flow_label.config(text=str(flow_real))
+                flow_data.config(text=flow_hex)
+
+            # расшифровка поля errors
+            def transcript_status_errors():
+                errors_hex = recieved_command[12] + recieved_command[13]
+                if errors_hex == "00":
+                    errors_label.config(bg="PaleGreen3", text="OK")
+                else:
+                    errors_label.config(bg="salmon", text=errors_hex)
+                errors_data.config(text=errors_hex)
+
+            # расшифровка полей pwm
+            def transcript_status_pwm_1_2():
+                pwm_1_hex = recieved_command[14] + recieved_command[15]
+                pwm_2_hex = recieved_command[16] + recieved_command[17]
+                pwm_1_dec = int(pwm_1_hex, 16)
+                pwm_2_dec = int(pwm_2_hex, 16)
+                pwm_1_percent = int(pwm_1_dec * 100 / 254)
+                pwm_2_percent = int(pwm_2_dec * 100 / 254)
+                if pwm_1_percent + pwm_2_percent == 100:
+                    pwm_1_label.config(bg="PaleGreen3", text=pwm_1_percent)
+                    pwm_2_label.config(bg="PaleGreen3", text=pwm_2_percent)
+                else:
+                    pwm_1_label.config(bg="salmon", text=pwm_1_percent)
+                    pwm_2_label.config(bg="salmon", text=pwm_2_percent)
+                pwm_1_data.config(text=pwm_1_hex)
+                pwm_2_data.config(text=pwm_2_hex)
+
+            def check_crc():
+                full_hex_summ = 0
+                for bit in range(0, 17):
+                    if bit != 0:
+                        print("recieved_command[bit] = " + recieved_command[bit])
+                        dec_command_bit = int(recieved_command[bit], 16)
+                        print(dec_command_bit)
+                        full_hex_summ = full_hex_summ + dec_command_bit
+                print(full_hex_summ)
+                full_hex_summ = hex(full_hex_summ)
+                print(full_hex_summ)
+                #
+                #
+                # Не дописано, вроде похоже на правду, что при сложении в децимале получается круглое число, но хз. чекнуть
+                #
+                #
+
+
+            transcript_status_device()
+            transcript_status_t_max()
+            transcript_status_t_min()
+            transcript_status_flow()
+            transcript_status_errors()
+            transcript_status_pwm_1_2()
+            check_crc()
+            pass
+
         def transcript_statuses(recieved_command=None, send_command=None):
             if recieved_command:
-                # Верхние поля отображения статусов
-                stat_ctrl_label.config(text="-", bg="gray90")
-                stat_sens_label.config(text="-", bg="gray90")
-                stat_ctrl_data.config(text="-", bg="gray90")
-                stat_sens_label.config(text="-", bg="gray90")
-
-                # Status sensors - all grey
-                wts1_bit.config(text="-", bg="gray90")
-                wts1_label.config(bg="gray90")
-                wts2_bit.config(text="-", bg="gray90")
-                wts2_label.config(bg="gray90")
-                svs_bit.config(text="-", bg="gray90")
-                svs_label.config(bg="gray90")
-                key_bit.config(text="-", bg="gray90")
-                key_label.config(bg="gray90")
-                wls_bit.config(text="-", bg="gray90")
-                wls_label.config(bg="gray90")
-                reserve_1_bit.config(text="-", bg="gray90")
-                reserve_1_label.config(bg="gray90")
-                reserve_2_bit.config(text="-", bg="gray90")
-                reserve_2_label.config(bg="gray90")
-                reserve_3_bit.config(text="-", bg="gray90")
-                reserve_3_label.config(bg="gray90")
-
-                # Status control - all grey
-                rfp_bit.config(text="-", bg="gray90")
-                rfp_label.config(bg="gray90")
-                wpp_bit.config(text="-", bg="gray90")
-                wpp_label.config(bg="gray90")
-                acf_bit.config(text="-", bg="gray90")
-                acf_label.config(bg="gray90")
-                srs_bit.config(text="-", bg="gray90")
-                srs_label.config(bg="gray90")
-                beeper_bit.config(text="-", bg="gray90")
-                beeper_label.config(bg="gray90")
-                rfe_bit.config(text="-", bg="gray90")
-                rfe_label.config(bg="gray90")
-                reserve_4_bit.config(text="-", bg="gray90")
-                reserve_4_label.config(bg="gray90")
-                reserve_5_bit.config(text="-", bg="gray90")
-                reserve_5_label.config(bg="gray90")
+                all_grey()
 
                 # Превращает из хексов в бины и выводит значения
                 status_ctrl_hex = recieved_command[2] + recieved_command[3]
@@ -284,25 +388,27 @@ class AdjustmentUtility:
             answer = request_response.command_sender(accepted_request=
                                                      request_and_port_list.poa_request_dictionary["start_poa_package"])
             if answer:
-                transcript_statuses(answer)
+                transcript_statuses(answer, request_and_port_list.poa_request_dictionary["start_poa_package"])
+                transcript_other_stuff(answer, request_and_port_list.poa_request_dictionary["start_poa_package"])
 
         def poa_stop_command():
             answer = request_response.command_sender(accepted_request=
                                                      request_and_port_list.poa_request_dictionary["stop_poa_package"])
             if answer:
-                transcript_statuses(answer)
+                transcript_statuses(answer, request_and_port_list.poa_request_dictionary["stop_poa_package"])
+                transcript_other_stuff(answer, request_and_port_list.poa_request_dictionary["stop_poa_package"])
 
         def poa_version_command():
             request_response.command_sender(accepted_request=request_and_port_list.
                                             poa_request_dictionary["version_poa_package"])
-            pass
 
         def poa_status_command():
             answer = request_response.command_sender(accepted_request=
                                                      request_and_port_list.
                                                      poa_request_dictionary["status_poa_package"])
             if answer:
-                transcript_statuses(answer)
+                transcript_statuses(answer, request_and_port_list.poa_request_dictionary["status_poa_package"])
+                transcript_other_stuff(answer, request_and_port_list.poa_request_dictionary["status_poa_package"])
 
         def poa_dry_command():
             request_response.command_sender(accepted_request=
@@ -312,6 +418,7 @@ class AdjustmentUtility:
                                                      poa_request_dictionary["dry_poa_package"])
             if answer:
                 transcript_statuses(answer, request_and_port_list.poa_request_dictionary["dry_poa_package"])
+                transcript_other_stuff(answer, request_and_port_list.poa_request_dictionary["dry_poa_package"])
 
         def poa_info_command():
             pass
