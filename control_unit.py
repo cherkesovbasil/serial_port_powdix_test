@@ -4,9 +4,6 @@ from tkinter import ttk
 import request_and_port_list
 import request_response
 
-global last_command_except_status
-last_command_except_status = None
-
 
 class AdjustmentUtility:
     """Главное окно взаимодействия с девайсами"""
@@ -39,6 +36,8 @@ class AdjustmentUtility:
 
         self.start_window = None
         self.frame_for_units = None
+
+        self.last_command_except_status = None
 
     def poa_unit(self):
 
@@ -137,12 +136,11 @@ class AdjustmentUtility:
 
             # расшифровка поля flow
             def transcript_status_flow():
-                global last_command_except_status
                 flow_hex = recieved_command[10] + recieved_command[11]
                 flow_dec = int(flow_hex, 16)
                 flow_real = round(float(flow_dec / 73), 2)
-                if last_command_except_status == request_and_port_list.poa_request_dictionary["dry_poa_package"] \
-                        or last_command_except_status == \
+                if self.last_command_except_status == request_and_port_list.poa_request_dictionary["dry_poa_package"] \
+                        or self.last_command_except_status == \
                         request_and_port_list.poa_request_dictionary["stop_poa_package"]:
                     if flow_real < 1:
                         flow_label.config(bg="PaleGreen3")
@@ -156,7 +154,7 @@ class AdjustmentUtility:
                 flow_label.config(text=str(flow_real))
                 flow_data.config(text=flow_hex.upper())
 
-                print('last_command_except_status = ' + str(last_command_except_status))
+                print('self.last_command_except_status = ' + str(self.last_command_except_status))
                 print(request_and_port_list.poa_request_dictionary["stop_poa_package"])
                 print("****************************************\n\n\n")
 
@@ -178,8 +176,8 @@ class AdjustmentUtility:
                 pwm_2_dec = int(pwm_2_hex, 16)
                 pwm_1_percent = int(pwm_1_dec * 100 / 254)
                 pwm_2_percent = int(pwm_2_dec * 100 / 254)
-                if last_command_except_status == request_and_port_list.poa_request_dictionary["dry_poa_package"] \
-                        or last_command_except_status == \
+                if self.last_command_except_status == request_and_port_list.poa_request_dictionary["dry_poa_package"] \
+                        or self.last_command_except_status == \
                         request_and_port_list.poa_request_dictionary["stop_poa_package"]:
                     if pwm_1_percent < 10:
                         pwm_1_label.config(bg="PaleGreen3", text=str(pwm_1_percent) + "%")
@@ -280,11 +278,11 @@ class AdjustmentUtility:
                                 red_green_status_sens = "red"
 
                     if bit_number == 4:
-                        if last_command_except_status == \
+                        if self.last_command_except_status == \
                                 request_and_port_list.poa_request_dictionary["stop_poa_package"]:
                             key_bit.config(text=binary_status_sens[bit_number], bg="PaleGreen3")
                             key_label.config(bg="PaleGreen3")
-                        elif last_command_except_status == \
+                        elif self.last_command_except_status == \
                                 request_and_port_list.poa_request_dictionary["dry_poa_package"]:
                             if int(binary_status_sens[bit_number]) == 1:
                                 key_bit.config(text=binary_status_sens[bit_number], bg="salmon")
@@ -294,9 +292,9 @@ class AdjustmentUtility:
                             else:
                                 key_bit.config(text=binary_status_sens[bit_number], bg="PaleGreen3")
                                 key_label.config(bg="PaleGreen3")
-                        elif last_command_except_status == \
+                        elif self.last_command_except_status == \
                                 request_and_port_list.poa_request_dictionary["start_poa_package"] or \
-                                last_command_except_status is None:
+                                self.last_command_except_status is None:
                             if int(binary_status_sens[bit_number]) == 0:
                                 key_bit.config(text=binary_status_sens[bit_number], bg="salmon")
                                 key_label.config(bg="salmon")
@@ -370,9 +368,9 @@ class AdjustmentUtility:
                     if send_command == request_and_port_list.poa_request_dictionary["status_poa_package"]:
 
                         if bit_number == 2:
-                            if last_command_except_status == \
+                            if self.last_command_except_status == \
                                     request_and_port_list.poa_request_dictionary["start_poa_package"] \
-                                    or last_command_except_status is None:
+                                    or self.last_command_except_status is None:
                                 if int(binary_status_ctrl[bit_number]) == 1:
                                     rfe_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
                                     rfe_label.config(bg="PaleGreen3")
@@ -381,7 +379,7 @@ class AdjustmentUtility:
                                     rfe_label.config(bg="salmon")
                                     if red_green_status_ctrl == "green":
                                         red_green_status_ctrl = "red"
-                            elif last_command_except_status == \
+                            elif self.last_command_except_status == \
                                     request_and_port_list.poa_request_dictionary["dry_poa_package"]:
                                 if int(binary_status_ctrl[bit_number]) == 0:
                                     rfe_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
@@ -400,7 +398,7 @@ class AdjustmentUtility:
                                         red_green_status_ctrl = "red"
 
                         if bit_number == 3:
-                            if last_command_except_status == \
+                            if self.last_command_except_status == \
                                     request_and_port_list.poa_request_dictionary["dry_poa_package"]:
                                 if int(binary_status_ctrl[bit_number]) == 0:
                                     beeper_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
@@ -419,9 +417,9 @@ class AdjustmentUtility:
                                         red_green_status_ctrl = "red"
 
                         if bit_number == 4:
-                            if last_command_except_status == \
+                            if self.last_command_except_status == \
                                     request_and_port_list.poa_request_dictionary["start_poa_package"] \
-                                    or last_command_except_status is None:
+                                    or self.last_command_except_status is None:
                                 if int(binary_status_ctrl[bit_number]) == 1:
                                     srs_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
                                     srs_label.config(bg="PaleGreen3")
@@ -430,7 +428,7 @@ class AdjustmentUtility:
                                     srs_label.config(bg="salmon")
                                     if red_green_status_ctrl == "green":
                                         red_green_status_ctrl = "red"
-                            elif last_command_except_status == \
+                            elif self.last_command_except_status == \
                                     request_and_port_list.poa_request_dictionary["dry_poa_package"]:
                                 if int(binary_status_ctrl[bit_number]) == 0:
                                     srs_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
@@ -449,9 +447,9 @@ class AdjustmentUtility:
                                         red_green_status_ctrl = "red"
 
                         if bit_number == 5:
-                            if last_command_except_status == \
+                            if self.last_command_except_status == \
                                     request_and_port_list.poa_request_dictionary["start_poa_package"] \
-                                    or last_command_except_status is None:
+                                    or self.last_command_except_status is None:
                                 if int(binary_status_ctrl[bit_number]) == 1:
                                     acf_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
                                     acf_label.config(bg="PaleGreen3")
@@ -471,9 +469,9 @@ class AdjustmentUtility:
                                         red_green_status_ctrl = "red"
 
                         if bit_number == 6:
-                            if last_command_except_status == \
+                            if self.last_command_except_status == \
                                     request_and_port_list.poa_request_dictionary["start_poa_package"] \
-                                    or last_command_except_status is None:
+                                    or self.last_command_except_status is None:
                                 if int(binary_status_ctrl[bit_number]) == 1:
                                     wpp_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
                                     wpp_label.config(bg="PaleGreen3")
@@ -482,7 +480,7 @@ class AdjustmentUtility:
                                     wpp_label.config(bg="salmon")
                                     if red_green_status_ctrl == "green":
                                         red_green_status_ctrl = "red"
-                            elif last_command_except_status == \
+                            elif self.last_command_except_status == \
                                     request_and_port_list.poa_request_dictionary["dry_poa_package"]:
                                 if int(binary_status_ctrl[bit_number]) == 0:
                                     wpp_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
@@ -672,24 +670,22 @@ class AdjustmentUtility:
                             stat_ctrl_label.config(text="❌", bg="salmon")
 
         def poa_start_command():
-            global last_command_except_status
             all_grey()
             request_response.command_sender(
                 accepted_request=request_and_port_list.poa_request_dictionary["stop_poa_package"])
             answer = request_response.command_sender(
                 accepted_request=request_and_port_list.poa_request_dictionary["start_poa_package"])
             if answer:
-                last_command_except_status = request_and_port_list.poa_request_dictionary["start_poa_package"]
+                self.last_command_except_status = request_and_port_list.poa_request_dictionary["start_poa_package"]
                 transcript_statuses(answer, request_and_port_list.poa_request_dictionary["start_poa_package"])
                 transcript_other_stuff(answer, request_and_port_list.poa_request_dictionary["start_poa_package"])
 
         def poa_stop_command():
-            global last_command_except_status
             all_grey()
             answer = request_response.command_sender(
                 accepted_request=request_and_port_list.poa_request_dictionary["stop_poa_package"])
             if answer:
-                last_command_except_status = request_and_port_list.poa_request_dictionary["stop_poa_package"]
+                self.last_command_except_status = request_and_port_list.poa_request_dictionary["stop_poa_package"]
                 transcript_statuses(answer, request_and_port_list.poa_request_dictionary["stop_poa_package"])
                 transcript_other_stuff(answer, request_and_port_list.poa_request_dictionary["stop_poa_package"])
 
@@ -707,14 +703,13 @@ class AdjustmentUtility:
                 transcript_other_stuff(answer)
 
         def poa_dry_command():
-            global last_command_except_status
             all_grey()
             request_response.command_sender(
                 accepted_request=request_and_port_list.poa_request_dictionary["stop_poa_package"])
             answer = request_response.command_sender(
                 accepted_request=request_and_port_list.poa_request_dictionary["dry_poa_package"])
             if answer:
-                last_command_except_status = request_and_port_list.poa_request_dictionary["dry_poa_package"]
+                self.last_command_except_status = request_and_port_list.poa_request_dictionary["dry_poa_package"]
                 transcript_statuses(answer, request_and_port_list.poa_request_dictionary["dry_poa_package"])
                 transcript_other_stuff(answer, request_and_port_list.poa_request_dictionary["dry_poa_package"])
 
