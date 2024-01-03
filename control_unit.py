@@ -5,6 +5,7 @@ import request_and_port_list
 import request_response
 
 global last_command_except_status
+last_command_except_status = None
 
 
 class AdjustmentUtility:
@@ -177,12 +178,24 @@ class AdjustmentUtility:
                 pwm_2_dec = int(pwm_2_hex, 16)
                 pwm_1_percent = int(pwm_1_dec * 100 / 254)
                 pwm_2_percent = int(pwm_2_dec * 100 / 254)
-                if pwm_1_percent + pwm_2_percent == 100:
-                    pwm_1_label.config(bg="PaleGreen3", text=str(pwm_1_percent) + "%")
-                    pwm_2_label.config(bg="PaleGreen3", text=str(pwm_2_percent) + "%")
+                if last_command_except_status == request_and_port_list.poa_request_dictionary["dry_poa_package"] \
+                        or last_command_except_status == \
+                        request_and_port_list.poa_request_dictionary["stop_poa_package"]:
+                    if pwm_1_percent < 10:
+                        pwm_1_label.config(bg="PaleGreen3", text=str(pwm_1_percent) + "%")
+                    else:
+                        pwm_1_label.config(bg="salmon", text=str(pwm_1_percent) + "%")
+                    if pwm_2_percent < 10:
+                        pwm_2_label.config(bg="PaleGreen3", text=str(pwm_2_percent) + "%")
+                    else:
+                        pwm_2_label.config(bg="salmon", text=str(pwm_2_percent) + "%")
                 else:
-                    pwm_1_label.config(bg="salmon", text=str(pwm_1_percent) + "%")
-                    pwm_2_label.config(bg="salmon", text=str(pwm_2_percent) + "%")
+                    if pwm_1_percent + pwm_2_percent == 100:
+                        pwm_1_label.config(bg="PaleGreen3", text=str(pwm_1_percent) + "%")
+                        pwm_2_label.config(bg="PaleGreen3", text=str(pwm_2_percent) + "%")
+                    else:
+                        pwm_1_label.config(bg="salmon", text=str(pwm_1_percent) + "%")
+                        pwm_2_label.config(bg="salmon", text=str(pwm_2_percent) + "%")
                 pwm_1_data.config(text=pwm_1_hex.upper())
                 pwm_2_data.config(text=pwm_2_hex.upper())
 
@@ -231,6 +244,8 @@ class AdjustmentUtility:
                             reserve_3_bit.config(text=binary_status_sens[bit_number], bg="PaleGreen3")
                             reserve_3_label.config(bg="PaleGreen3")
                         else:
+                            reserve_3_bit.config(text=binary_status_sens[bit_number], bg="salmon")
+                            reserve_3_label.config(bg="salmon")
                             if red_green_status_sens == "green":
                                 red_green_status_sens = "red"
 
@@ -239,6 +254,8 @@ class AdjustmentUtility:
                             reserve_2_bit.config(text=binary_status_sens[bit_number], bg="PaleGreen3")
                             reserve_2_label.config(bg="PaleGreen3")
                         else:
+                            reserve_2_bit.config(text=binary_status_sens[bit_number], bg="salmon")
+                            reserve_2_label.config(bg="salmon")
                             if red_green_status_sens == "green":
                                 red_green_status_sens = "red"
 
@@ -247,6 +264,8 @@ class AdjustmentUtility:
                             reserve_1_bit.config(text=binary_status_sens[bit_number], bg="PaleGreen3")
                             reserve_1_label.config(bg="PaleGreen3")
                         else:
+                            reserve_1_bit.config(text=binary_status_sens[bit_number], bg="salmon")
+                            reserve_1_label.config(bg="salmon")
                             if red_green_status_sens == "green":
                                 red_green_status_sens = "red"
 
@@ -255,16 +274,18 @@ class AdjustmentUtility:
                             wls_bit.config(text=binary_status_sens[bit_number], bg="PaleGreen3")
                             wls_label.config(bg="PaleGreen3")
                         else:
-                            if red_green_status_sens == "green":
-                                red_green_status_sens = "red"
                             wls_bit.config(text=binary_status_sens[bit_number], bg="salmon")
                             wls_label.config(bg="salmon")
+                            if red_green_status_sens == "green":
+                                red_green_status_sens = "red"
 
                     if bit_number == 4:
-                        if last_command_except_status == request_and_port_list.poa_request_dictionary["stop_poa_package"]:
+                        if last_command_except_status == \
+                                request_and_port_list.poa_request_dictionary["stop_poa_package"]:
                             key_bit.config(text=binary_status_sens[bit_number], bg="PaleGreen3")
                             key_label.config(bg="PaleGreen3")
-                        elif last_command_except_status == request_and_port_list.poa_request_dictionary["dry_poa_package"]:
+                        elif last_command_except_status == \
+                                request_and_port_list.poa_request_dictionary["dry_poa_package"]:
                             if int(binary_status_sens[bit_number]) == 1:
                                 key_bit.config(text=binary_status_sens[bit_number], bg="salmon")
                                 key_label.config(bg="salmon")
@@ -273,7 +294,9 @@ class AdjustmentUtility:
                             else:
                                 key_bit.config(text=binary_status_sens[bit_number], bg="PaleGreen3")
                                 key_label.config(bg="PaleGreen3")
-                        elif last_command_except_status == request_and_port_list.poa_request_dictionary["start_poa_package"]:
+                        elif last_command_except_status == \
+                                request_and_port_list.poa_request_dictionary["start_poa_package"] or \
+                                last_command_except_status is None:
                             if int(binary_status_sens[bit_number]) == 0:
                                 key_bit.config(text=binary_status_sens[bit_number], bg="salmon")
                                 key_label.config(bg="salmon")
@@ -288,31 +311,30 @@ class AdjustmentUtility:
                             svs_bit.config(text=binary_status_sens[bit_number], bg="PaleGreen3")
                             svs_label.config(bg="PaleGreen3")
                         else:
-                            if red_green_status_sens == "green":
-                                red_green_status_sens = "red"
                             svs_bit.config(text=binary_status_sens[bit_number], bg="salmon")
                             svs_label.config(bg="salmon")
+                            if red_green_status_sens == "green":
+                                red_green_status_sens = "red"
 
                     if bit_number == 6:
                         if int(binary_status_sens[bit_number]) == 0:
                             wts2_bit.config(text=binary_status_sens[bit_number], bg="PaleGreen3")
                             wts2_label.config(bg="PaleGreen3")
                         else:
-                            if red_green_status_sens == "green":
-                                red_green_status_sens = "red"
                             wts2_bit.config(text=binary_status_sens[bit_number], bg="salmon")
                             wts2_label.config(bg="salmon")
+                            if red_green_status_sens == "green":
+                                red_green_status_sens = "red"
 
                     if bit_number == 7:
                         if int(binary_status_sens[bit_number]) == 0:
                             wts1_bit.config(text=binary_status_sens[bit_number], bg="PaleGreen3")
                             wts1_label.config(bg="PaleGreen3")
                         else:
-                            if red_green_status_sens == "green":
-                                red_green_status_sens = "red"
                             wts1_bit.config(text=binary_status_sens[bit_number], bg="salmon")
                             wts1_label.config(bg="salmon")
-                            pass
+                            if red_green_status_sens == "green":
+                                red_green_status_sens = "red"
 
                     if red_green_status_sens == "green":
                         stat_sens_label.config(text="OK", bg="PaleGreen3")
@@ -324,11 +346,14 @@ class AdjustmentUtility:
                 #
 
                 for bit_number in range(0, 8):
+
                     if bit_number == 0:
                         if int(binary_status_ctrl[bit_number]) == 0:
                             reserve_5_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
                             reserve_5_label.config(bg="PaleGreen3")
                         else:
+                            reserve_5_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
+                            reserve_5_label.config(bg="salmon")
                             if red_green_status_ctrl == "green":
                                 red_green_status_ctrl = "red"
 
@@ -337,76 +362,314 @@ class AdjustmentUtility:
                             reserve_4_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
                             reserve_4_label.config(bg="PaleGreen3")
                         else:
+                            reserve_4_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
+                            reserve_4_label.config(bg="salmon")
                             if red_green_status_ctrl == "green":
                                 red_green_status_ctrl = "red"
 
-                    if bit_number == 2:
-                        if int(binary_status_ctrl[bit_number]) == 0:
-                            rfe_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
-                            rfe_label.config(bg="PaleGreen3")
-                        else:
-                            if red_green_status_ctrl == "green":
-                                red_green_status_ctrl = "red"
-                            rfe_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
-                            rfe_label.config(bg="salmon")
+                    if send_command == request_and_port_list.poa_request_dictionary["status_poa_package"]:
 
-                    if bit_number == 3:
-                        if int(binary_status_ctrl[bit_number]) == 0:
-                            beeper_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
-                            beeper_label.config(bg="PaleGreen3")
-                        else:
-                            if red_green_status_ctrl == "green":
-                                red_green_status_ctrl = "red"
-                            beeper_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
-                            beeper_label.config(bg="salmon")
+                        if bit_number == 2:
+                            if last_command_except_status == \
+                                    request_and_port_list.poa_request_dictionary["start_poa_package"] \
+                                    or last_command_except_status is None:
+                                if int(binary_status_ctrl[bit_number]) == 1:
+                                    rfe_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
+                                    rfe_label.config(bg="PaleGreen3")
+                                else:
+                                    rfe_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
+                                    rfe_label.config(bg="salmon")
+                                    if red_green_status_ctrl == "green":
+                                        red_green_status_ctrl = "red"
+                            elif last_command_except_status == \
+                                    request_and_port_list.poa_request_dictionary["dry_poa_package"]:
+                                if int(binary_status_ctrl[bit_number]) == 0:
+                                    rfe_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
+                                    rfe_label.config(bg="PaleGreen3")
+                                else:
+                                    rfe_bit.config(text=binary_status_ctrl[bit_number], bg="RoyalBlue1")
+                                    rfe_label.config(bg="RoyalBlue1")
+                            else:
+                                if int(binary_status_ctrl[bit_number]) == 0:
+                                    rfe_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
+                                    rfe_label.config(bg="PaleGreen3")
+                                else:
+                                    rfe_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
+                                    rfe_label.config(bg="salmon")
+                                    if red_green_status_ctrl == "green":
+                                        red_green_status_ctrl = "red"
 
-                    if bit_number == 4:
-                        if int(binary_status_ctrl[bit_number]) == 0:
-                            srs_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
-                            srs_label.config(bg="PaleGreen3")
-                        else:
-                            if red_green_status_ctrl == "green":
-                                red_green_status_ctrl = "red"
-                            srs_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
-                            srs_label.config(bg="salmon")
+                        if bit_number == 3:
+                            if last_command_except_status == \
+                                    request_and_port_list.poa_request_dictionary["dry_poa_package"]:
+                                if int(binary_status_ctrl[bit_number]) == 0:
+                                    beeper_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
+                                    beeper_label.config(bg="PaleGreen3")
+                                else:
+                                    beeper_bit.config(text=binary_status_ctrl[bit_number], bg="RoyalBlue1")
+                                    beeper_label.config(bg="RoyalBlue1")
+                            else:
+                                if int(binary_status_ctrl[bit_number]) == 0:
+                                    beeper_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
+                                    beeper_label.config(bg="PaleGreen3")
+                                else:
+                                    beeper_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
+                                    beeper_label.config(bg="salmon")
+                                    if red_green_status_ctrl == "green":
+                                        red_green_status_ctrl = "red"
 
-                    if bit_number == 5:
-                        if int(binary_status_ctrl[bit_number]) == 0:
-                            acf_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
-                            acf_label.config(bg="PaleGreen3")
-                        else:
-                            if red_green_status_ctrl == "green":
-                                red_green_status_ctrl = "red"
-                            acf_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
-                            acf_label.config(bg="salmon")
+                        if bit_number == 4:
+                            if last_command_except_status == \
+                                    request_and_port_list.poa_request_dictionary["start_poa_package"] \
+                                    or last_command_except_status is None:
+                                if int(binary_status_ctrl[bit_number]) == 1:
+                                    srs_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
+                                    srs_label.config(bg="PaleGreen3")
+                                else:
+                                    srs_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
+                                    srs_label.config(bg="salmon")
+                                    if red_green_status_ctrl == "green":
+                                        red_green_status_ctrl = "red"
+                            elif last_command_except_status == \
+                                    request_and_port_list.poa_request_dictionary["dry_poa_package"]:
+                                if int(binary_status_ctrl[bit_number]) == 0:
+                                    srs_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
+                                    srs_label.config(bg="PaleGreen3")
+                                else:
+                                    srs_bit.config(text=binary_status_ctrl[bit_number], bg="RoyalBlue1")
+                                    srs_label.config(bg="RoyalBlue1")
+                            else:
+                                if int(binary_status_ctrl[bit_number]) == 0:
+                                    srs_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
+                                    srs_label.config(bg="PaleGreen3")
+                                else:
+                                    srs_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
+                                    srs_label.config(bg="salmon")
+                                    if red_green_status_ctrl == "green":
+                                        red_green_status_ctrl = "red"
 
-                    if bit_number == 6:
-                        if int(binary_status_ctrl[bit_number]) == 0:
-                            wpp_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
-                            wpp_label.config(bg="PaleGreen3")
-                        else:
-                            if red_green_status_ctrl == "green":
-                                red_green_status_ctrl = "red"
-                            wpp_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
-                            wpp_label.config(bg="salmon")
+                        if bit_number == 5:
+                            if last_command_except_status == \
+                                    request_and_port_list.poa_request_dictionary["start_poa_package"] \
+                                    or last_command_except_status is None:
+                                if int(binary_status_ctrl[bit_number]) == 1:
+                                    acf_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
+                                    acf_label.config(bg="PaleGreen3")
+                                else:
+                                    acf_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
+                                    acf_label.config(bg="salmon")
+                                    if red_green_status_ctrl == "green":
+                                        red_green_status_ctrl = "red"
+                            else:
+                                if int(binary_status_ctrl[bit_number]) == 0:
+                                    acf_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
+                                    acf_label.config(bg="PaleGreen3")
+                                else:
+                                    acf_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
+                                    acf_label.config(bg="salmon")
+                                    if red_green_status_ctrl == "green":
+                                        red_green_status_ctrl = "red"
+
+                        if bit_number == 6:
+                            if last_command_except_status == \
+                                    request_and_port_list.poa_request_dictionary["start_poa_package"] \
+                                    or last_command_except_status is None:
+                                if int(binary_status_ctrl[bit_number]) == 1:
+                                    wpp_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
+                                    wpp_label.config(bg="PaleGreen3")
+                                else:
+                                    wpp_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
+                                    wpp_label.config(bg="salmon")
+                                    if red_green_status_ctrl == "green":
+                                        red_green_status_ctrl = "red"
+                            elif last_command_except_status == \
+                                    request_and_port_list.poa_request_dictionary["dry_poa_package"]:
+                                if int(binary_status_ctrl[bit_number]) == 0:
+                                    wpp_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
+                                    wpp_label.config(bg="PaleGreen3")
+                                else:
+                                    wpp_bit.config(text=binary_status_ctrl[bit_number], bg="RoyalBlue1")
+                                    wpp_label.config(bg="RoyalBlue1")
+                            else:
+                                if int(binary_status_ctrl[bit_number]) == 0:
+                                    wpp_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
+                                    wpp_label.config(bg="PaleGreen3")
+                                else:
+                                    wpp_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
+                                    wpp_label.config(bg="salmon")
+                                    if red_green_status_ctrl == "green":
+                                        red_green_status_ctrl = "red"
+
+                    if send_command == request_and_port_list.poa_request_dictionary["start_poa_package"]:
+
+                        if bit_number == 2:
+                            if int(binary_status_ctrl[bit_number]) == 0:
+                                rfe_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
+                                rfe_label.config(bg="PaleGreen3")
+                            else:
+                                rfe_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
+                                rfe_label.config(bg="salmon")
+                                if red_green_status_ctrl == "green":
+                                    red_green_status_ctrl = "red"
+
+                        if bit_number == 3:
+                            if int(binary_status_ctrl[bit_number]) == 0:
+                                beeper_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
+                                beeper_label.config(bg="PaleGreen3")
+                            else:
+                                beeper_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
+                                beeper_label.config(bg="salmon")
+                                if red_green_status_ctrl == "green":
+                                    red_green_status_ctrl = "red"
+
+                        if bit_number == 4:
+                            if int(binary_status_ctrl[bit_number]) == 1:
+                                srs_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
+                                srs_label.config(bg="PaleGreen3")
+                            else:
+                                srs_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
+                                srs_label.config(bg="salmon")
+                                if red_green_status_ctrl == "green":
+                                    red_green_status_ctrl = "red"
+
+                        if bit_number == 5:
+                            if int(binary_status_ctrl[bit_number]) == 1:
+                                acf_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
+                                acf_label.config(bg="PaleGreen3")
+                            else:
+                                acf_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
+                                acf_label.config(bg="salmon")
+                                if red_green_status_ctrl == "green":
+                                    red_green_status_ctrl = "red"
+
+                        if bit_number == 6:
+                            if int(binary_status_ctrl[bit_number]) == 0:
+                                wpp_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
+                                wpp_label.config(bg="PaleGreen3")
+                            else:
+                                wpp_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
+                                wpp_label.config(bg="salmon")
+                                if red_green_status_ctrl == "green":
+                                    red_green_status_ctrl = "red"
+
+                    if send_command == request_and_port_list.poa_request_dictionary["stop_poa_package"]:
+
+                        if bit_number == 2:
+                            if int(binary_status_ctrl[bit_number]) == 1:
+                                rfe_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
+                                rfe_label.config(bg="PaleGreen3")
+                            else:
+                                rfe_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
+                                rfe_label.config(bg="salmon")
+                                if red_green_status_ctrl == "green":
+                                    red_green_status_ctrl = "red"
+
+                        if bit_number == 3:
+                            if int(binary_status_ctrl[bit_number]) == 0:
+                                beeper_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
+                                beeper_label.config(bg="PaleGreen3")
+                            else:
+                                beeper_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
+                                beeper_label.config(bg="salmon")
+                                if red_green_status_ctrl == "green":
+                                    red_green_status_ctrl = "red"
+
+                        if bit_number == 4:
+                            if int(binary_status_ctrl[bit_number]) == 1:
+                                srs_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
+                                srs_label.config(bg="PaleGreen3")
+                            else:
+                                srs_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
+                                srs_label.config(bg="salmon")
+                                if red_green_status_ctrl == "green":
+                                    red_green_status_ctrl = "red"
+
+                        if bit_number == 5:
+                            if int(binary_status_ctrl[bit_number]) == 0:
+                                acf_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
+                                acf_label.config(bg="PaleGreen3")
+                            else:
+                                acf_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
+                                acf_label.config(bg="salmon")
+                                if red_green_status_ctrl == "green":
+                                    red_green_status_ctrl = "red"
+
+                        if bit_number == 6:
+                            if int(binary_status_ctrl[bit_number]) == 1:
+                                wpp_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
+                                wpp_label.config(bg="PaleGreen3")
+                            else:
+                                wpp_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
+                                wpp_label.config(bg="salmon")
+                                if red_green_status_ctrl == "green":
+                                    red_green_status_ctrl = "red"
+
+                    if send_command == request_and_port_list.poa_request_dictionary["dry_poa_package"]:
+
+                        if bit_number == 2:
+                            if int(binary_status_ctrl[bit_number]) == 0:
+                                rfe_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
+                                rfe_label.config(bg="PaleGreen3")
+                            else:
+                                rfe_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
+                                rfe_label.config(bg="salmon")
+                                if red_green_status_ctrl == "green":
+                                    red_green_status_ctrl = "red"
+
+                        if bit_number == 3:
+                            if int(binary_status_ctrl[bit_number]) == 0:
+                                beeper_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
+                                beeper_label.config(bg="PaleGreen3")
+                            else:
+                                beeper_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
+                                beeper_label.config(bg="salmon")
+                                if red_green_status_ctrl == "green":
+                                    red_green_status_ctrl = "red"
+
+                        if bit_number == 4:
+                            if int(binary_status_ctrl[bit_number]) == 1:
+                                srs_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
+                                srs_label.config(bg="PaleGreen3")
+                            else:
+                                srs_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
+                                srs_label.config(bg="salmon")
+                                if red_green_status_ctrl == "green":
+                                    red_green_status_ctrl = "red"
+
+                        if bit_number == 5:
+                            if int(binary_status_ctrl[bit_number]) == 0:
+                                acf_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
+                                acf_label.config(bg="PaleGreen3")
+                            else:
+                                acf_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
+                                acf_label.config(bg="salmon")
+                                if red_green_status_ctrl == "green":
+                                    red_green_status_ctrl = "red"
+
+                        if bit_number == 6:
+                            if int(binary_status_ctrl[bit_number]) == 0:
+                                wpp_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
+                                wpp_label.config(bg="PaleGreen3")
+                            else:
+                                wpp_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
+                                wpp_label.config(bg="salmon")
+                                if red_green_status_ctrl == "green":
+                                    red_green_status_ctrl = "red"
 
                     if bit_number == 7:
                         if int(binary_status_ctrl[bit_number]) == 0:
                             rfp_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
                             rfp_label.config(bg="PaleGreen3")
                         else:
-                            if red_green_status_ctrl == "green":
-                                red_green_status_ctrl = "red"
                             rfp_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
                             rfp_label.config(bg="salmon")
-                            pass
+                            if red_green_status_ctrl == "green":
+                                red_green_status_ctrl = "red"
 
-                    if red_green_status_ctrl == "green":
-                        stat_ctrl_label.config(text="OK", bg="PaleGreen3")
-                    else:
-                        stat_ctrl_label.config(text="❌", bg="salmon")
-
-                pass
+                        if red_green_status_ctrl == "green":
+                            stat_ctrl_label.config(text="OK", bg="PaleGreen3")
+                        else:
+                            stat_ctrl_label.config(text="❌", bg="salmon")
 
         def poa_start_command():
             global last_command_except_status
