@@ -1,8 +1,10 @@
 from tkinter import *
 from tkinter import ttk
+from datetime import datetime
 
 import request_and_port_list
 import request_response
+import serial
 
 
 class AdjustmentUtility:
@@ -116,7 +118,7 @@ class AdjustmentUtility:
             def transcript_status_t_max():
                 t_max_hex = recieved_command[6] + recieved_command[7]
                 t_max_dec = int(t_max_hex, 16)
-                if 10 <= t_max_dec <= 40:
+                if 10 <= t_max_dec <= 45:
                     t_max_label.config(bg="PaleGreen3")
                 else:
                     t_max_label.config(bg="salmon")
@@ -127,7 +129,7 @@ class AdjustmentUtility:
             def transcript_status_t_min():
                 t_min_hex = recieved_command[8] + recieved_command[9]
                 t_min_dec = int(t_min_hex, 16)
-                if 10 <= t_min_dec <= 40:
+                if 10 <= t_min_dec <= 45:
                     t_min_label.config(bg="PaleGreen3")
                 else:
                     t_min_label.config(bg="salmon")
@@ -154,16 +156,13 @@ class AdjustmentUtility:
                 flow_label.config(text=str(flow_real))
                 flow_data.config(text=flow_hex.upper())
 
-                print('self.last_command_except_status = ' + str(self.last_command_except_status))
-                print(request_and_port_list.poa_request_dictionary["stop_poa_package"])
-                print("****************************************\n\n\n")
-
             # расшифровка поля errors
             def transcript_status_errors():
-                print(recieved_command)
                 errors_hex = recieved_command[12] + recieved_command[13]
                 if errors_hex == "00":
                     errors_label.config(bg="PaleGreen3", text="OK")
+                elif errors_hex == "10":
+                    errors_label.config(bg="RoyalBlue1", text=errors_hex)
                 else:
                     errors_label.config(bg="salmon", text=errors_hex)
                 errors_data.config(text=errors_hex.upper())
@@ -220,6 +219,9 @@ class AdjustmentUtility:
             check_crc()
 
         def transcript_statuses(recieved_command=None, send_command=None):
+            if self.last_command_except_status is None:
+                self.last_command_except_status = request_and_port_list.poa_request_dictionary["start_poa_package"]
+
             if recieved_command:
 
                 # Превращает из хексов в бины и выводит значения
@@ -655,14 +657,42 @@ class AdjustmentUtility:
                                     red_green_status_ctrl = "red"
 
                     if bit_number == 7:
-                        if int(binary_status_ctrl[bit_number]) == 0:
-                            rfp_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
-                            rfp_label.config(bg="PaleGreen3")
+                        t_min_hex = recieved_command[8] + recieved_command[9]
+                        t_min_dec = int(t_min_hex, 16)
+                        t_max_hex = recieved_command[6] + recieved_command[7]
+                        t_max_dec = int(t_max_hex, 16)
+
+                        if send_command == request_and_port_list.poa_request_dictionary["status_poa_package"]:
+                            if t_max_dec > 31 and self.last_command_except_status == \
+                                    request_and_port_list.poa_request_dictionary["start_poa_package"] or \
+                                    t_min_dec > 31 and self.last_command_except_status == \
+                                    request_and_port_list.poa_request_dictionary["start_poa_package"]:
+                                if int(binary_status_ctrl[bit_number]) == 1:
+                                    rfp_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
+                                    rfp_label.config(bg="PaleGreen3")
+                                else:
+                                    rfp_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
+                                    rfp_label.config(bg="salmon")
+                                    if red_green_status_ctrl == "green":
+                                        red_green_status_ctrl = "red"
+                            else:
+                                if int(binary_status_ctrl[bit_number]) == 0:
+                                    rfp_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
+                                    rfp_label.config(bg="PaleGreen3")
+                                else:
+                                    rfp_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
+                                    rfp_label.config(bg="salmon")
+                                    if red_green_status_ctrl == "green":
+                                        red_green_status_ctrl = "red"
                         else:
-                            rfp_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
-                            rfp_label.config(bg="salmon")
-                            if red_green_status_ctrl == "green":
-                                red_green_status_ctrl = "red"
+                            if int(binary_status_ctrl[bit_number]) == 0:
+                                rfp_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
+                                rfp_label.config(bg="PaleGreen3")
+                            else:
+                                rfp_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
+                                rfp_label.config(bg="salmon")
+                                if red_green_status_ctrl == "green":
+                                    red_green_status_ctrl = "red"
 
                         if red_green_status_ctrl == "green":
                             stat_ctrl_label.config(text="OK", bg="PaleGreen3")
@@ -691,8 +721,15 @@ class AdjustmentUtility:
 
         def poa_version_command():
             all_grey()
-            request_response.command_sender(
+            answer = request_response.command_sender(
                 accepted_request=request_and_port_list.poa_request_dictionary["version_poa_package"])
+            if answer:
+                current_datetime = datetime.now()
+                self.info_text_box.insert(END, str(current_datetime.hour) + ":" + str(current_datetime.minute)
+                                          + ":" + str(current_datetime.second) + "  ✔  Ответ от контроллера:\n- " +
+                                          answer + "\n", 'tag_green_text')
+            else:
+                self.info_text_box.insert(END, "❌ Нет ответа контроллера \n", 'tag_red_text')
 
         def poa_status_command():
             all_grey()
@@ -1068,9 +1105,11 @@ class AdjustmentUtility:
         frame_for_version_info_buttons.pack(side=LEFT, padx=4, pady=1, fill=X)
 
         # подполе мини-терминала
-        info_text_box = Listbox(self.frame_for_units, relief=GROOVE, width=55, height=6,
-                                selectbackground="grey60")
-        info_text_box.pack(side=RIGHT, padx=10, pady=10, fill=X)
+        self.info_text_box = Text(self.frame_for_units, relief=GROOVE, width=40, height=6,
+                                  selectbackground="grey60")
+        self.info_text_box.pack(side=RIGHT, padx=10, pady=10, fill=X)
+        self.info_text_box.tag_config('tag_red_text', foreground='red')
+        self.info_text_box.tag_config('tag_green_text', foreground='green')
 
         # подполе кнопок управления
         start_button = Button(frame_for_start_stop_buttons, text="Start", relief=GROOVE, width=14, height=2,
@@ -1191,7 +1230,28 @@ class AdjustmentUtility:
         pass
 
     def set_parameters(self):
-        pass
+        bytesize = self.bytesize_combobox.get()
+        request_and_port_list.com_port_settings["bytesize"] = bytesize
+        self.bytesize_combobox.configure(foreground="green3")
+        timeout = self.timeout_combobox.get()
+        request_and_port_list.com_port_settings["baudrate"] = timeout
+        self.timeout_combobox.configure(foreground="green3")
+        baudrate = self.baudrate_combobox.get()
+        request_and_port_list.com_port_settings["baudrate"] = baudrate
+        self.baudrate_combobox.configure(foreground="green3")
+        comport = self.port_combobox.get()
+        request_and_port_list.com_port_settings["comport"] = comport
+        self.port_combobox.configure(foreground="green3")
+        print("Ответ после кнопки SET:")
+        print(request_and_port_list.com_port_settings)
+        try:
+            serial.Serial(request_and_port_list.com_port_settings["comport"])
+            self.set_button.configure(background="PaleGreen3")
+            self.info_text_box.insert(END, "✔ Подключено к порту " + comport + "\n", 'tag_green_text')
+        except serial.serialutil.SerialException:
+            self.port_combobox.configure(foreground="brown1")
+            self.set_button.configure(background="brown1")
+            self.info_text_box.insert(END, "❌ Порт " + comport + " недоступен\n", 'tag_red_text')
 
     def manual_parameters(self):
         self.auto_button.configure(bg="gray60", state="normal", relief=GROOVE)
@@ -1348,7 +1408,7 @@ class AdjustmentUtility:
         self.terminal_open = not self.terminal_open
 
     def main_frame_unit(self):
-        """Запускает первичное окно с возможностью первичного просмотра баз данных, добавления, удаления, открытия"""
+        """Запускает первичное окно с основным функционалом, в которое потом интегрируются модули каждой из систем"""
 
         self.start_window = Tk()
         self.start_window.title("Adjustment utility")
@@ -1426,8 +1486,9 @@ class AdjustmentUtility:
         baudrate_label = Label(frame_for_settings, text="Baudrate:", width=8, height=2, bg="gray90")
         baudrate_label.pack(side=RIGHT, padx=3, pady=1)
 
-        port_numbers = ["COM25", "2", "3", "4"]
-        self.port_combobox = ttk.Combobox(frame_for_settings, values=port_numbers, width=8, height=2, state="readonly")
+        port_numbers = ["COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9", "COM10", "COM11",
+                        "COM12", "COM13", "COM14", "COM15", "COM16", "COM17", "COM18", "COM19", "COM20"]
+        self.port_combobox = ttk.Combobox(frame_for_settings, values=port_numbers, width=8, height=5, state="readonly")
         self.port_combobox.pack(side=RIGHT, padx=3, pady=1)
 
         port_label = Label(frame_for_settings, text="Serial port:", width=8, height=2, bg="gray90")
