@@ -2,6 +2,8 @@ from tkinter import *
 from tkinter import ttk
 import serial
 import time
+
+import control_unit
 import request_response
 import request_and_port_list
 
@@ -113,6 +115,11 @@ class Gui:
                                 poa_label.config(background="SeaGreen1")
                                 poa_label.update()
                                 answer = request_name
+                                if self.start_window:
+                                    self.start_window.destroy()
+                                if self.full_auto_init_window:
+                                    self.full_auto_init_window.destroy()
+                                control_unit.AdjustmentUtility().main_frame_unit(request_name)
                                 return answer
                             else:
                                 poa_label.config(background="gray90")

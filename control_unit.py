@@ -1,10 +1,10 @@
+import time
 from tkinter import *
 from tkinter import ttk
-from datetime import datetime
+import serial
 
 import request_and_port_list
 import request_response
-import serial
 
 
 class AdjustmentUtility:
@@ -41,7 +41,7 @@ class AdjustmentUtility:
 
         self.last_command_except_status = None
 
-    def poa_unit(self):
+    def poa_unit(self, auto=False):
 
         def all_grey():
             # Верхние поля отображения статусов
@@ -159,10 +159,8 @@ class AdjustmentUtility:
             # расшифровка поля errors
             def transcript_status_errors():
                 errors_hex = recieved_command[12] + recieved_command[13]
-                if errors_hex == "00":
+                if errors_hex == "00" or errors_hex == "10":
                     errors_label.config(bg="PaleGreen3", text="OK")
-                elif errors_hex == "10":
-                    errors_label.config(bg="RoyalBlue1", text=errors_hex)
                 else:
                     errors_label.config(bg="salmon", text=errors_hex)
                 errors_data.config(text=errors_hex.upper())
@@ -559,10 +557,8 @@ class AdjustmentUtility:
                                 rfe_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
                                 rfe_label.config(bg="PaleGreen3")
                             else:
-                                rfe_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
-                                rfe_label.config(bg="salmon")
-                                if red_green_status_ctrl == "green":
-                                    red_green_status_ctrl = "red"
+                                rfe_bit.config(text=binary_status_ctrl[bit_number], bg="RoyalBlue1")
+                                rfe_label.config(bg="RoyalBlue1")
 
                         if bit_number == 3:
                             if int(binary_status_ctrl[bit_number]) == 0:
@@ -599,10 +595,8 @@ class AdjustmentUtility:
                                 wpp_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
                                 wpp_label.config(bg="PaleGreen3")
                             else:
-                                wpp_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
-                                wpp_label.config(bg="salmon")
-                                if red_green_status_ctrl == "green":
-                                    red_green_status_ctrl = "red"
+                                wpp_bit.config(text=binary_status_ctrl[bit_number], bg="RoyalBlue1")
+                                wpp_label.config(bg="RoyalBlue1")
 
                     if send_command == request_and_port_list.poa_request_dictionary["dry_poa_package"]:
 
@@ -699,45 +693,82 @@ class AdjustmentUtility:
                         else:
                             stat_ctrl_label.config(text="❌", bg="salmon")
 
-        def poa_start_command():
+        def poa_start_command(manual_check=True):
             all_grey()
             request_response.command_sender(
                 accepted_request=request_and_port_list.poa_request_dictionary["stop_poa_package"])
             answer = request_response.command_sender(
                 accepted_request=request_and_port_list.poa_request_dictionary["start_poa_package"])
             if answer:
+                print(answer)
+                if manual_check:
+                    self.info_text_box.insert(END, "✔ Команда выполнена, ответ получен\n", 'tag_green_text')
+                    self.info_text_box.yview(END)
                 self.last_command_except_status = request_and_port_list.poa_request_dictionary["start_poa_package"]
                 transcript_statuses(answer, request_and_port_list.poa_request_dictionary["start_poa_package"])
                 transcript_other_stuff(answer, request_and_port_list.poa_request_dictionary["start_poa_package"])
+                if manual_check:
+                    self.info_text_box.insert(END, " состояние расшифровано\n", 'tag_green_text')
+                    self.info_text_box.yview(END)
+            else:
+                if manual_check:
+                    self.info_text_box.insert(END, "❌ Нет ответа контроллера\n * проверьте подключение устройства *\n",
+                                              'tag_red_text')
+                    self.info_text_box.yview(END)
 
         def poa_stop_command():
             all_grey()
             answer = request_response.command_sender(
                 accepted_request=request_and_port_list.poa_request_dictionary["stop_poa_package"])
             if answer:
+                self.info_text_box.insert(END, "✔ Команда выполнена, ответ получен\n", 'tag_green_text')
+                self.info_text_box.yview(END)
                 self.last_command_except_status = request_and_port_list.poa_request_dictionary["stop_poa_package"]
                 transcript_statuses(answer, request_and_port_list.poa_request_dictionary["stop_poa_package"])
                 transcript_other_stuff(answer, request_and_port_list.poa_request_dictionary["stop_poa_package"])
+                self.info_text_box.insert(END, " состояние расшифровано\n", 'tag_green_text')
+                self.info_text_box.yview(END)
+            else:
+                self.info_text_box.insert(END, "❌ Нет ответа контроллера\n * проверьте подключение устройства *\n",
+                                          'tag_red_text')
+                self.info_text_box.yview(END)
 
         def poa_version_command():
             all_grey()
             answer = request_response.command_sender(
                 accepted_request=request_and_port_list.poa_request_dictionary["version_poa_package"])
             if answer:
-                current_datetime = datetime.now()
-                self.info_text_box.insert(END, str(current_datetime.hour) + ":" + str(current_datetime.minute)
-                                          + ":" + str(current_datetime.second) + "  ✔  Ответ от контроллера:\n- " +
-                                          answer + "\n", 'tag_green_text')
+                version_answer_hex = str()
+                for bit_number in range(2, 16):
+                    version_answer_hex = str(version_answer_hex) + str(answer[bit_number])
+                version_answer_ascii = bytearray.fromhex(version_answer_hex).decode(encoding='ascii')
+                self.info_text_box.insert(END, "✔ Ответ от контроллера:\n", 'tag_green_text')
+                self.info_text_box.insert(END, "⫸ HEX:    " + answer.upper() + "\n⫸ ASCII:  " + version_answer_ascii +
+                                          "\n", 'tag_black_text')
+                self.info_text_box.yview(END)
             else:
-                self.info_text_box.insert(END, "❌ Нет ответа контроллера \n", 'tag_red_text')
+                self.info_text_box.insert(END, "❌ Нет ответа контроллера\n * проверьте подключение устройства *\n",
+                                          'tag_red_text')
+                self.info_text_box.yview(END)
 
-        def poa_status_command():
+        def poa_status_command(manual_check=True):
             all_grey()
             answer = request_response.command_sender(
                 accepted_request=request_and_port_list.poa_request_dictionary["status_poa_package"])
             if answer:
+                if manual_check:
+                    self.info_text_box.insert(END, "✔ Команда выполнена, ответ получен\n", 'tag_green_text')
+                    self.info_text_box.yview(END)
                 transcript_statuses(answer, request_and_port_list.poa_request_dictionary["status_poa_package"])
                 transcript_other_stuff(answer)
+                if manual_check:
+                    self.info_text_box.insert(END, " состояние расшифровано\n", 'tag_green_text')
+                    self.info_text_box.yview(END)
+            else:
+                if manual_check:
+                    self.info_text_box.insert(END, "❌ Нет ответа контроллера\n * проверьте подключение устройства *\n",
+                                              'tag_red_text')
+                    self.info_text_box.yview(END)
 
         def poa_dry_command():
             all_grey()
@@ -746,9 +777,17 @@ class AdjustmentUtility:
             answer = request_response.command_sender(
                 accepted_request=request_and_port_list.poa_request_dictionary["dry_poa_package"])
             if answer:
+                self.info_text_box.insert(END, "✔ Команда выполнена, ответ получен\n", 'tag_green_text')
+                self.info_text_box.yview(END)
                 self.last_command_except_status = request_and_port_list.poa_request_dictionary["dry_poa_package"]
                 transcript_statuses(answer, request_and_port_list.poa_request_dictionary["dry_poa_package"])
                 transcript_other_stuff(answer, request_and_port_list.poa_request_dictionary["dry_poa_package"])
+                self.info_text_box.insert(END, " состояние расшифровано\n", 'tag_green_text')
+                self.info_text_box.yview(END)
+            else:
+                self.info_text_box.insert(END, "❌ Нет ответа контроллера\n * проверьте подключение устройства *\n",
+                                          'tag_red_text')
+                self.info_text_box.yview(END)
 
         def poa_info_command():
             pass
@@ -757,15 +796,6 @@ class AdjustmentUtility:
         self.frame_for_units.destroy()
         self.frame_for_units = LabelFrame(self.start_window, bg="gray90")
         self.frame_for_units.pack(side=TOP, padx=1, pady=1, fill=X)
-
-        # Изменяет состояние кнопок в окне
-        self.poa_button.configure(bg="green3", state='disabled', relief=RIDGE)
-        self.sth1_button.configure(bg="gray60", state='normal', relief=GROOVE)
-        self.sth2_button.configure(bg="gray60", state='normal', relief=GROOVE)
-        self.sth3_button.configure(bg="gray60", state='normal', relief=GROOVE)
-        self.as_button.configure(bg="gray60", state='normal', relief=GROOVE)
-        self.sc_button.configure(bg="gray60", state='normal', relief=GROOVE)
-        self.ck_button.configure(bg="gray60", state='normal', relief=GROOVE)
 
         # Заполняет настройки серийного порта
         self.bytesize_combobox.set(request_and_port_list.com_port_settings["bytesize"])
@@ -1105,11 +1135,12 @@ class AdjustmentUtility:
         frame_for_version_info_buttons.pack(side=LEFT, padx=4, pady=1, fill=X)
 
         # подполе мини-терминала
-        self.info_text_box = Text(self.frame_for_units, relief=GROOVE, width=40, height=6,
+        self.info_text_box = Text(self.frame_for_units, relief=GROOVE, width=41, height=6,
                                   selectbackground="grey60")
-        self.info_text_box.pack(side=RIGHT, padx=10, pady=10, fill=X)
+        self.info_text_box.pack(side=RIGHT, padx=13, pady=10, fill=X)
         self.info_text_box.tag_config('tag_red_text', foreground='red')
         self.info_text_box.tag_config('tag_green_text', foreground='green')
+        self.info_text_box.tag_config('tag_black_text', foreground='black')
 
         # подполе кнопок управления
         start_button = Button(frame_for_start_stop_buttons, text="Start", relief=GROOVE, width=14, height=2,
@@ -1135,6 +1166,92 @@ class AdjustmentUtility:
         status_button = Button(frame_for_dry_status_buttons, text="Status", relief=GROOVE, width=14, height=2,
                                bg="gray60", command=poa_status_command)
         status_button.pack(side=TOP, pady=4, padx=4)
+
+        # Изменяет состояние кнопок в окне
+        if auto:
+            self.poa_button.configure(bg="green3", state='disabled', relief=RIDGE)
+            self.sth1_button.configure(bg="gray60", state='disabled', relief=GROOVE)
+            self.sth2_button.configure(bg="gray60", state='disabled', relief=GROOVE)
+            self.sth3_button.configure(bg="gray60", state='disabled', relief=GROOVE)
+            self.as_button.configure(bg="gray60", state='disabled', relief=GROOVE)
+            self.sc_button.configure(bg="gray60", state='disabled', relief=GROOVE)
+            self.ck_button.configure(bg="gray60", state='disabled', relief=GROOVE)
+            start_button.configure(bg="gray60", state='disabled', relief=GROOVE)
+            stop_button.configure(bg="gray60", state='disabled', relief=GROOVE)
+            version_button.configure(bg="gray60", state='disabled', relief=GROOVE)
+            info_button.configure(bg="gray60", state='disabled', relief=GROOVE)
+            dry_button.configure(bg="gray60", state='disabled', relief=GROOVE)
+            status_button.configure(bg="gray60", state='disabled', relief=GROOVE)
+        else:
+            self.poa_button.configure(bg="green3", state='disabled', relief=RIDGE)
+            self.sth1_button.configure(bg="gray60", state='normal', relief=GROOVE)
+            self.sth2_button.configure(bg="gray60", state='normal', relief=GROOVE)
+            self.sth3_button.configure(bg="gray60", state='normal', relief=GROOVE)
+            self.as_button.configure(bg="gray60", state='normal', relief=GROOVE)
+            self.sc_button.configure(bg="gray60", state='normal', relief=GROOVE)
+            self.ck_button.configure(bg="gray60", state='normal', relief=GROOVE)
+
+        if auto:
+            self.start_window.update_idletasks()
+            self.info_text_box.insert(END, "⫸ Прогресс ◖▒▒▒▒▒▒▒▒▒▒ 00% ▒▒▒▒▒▒▒▒▒▒◗\n", 'tag_green_text')
+            self.info_text_box.insert(END, "⫸ Проверка выполнения команды START\n", 'tag_black_text')
+            self.info_text_box.yview(END)
+            self.start_window.update_idletasks()
+            poa_start_command(False)
+            self.info_text_box.insert(END, "✔ Ответ получен и проверен\n", 'tag_green_text')
+            self.info_text_box.yview(END)
+            self.start_window.update_idletasks()
+            time.sleep(1)
+            self.info_text_box.delete('1.0', END)
+            self.info_text_box.insert(END, "⫸ Прогресс ◖██▒▒▒▒▒▒▒▒ 10% ▒▒▒▒▒▒▒▒▒▒◗\n", 'tag_green_text')
+            self.info_text_box.insert(END, "⫸ Проверка выполнения опроса состояния \nсистемы (STATUS) - "
+                                           "[общий анализ]\n", 'tag_black_text')
+            self.info_text_box.yview(END)
+            self.start_window.update_idletasks()
+            poa_status_command(False)
+            self.info_text_box.insert(END, "✔ Ответ получен и проверен\n", 'tag_green_text')
+            self.info_text_box.yview(END)
+            self.start_window.update_idletasks()
+            time.sleep(1)
+            self.info_text_box.delete('1.0', END)
+            self.info_text_box.insert(END, "⫸ Прогресс ◖████▒▒▒▒▒▒ 20% ▒▒▒▒▒▒▒▒▒▒◗\n", 'tag_green_text')
+            self.info_text_box.insert(END, "⫸ Проверка выполнения опроса состояния \nсистемы (STATUS) - запрос [1]\n",
+                                      'tag_black_text')
+            self.info_text_box.yview(END)
+            self.start_window.update_idletasks()
+            time.sleep(0.1)
+            poa_status_command(False)
+            self.info_text_box.delete('1.0', END)
+            self.info_text_box.insert(END, "⫸ Прогресс ◖████▒▒▒▒▒▒ 22% ▒▒▒▒▒▒▒▒▒▒◗\n", 'tag_green_text')
+            self.info_text_box.insert(END, "⫸ Проверка выполнения опроса состояния \nсистемы (STATUS) - запрос [2]\n",
+                                      'tag_black_text')
+            self.info_text_box.yview(END)
+            self.start_window.update_idletasks()
+            time.sleep(0.1)
+            poa_status_command(False)
+            self.info_text_box.delete('1.0', END)
+            self.info_text_box.insert(END, "⫸ Прогресс ◖█████▒▒▒▒▒ 25% ▒▒▒▒▒▒▒▒▒▒◗\n", 'tag_green_text')
+            self.info_text_box.insert(END, "⫸ Проверка выполнения опроса состояния \nсистемы (STATUS) - запрос [3]\n",
+                                      'tag_black_text')
+            self.info_text_box.yview(END)
+            self.start_window.update_idletasks()
+            time.sleep(0.1)
+            poa_status_command(False)
+            self.info_text_box.delete('1.0', END)
+            self.info_text_box.insert(END, "⫸ Прогресс ◖█████▒▒▒▒▒ 27% ▒▒▒▒▒▒▒▒▒▒◗\n", 'tag_green_text')
+            self.info_text_box.insert(END, "⫸ Проверка выполнения опроса состояния \nсистемы (STATUS) - запрос [4]\n",
+                                      'tag_black_text')
+            self.info_text_box.yview(END)
+            self.start_window.update_idletasks()
+            time.sleep(0.1)
+            poa_status_command(False)
+            self.info_text_box.delete('1.0', END)
+            self.info_text_box.insert(END, "⫸ Прогресс ◖██████▒▒▒▒ 30% ▒▒▒▒▒▒▒▒▒▒◗\n", 'tag_green_text')
+            self.info_text_box.insert(END, "⫸ Проверка выполнения опроса состояния \nсистемы (STATUS) - запрос [5]\n",
+                                      'tag_black_text')
+            self.info_text_box.yview(END)
+            self.start_window.update_idletasks()
+            time.sleep(0.1)
 
     def sth1_unit(self):
         # Прописывает с нуля интерфейсный фрейм
@@ -1248,10 +1365,12 @@ class AdjustmentUtility:
             serial.Serial(request_and_port_list.com_port_settings["comport"])
             self.set_button.configure(background="PaleGreen3")
             self.info_text_box.insert(END, "✔ Подключено к порту " + comport + "\n", 'tag_green_text')
+            self.info_text_box.yview(END)
         except serial.serialutil.SerialException:
             self.port_combobox.configure(foreground="brown1")
             self.set_button.configure(background="brown1")
             self.info_text_box.insert(END, "❌ Порт " + comport + " недоступен\n", 'tag_red_text')
+            self.info_text_box.yview(END)
 
     def manual_parameters(self):
         self.auto_button.configure(bg="gray60", state="normal", relief=GROOVE)
@@ -1302,7 +1421,6 @@ class AdjustmentUtility:
             self.terminal_button.configure(text="⮞\n⮞\n⮞\n\nT\nE\nR\nM\nI\nN\nA\nL\n\n⮞\n⮞\n⮞")
             self.frame_for_full_terminal.destroy()
         else:
-
             def clear_left_terminal():
                 left_terminal_text_box.delete(0, END)
                 left_terminal_text_box.update()
@@ -1407,7 +1525,10 @@ class AdjustmentUtility:
 
         self.terminal_open = not self.terminal_open
 
-    def main_frame_unit(self):
+    def auto_check(self):
+        pass
+
+    def main_frame_unit(self, device):
         """Запускает первичное окно с основным функционалом, в которое потом интегрируются модули каждой из систем"""
 
         self.start_window = Tk()
@@ -1522,15 +1643,14 @@ class AdjustmentUtility:
         w = w - width_main_window // 2
         h = h - height_main_window // 2
         self.start_window.geometry('+{}+{}'.format(w, h))
-
         # не ясно, нужно ли то, что ниже
-        self.manual_parameters()
-        ##############################################################
-        ############# УДООООЛИИИИИИ ниже, mainloop оставь######
-        ##############################################################
-        self.poa_unit()
+
+        if device == "poa_request":
+            self.auto_parameters()
+            self.poa_unit(True)
 
         self.start_window.mainloop()
 
 
-AdjustmentUtility().main_frame_unit()
+# Закомментить для авто
+AdjustmentUtility().main_frame_unit("poa_request")
