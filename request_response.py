@@ -1,5 +1,5 @@
 import serial.tools.list_ports
-from tkinter.messagebox import showerror, showwarning, showinfo
+from tkinter.messagebox import showerror
 
 # Импортируем словарь!
 import request_and_port_list
@@ -23,6 +23,12 @@ def command_sender(accepted_request=None):
 
     if answer is not None:
         port.close()
+        if len(answer) < 9 and answer:
+            showerror(title="Некорректный ответ контроллера",
+                      message="Часто появляется при незамкнутом датчике крана горячей воды (X6). Либо в случае "
+                              "некорректного подключения устройства/проблемах связи с контроллером.\n\n"
+                              "<Запрос>  -  " + str(accepted_request).upper() +
+                              "\n<Ответ>    -   " + str(answer).upper())
         return answer
     else:
         port.close()
