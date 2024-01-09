@@ -23,7 +23,7 @@ def command_sender(accepted_request=None):
 
     if answer is not None:
         port.close()
-        if len(answer) < 9 and answer:
+        if len(answer) < 15 and answer:
             showerror(title="Некорректный ответ контроллера",
                       message="Часто появляется при незамкнутом датчике крана горячей воды (X6). Либо в случае "
                               "некорректного подключения устройства/проблемах связи с контроллером.\n\n"

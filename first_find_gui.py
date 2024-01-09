@@ -24,9 +24,8 @@ class Gui:
         self.full_auto_button = None
 
     def run_manual(self):
-        self.manual_button['state'] = DISABLED
-        self.full_auto_button['state'] = DISABLED
-
+        self.start_window.destroy()
+        control_unit.AdjustmentUtility().main_frame_unit("manual")
         return
 
     def run_full_auto(self):

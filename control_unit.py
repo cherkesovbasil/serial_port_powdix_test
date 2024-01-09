@@ -1,7 +1,7 @@
 import time
 from tkinter import *
 from tkinter import ttk
-from tkinter.messagebox import askyesno, showinfo
+from tkinter.messagebox import askyesno
 import serial
 
 import request_and_port_list
@@ -123,7 +123,11 @@ class AdjustmentUtility:
                 t_max_dec = int(t_max_hex, 16)
                 if 10 <= t_max_dec <= 45:
                     t_max_label.config(bg="PaleGreen3")
+                    poa_auto_errors["t_max_error"] = False
                 else:
+                    poa_auto_errors["t_max_error"] = True
+                    if t_max_dec == 255:
+                        poa_auto_errors["t_max_error"] = 255
                     t_max_label.config(bg="salmon")
                 t_max_label.config(text=str(t_max_dec).upper())
                 t_max_data.config(text=t_max_hex.upper())
@@ -134,7 +138,11 @@ class AdjustmentUtility:
                 t_min_dec = int(t_min_hex, 16)
                 if 10 <= t_min_dec <= 45:
                     t_min_label.config(bg="PaleGreen3")
+                    poa_auto_errors["t_min_error"] = False
                 else:
+                    poa_auto_errors["t_min_error"] = True
+                    if t_min_dec == 255:
+                        poa_auto_errors["t_min_error"] = 255
                     t_min_label.config(bg="salmon")
                 t_min_label.config(text=str(t_min_dec).upper())
                 t_min_data.config(text=t_min_hex.upper())
@@ -149,13 +157,17 @@ class AdjustmentUtility:
                         request_and_port_list.poa_request_dictionary["stop_poa_package"]:
                     if flow_real < 1:
                         flow_label.config(bg="PaleGreen3")
+                        poa_auto_errors["flow_error"] = False
                     else:
                         flow_label.config(bg="salmon")
+                        poa_auto_errors["flow_error"] = True
                 else:
                     if 2.5 <= flow_real <= 5:
                         flow_label.config(bg="PaleGreen3")
+                        poa_auto_errors["flow_error"] = False
                     else:
                         flow_label.config(bg="salmon")
+                        poa_auto_errors["flow_error"] = True
                 flow_label.config(text=str(flow_real))
                 flow_data.config(text=flow_hex.upper())
 
@@ -164,8 +176,10 @@ class AdjustmentUtility:
                 errors_hex = recieved_command[12] + recieved_command[13]
                 if errors_hex == "00" or errors_hex == "10":
                     errors_label.config(bg="PaleGreen3", text="OK")
+                    poa_auto_errors["errors_error"] = False
                 else:
                     errors_label.config(bg="salmon", text=errors_hex)
+                    poa_auto_errors["errors_error"] = True
                 errors_data.config(text=errors_hex.upper())
 
             # расшифровка полей pwm
@@ -181,19 +195,25 @@ class AdjustmentUtility:
                         request_and_port_list.poa_request_dictionary["stop_poa_package"]:
                     if pwm_1_percent < 10:
                         pwm_1_label.config(bg="PaleGreen3", text=str(pwm_1_percent) + "%")
+                        poa_auto_errors["pwm_1_2_error"] = False
                     else:
                         pwm_1_label.config(bg="salmon", text=str(pwm_1_percent) + "%")
+                        poa_auto_errors["pwm_1_2_error"] = True
                     if pwm_2_percent < 10:
                         pwm_2_label.config(bg="PaleGreen3", text=str(pwm_2_percent) + "%")
+                        poa_auto_errors["pwm_1_2_error"] = False
                     else:
                         pwm_2_label.config(bg="salmon", text=str(pwm_2_percent) + "%")
+                        poa_auto_errors["pwm_1_2_error"] = True
                 else:
                     if pwm_1_percent + pwm_2_percent == 100:
                         pwm_1_label.config(bg="PaleGreen3", text=str(pwm_1_percent) + "%")
                         pwm_2_label.config(bg="PaleGreen3", text=str(pwm_2_percent) + "%")
+                        poa_auto_errors["pwm_1_2_error"] = False
                     else:
                         pwm_1_label.config(bg="salmon", text=str(pwm_1_percent) + "%")
                         pwm_2_label.config(bg="salmon", text=str(pwm_2_percent) + "%")
+                        poa_auto_errors["pwm_1_2_error"] = True
                 pwm_1_data.config(text=pwm_1_hex.upper())
                 pwm_2_data.config(text=pwm_2_hex.upper())
 
@@ -207,8 +227,10 @@ class AdjustmentUtility:
                         full_hex_summ = hex(full_dec_summ)
                 if full_hex_summ[len(full_hex_summ) - 1] == "0":
                     crc_label.config(bg="PaleGreen3", text="OK")
+                    poa_auto_errors["crc_error"] = False
                 else:
                     crc_label.config(bg="salmon", text=str(full_hex_summ))
+                    poa_auto_errors["crc_error"] = True
                 crc_data.config(text=recieved_command[18].upper() + recieved_command[19].upper())
 
             transcript_status_device()
@@ -227,7 +249,13 @@ class AdjustmentUtility:
                 "key_error": False,
                 "svs_error": False,
                 "wts2_error": False,
-                "wts1_error": False,
+                "beeper_error": False,
+                "t_min_error": False,
+                "t_max_error": False,
+                "pwm_1_2_error": False,
+                "errors_error": False,
+                "flow_error": False,
+                "crc_error": False
             }
 
             if self.last_command_except_status is None:
@@ -429,16 +457,20 @@ class AdjustmentUtility:
                                 if int(binary_status_ctrl[bit_number]) == 0:
                                     beeper_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
                                     beeper_label.config(bg="PaleGreen3")
+                                    poa_auto_errors["beeper_error"] = False
                                 else:
                                     beeper_bit.config(text=binary_status_ctrl[bit_number], bg="RoyalBlue1")
                                     beeper_label.config(bg="RoyalBlue1")
+                                    poa_auto_errors["beeper_error"] = False
                             else:
                                 if int(binary_status_ctrl[bit_number]) == 0:
                                     beeper_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
                                     beeper_label.config(bg="PaleGreen3")
+                                    poa_auto_errors["beeper_error"] = False
                                 else:
                                     beeper_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
                                     beeper_label.config(bg="salmon")
+                                    poa_auto_errors["beeper_error"] = True
                                     if red_green_status_ctrl == "green":
                                         red_green_status_ctrl = "red"
 
@@ -540,9 +572,11 @@ class AdjustmentUtility:
                             if int(binary_status_ctrl[bit_number]) == 0:
                                 beeper_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
                                 beeper_label.config(bg="PaleGreen3")
+                                poa_auto_errors["beeper_error"] = False
                             else:
                                 beeper_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
                                 beeper_label.config(bg="salmon")
+                                poa_auto_errors["beeper_error"] = True
                                 if red_green_status_ctrl == "green":
                                     red_green_status_ctrl = "red"
 
@@ -590,9 +624,11 @@ class AdjustmentUtility:
                             if int(binary_status_ctrl[bit_number]) == 0:
                                 beeper_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
                                 beeper_label.config(bg="PaleGreen3")
+                                poa_auto_errors["beeper_error"] = False
                             else:
                                 beeper_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
                                 beeper_label.config(bg="salmon")
+                                poa_auto_errors["beeper_error"] = True
                                 if red_green_status_ctrl == "green":
                                     red_green_status_ctrl = "red"
 
@@ -640,9 +676,11 @@ class AdjustmentUtility:
                             if int(binary_status_ctrl[bit_number]) == 0:
                                 beeper_bit.config(text=binary_status_ctrl[bit_number], bg="PaleGreen3")
                                 beeper_label.config(bg="PaleGreen3")
+                                poa_auto_errors["beeper_error"] = False
                             else:
                                 beeper_bit.config(text=binary_status_ctrl[bit_number], bg="salmon")
                                 beeper_label.config(bg="salmon")
+                                poa_auto_errors["beeper_error"] = True
                                 if red_green_status_ctrl == "green":
                                     red_green_status_ctrl = "red"
 
@@ -1218,18 +1256,22 @@ class AdjustmentUtility:
 
         if auto:
 
-            def error_control():
-                print("error_control")
+            def error_control(exception='None'):
                 reset = False
+
+                if exception == "key_exception":
+                    poa_auto_errors["key_error"] = False
+
                 for error, status in poa_auto_errors.items():
                     if status:
+
                         if error == "wls_error":
 
                             result = askyesno(title="Сработка датчика уровня воды",
                                               message="Проверьте достаточен ли уровень воды и работоспособность "
-                                                      "поплавка.\n\n"
+                                                      "поплавка. При повторяющейся ошибке пересбросьте питание.\n\n"
                                                       "<Да> - для продолжения проверки\n (если проблема исправлена)\n\n"
-                                                      "<Нет> - для окончания проверки")
+                                                      "<Нет> - для выхода в ручной режим")
                             if result:
                                 return True
                             else:
@@ -1239,9 +1281,10 @@ class AdjustmentUtility:
 
                             result = askyesno(title="Ошибка ключа режима работы",
                                               message="Проверьте положение ключа или правильность подключения "
-                                                      "проводов ключа к плате системы охлаждения.\n\n"
+                                                      "проводов ключа к плате системы охлаждения. При повторяющейся "
+                                                      "ошибке пересбросьте питание.\n\n"
                                                       "<Да> - для продолжения проверки\n (если проблема исправлена)\n\n"
-                                                      "<Нет> - для окончания проверки")
+                                                      "<Нет> - для выхода в ручной режим")
                             if result:
                                 return True
                             else:
@@ -1251,9 +1294,10 @@ class AdjustmentUtility:
 
                             result = askyesno(title="Сработка датчика пароводяного клапана",
                                               message="Проверьте расположение датчика пароводяного клапана, его "
-                                                      "подключение и адекватность работы.\n\n"
+                                                      "подключение и адекватность работы. При повторяющейся ошибке "
+                                                      "пересбросьте питание.\n\n"
                                                       "<Да> - для продолжения проверки\n (если проблема исправлена)\n\n"
-                                                      "<Нет> - для окончания проверки")
+                                                      "<Нет> - для выхода в ручной режим")
                             if result:
                                 return True
                             else:
@@ -1264,9 +1308,10 @@ class AdjustmentUtility:
                             result = askyesno(title="Сработка датчика крана холодной воды",
                                               message="Проверьте наличие перемычки на контакте X6. "
                                                       "В случае наличия датчика крана, проверьте корректность его"
-                                                      "подключения и работы.\n\n"
+                                                      "подключения и работы. При повторяющейся ошибке пересбросьте "
+                                                      "питание.\n\n"
                                                       "<Да> - для продолжения проверки\n (если проблема исправлена)\n\n"
-                                                      "<Нет> - для окончания проверки")
+                                                      "<Нет> - для выхода в ручной режим")
                             if result:
                                 return True
                             else:
@@ -1277,13 +1322,127 @@ class AdjustmentUtility:
                             result = askyesno(title="Сработка датчика крана горячей воды",
                                               message="Проверьте наличие перемычки на контакте X7. "
                                                       "В случае наличия датчика крана, проверьте корректность его"
-                                                      "подключения и работы.\n\n"
+                                                      "подключения и работы. При повторяющейся ошибке пересбросьте "
+                                                      "питание.\n\n"
                                                       "<Да> - для продолжения проверки\n (если проблема исправлена)\n\n"
-                                                      "<Нет> - для окончания проверки")
+                                                      "<Нет> - для выхода в ручной режим")
                             if result:
                                 return True
                             else:
                                 return False
+
+                        if error == "t_min_error":
+                            if status == 255:
+                                result = askyesno(title="Ошибка данных датчика температуры холодной воды",
+                                                  message="Датчик температуры холодной воды не подключён либо "
+                                                          "неисправен (t min). Замените датчик (разъём X2), после "
+                                                          "чего сбросьте питание системы охлаждения и подайте "
+                                                          "заново\n\n"
+                                                          "<Да> - для продолжения проверки\n (если проблема "
+                                                          "исправлена)\n\n"
+                                                          "<Нет> - для выхода в ручной режим")
+                                if result:
+                                    return True
+                                else:
+                                    return False
+                            else:
+                                result = askyesno(title="Ошибка данных датчика температуры холодной воды",
+                                                  message="Датчик температуры холодной воды даёт некорректные "
+                                                          "показания (t min). Замените датчик (разъём X2), после "
+                                                          "чего сбросьте питание системы охлаждения и подайте "
+                                                          "заново\n\n"
+                                                          "<Да> - для продолжения проверки\n (если проблема "
+                                                          "исправлена)\n\n"
+                                                          "<Нет> - для выхода в ручной режим")
+                                if result:
+                                    return True
+                                else:
+                                    return False
+
+                        if error == "t_max_error":
+                            print(status)
+                            if status == 255:
+                                result = askyesno(title="Ошибка данных датчика температуры горячей воды",
+                                                  message="Датчик температуры горячей воды не подключён либо "
+                                                          "неисправен (t max). Замените датчик (разъём X1), после "
+                                                          "чего сбросьте питание системы охлаждения и подайте "
+                                                          "заново\n\n"
+                                                          "<Да> - для продолжения проверки\n (если проблема "
+                                                          "исправлена)\n\n"
+                                                          "<Нет> - для выхода в ручной режим")
+                                if result:
+                                    return True
+                                else:
+                                    return False
+                            else:
+                                result = askyesno(title="Ошибка данных датчика температуры горячей воды",
+                                                  message="Датчик температуры горячей воды даёт некорректные "
+                                                          "показания (t max). Замените датчик (разъём X1), после "
+                                                          "чего сбросьте питание системы охлаждения и подайте "
+                                                          "заново\n\n"
+                                                          "<Да> - для продолжения проверки\n (если проблема "
+                                                          "исправлена)\n\n"
+                                                          "<Нет> - для выхода в ручной режим")
+                                if result:
+                                    return True
+                                else:
+                                    return False
+
+                        if error == "flow_error":
+
+                            result = askyesno(title="Ошибка данных датчика потока воды",
+                                              message="Проверьте достаточность подаваемого тока на плату "
+                                                      "системы охлаждения (до 3А) - разъём X9, правильность "
+                                                      "подключения шлангов, либо корректность подключения датчика и "
+                                                      "корректность отображаемых датчиком данных. При повторяющейся "
+                                                      "ошибке пересбросьте питание.\n\n"
+                                                      "<Да> - для продолжения проверки\n (если проблема исправлена)\n\n"
+                                                      "<Нет> - для выхода в ручной режим")
+                            if result:
+                                return True
+                            else:
+                                return False
+
+                        if error == "pwm_1_2_error":
+
+                            result = askyesno(title="Ошибка данных питания вентиляторов радиатора",
+                                              message="Некорректные данные питания вентиляторов радиатора. "
+                                                      "Сбросьте питание с контроллера системы охлаждения, после чего "
+                                                      "подайте его заново и продолжите проверку\n\n"
+                                                      "<Да> - для продолжения проверки\n (если проблема исправлена)\n\n"
+                                                      "<Нет> - для выхода в ручной режим")
+                            if result:
+                                return True
+                            else:
+                                return False
+
+                        if error == "errors_error":
+
+                            result = askyesno(title="Внутренние ошибки контроллера",
+                                              message="В контроллере найдено исключение. Если сбой единичный, сбросьте "
+                                                      "питание контроллера системы охлаждения, подайте его заново, "
+                                                      "после чего продолжите проверку\n\n"
+                                                      "<Да> - для продолжения проверки\n (если проблема исправлена)\n\n"
+                                                      "<Нет> - для выхода в ручной режим")
+                            if result:
+                                return True
+                            else:
+                                return False
+
+                        if error == "crc_error":
+
+                            result = askyesno(title="Ошибка контрольной суммы",
+                                              message="Контрольная сумма ответа не совпадает расчётной. Проблема может "
+                                                      "быть связана с повреждением пакета информации, отправленного "
+                                                      "контроллером системы охлаждения. При повторяющейся ошибке "
+                                                      "пересбросьте питание.\n\n"
+                                                      "<Да> - для продолжения проверки\n (если проблема исправлена)\n\n"
+                                                      "<Нет> - для выхода в ручной режим")
+                            if result:
+                                return True
+                            else:
+                                return False
+
 
                     else:
                         reset = True
@@ -1304,7 +1463,8 @@ class AdjustmentUtility:
                 self.info_text_box.insert(END, "✔ Ответ получен и проверен\n", 'tag_green_text')
                 self.info_text_box.yview(END)
                 self.start_window.update_idletasks()
-                time.sleep(1)
+                time.sleep(2)
+                poa_status_command(False)
                 return error_control()
 
             def step_2():
@@ -1319,7 +1479,7 @@ class AdjustmentUtility:
                 self.info_text_box.insert(END, "✔ Ответ получен и проверен\n", 'tag_green_text')
                 self.info_text_box.yview(END)
                 self.start_window.update_idletasks()
-                time.sleep(1)
+                time.sleep(0.5)
                 return error_control()
 
             def step_3():
@@ -1329,119 +1489,441 @@ class AdjustmentUtility:
                                                "запрос [1]\n", 'tag_black_text')
                 self.info_text_box.yview(END)
                 self.start_window.update_idletasks()
-                time.sleep(0.1)
                 poa_status_command(False)
+                self.info_text_box.insert(END, "✔ Ответ получен и проверен\n", 'tag_green_text')
+                self.info_text_box.yview(END)
+                self.start_window.update_idletasks()
+                time.sleep(0.1)
+
                 self.info_text_box.delete('1.0', END)
                 self.info_text_box.insert(END, "⫸ Прогресс ◖████▒▒▒▒▒▒ 22% ▒▒▒▒▒▒▒▒▒▒◗\n", 'tag_green_text')
                 self.info_text_box.insert(END, "⫸ Проверка выполнения опроса состояния \nсистемы (STATUS) - "
                                                "запрос [2]\n", 'tag_black_text')
                 self.info_text_box.yview(END)
                 self.start_window.update_idletasks()
-                time.sleep(0.1)
                 poa_status_command(False)
+                self.info_text_box.insert(END, "✔ Ответ получен и проверен\n", 'tag_green_text')
+                self.info_text_box.yview(END)
+                self.start_window.update_idletasks()
+                time.sleep(0.1)
+
                 self.info_text_box.delete('1.0', END)
                 self.info_text_box.insert(END, "⫸ Прогресс ◖█████▒▒▒▒▒ 25% ▒▒▒▒▒▒▒▒▒▒◗\n", 'tag_green_text')
                 self.info_text_box.insert(END, "⫸ Проверка выполнения опроса состояния \nсистемы (STATUS) - "
                                                "запрос [3]\n", 'tag_black_text')
                 self.info_text_box.yview(END)
                 self.start_window.update_idletasks()
-                time.sleep(0.1)
                 poa_status_command(False)
+                self.info_text_box.insert(END, "✔ Ответ получен и проверен\n", 'tag_green_text')
+                self.info_text_box.yview(END)
+                self.start_window.update_idletasks()
+                time.sleep(0.1)
+
                 self.info_text_box.delete('1.0', END)
                 self.info_text_box.insert(END, "⫸ Прогресс ◖█████▒▒▒▒▒ 27% ▒▒▒▒▒▒▒▒▒▒◗\n", 'tag_green_text')
                 self.info_text_box.insert(END, "⫸ Проверка выполнения опроса состояния \nсистемы (STATUS) - "
                                                "запрос [4]\n", 'tag_black_text')
                 self.info_text_box.yview(END)
                 self.start_window.update_idletasks()
-                time.sleep(0.1)
                 poa_status_command(False)
+                self.info_text_box.insert(END, "✔ Ответ получен и проверен\n", 'tag_green_text')
+                self.info_text_box.yview(END)
+                self.start_window.update_idletasks()
+                time.sleep(0.1)
+
                 self.info_text_box.delete('1.0', END)
                 self.info_text_box.insert(END, "⫸ Прогресс ◖██████▒▒▒▒ 30% ▒▒▒▒▒▒▒▒▒▒◗\n", 'tag_green_text')
                 self.info_text_box.insert(END, "⫸ Проверка выполнения опроса состояния \nсистемы (STATUS) - "
                                                "запрос [5]\n", 'tag_black_text')
                 self.info_text_box.yview(END)
                 self.start_window.update_idletasks()
+                poa_status_command(False)
+                self.info_text_box.insert(END, "✔ Ответ получен и проверен\n", 'tag_green_text')
+                self.info_text_box.yview(END)
+                self.start_window.update_idletasks()
                 time.sleep(0.1)
                 return error_control()
 
+            def step_4():
+                self.info_text_box.delete('1.0', END)
+                self.start_window.update_idletasks()
+                self.info_text_box.insert(END, "⫸ Прогресс ◖████████▒▒ 40% ▒▒▒▒▒▒▒▒▒▒◗\n", 'tag_green_text')
+                self.info_text_box.insert(END, "⫸ Проверка выполнения команды STOP\n", 'tag_black_text')
+                self.info_text_box.yview(END)
+                self.start_window.update_idletasks()
+                print("def step_1()")
+                time.sleep(0.1)
+                poa_stop_command()
+
+                self.info_text_box.insert(END, "✔ Ответ получен и проверен\n", 'tag_green_text')
+                self.info_text_box.yview(END)
+                self.start_window.update_idletasks()
+                time.sleep(2)
+                poa_status_command(False)
+                return error_control()
+
+            def step_5():
+                self.info_text_box.delete('1.0', END)
+                self.info_text_box.insert(END, "⫸ Прогресс ◖██████████ 50% ▒▒▒▒▒▒▒▒▒▒◗\n", 'tag_green_text')
+                self.info_text_box.insert(END, "⫸ Проверка выполнения опроса состояния \nсистемы (STATUS) - "
+                                               "[общий анализ]\n", 'tag_black_text')
+                self.info_text_box.yview(END)
+                self.start_window.update_idletasks()
+                poa_status_command(False)
+
+                self.info_text_box.insert(END, "✔ Ответ получен и проверен\n", 'tag_green_text')
+                self.info_text_box.yview(END)
+                self.start_window.update_idletasks()
+                time.sleep(0.5)
+                return error_control()
+
+            def step_6():
+                self.info_text_box.delete('1.0', END)
+                self.info_text_box.insert(END, "⫸ Прогресс ◖██████████ 60% ██▒▒▒▒▒▒▒▒◗\n", 'tag_green_text')
+                self.info_text_box.insert(END, "⫸ Проверка выполнения опроса состояния \nсистемы (STATUS) - "
+                                               "запрос [1]\n", 'tag_black_text')
+                self.info_text_box.yview(END)
+                self.start_window.update_idletasks()
+                poa_status_command(False)
+                self.info_text_box.insert(END, "✔ Ответ получен и проверен\n", 'tag_green_text')
+                self.info_text_box.yview(END)
+                self.start_window.update_idletasks()
+                time.sleep(0.1)
+
+                self.info_text_box.delete('1.0', END)
+                self.info_text_box.insert(END, "⫸ Прогресс ◖██████████ 62% ██▒▒▒▒▒▒▒▒◗\n", 'tag_green_text')
+                self.info_text_box.insert(END, "⫸ Проверка выполнения опроса состояния \nсистемы (STATUS) - "
+                                               "запрос [2]\n", 'tag_black_text')
+                self.info_text_box.yview(END)
+                self.start_window.update_idletasks()
+                poa_status_command(False)
+                self.info_text_box.insert(END, "✔ Ответ получен и проверен\n", 'tag_green_text')
+                self.info_text_box.yview(END)
+                self.start_window.update_idletasks()
+                time.sleep(0.1)
+
+                self.info_text_box.delete('1.0', END)
+                self.info_text_box.insert(END, "⫸ Прогресс ◖██████████ 65% ███▒▒▒▒▒▒▒◗\n", 'tag_green_text')
+                self.info_text_box.insert(END, "⫸ Проверка выполнения опроса состояния \nсистемы (STATUS) - "
+                                               "запрос [3]\n", 'tag_black_text')
+                self.info_text_box.yview(END)
+                self.start_window.update_idletasks()
+                poa_status_command(False)
+                self.info_text_box.insert(END, "✔ Ответ получен и проверен\n", 'tag_green_text')
+                self.info_text_box.yview(END)
+                self.start_window.update_idletasks()
+                time.sleep(0.1)
+
+                self.info_text_box.delete('1.0', END)
+                self.info_text_box.insert(END, "⫸ Прогресс ◖██████████ 67% ███▒▒▒▒▒▒▒◗\n", 'tag_green_text')
+                self.info_text_box.insert(END, "⫸ Проверка выполнения опроса состояния \nсистемы (STATUS) - "
+                                               "запрос [4]\n", 'tag_black_text')
+                self.info_text_box.yview(END)
+                self.start_window.update_idletasks()
+                poa_status_command(False)
+                self.info_text_box.insert(END, "✔ Ответ получен и проверен\n", 'tag_green_text')
+                self.info_text_box.yview(END)
+                self.start_window.update_idletasks()
+                time.sleep(0.1)
+
+                self.info_text_box.delete('1.0', END)
+                self.info_text_box.insert(END, "⫸ Прогресс ◖██████████ 70% ████▒▒▒▒▒▒◗\n", 'tag_green_text')
+                self.info_text_box.insert(END, "⫸ Проверка выполнения опроса состояния \nсистемы (STATUS) - "
+                                               "запрос [5]\n", 'tag_black_text')
+                self.info_text_box.yview(END)
+                self.start_window.update_idletasks()
+                poa_status_command(False)
+                self.info_text_box.insert(END, "✔ Ответ получен и проверен\n", 'tag_green_text')
+                self.info_text_box.yview(END)
+                self.start_window.update_idletasks()
+                time.sleep(0.1)
+                return error_control()
+
+            def step_7():
+                result = askyesno(title="Проверка режима откачки",
+                                  message="Поверните ключ в положение <ОТКАЧКА>\n\n"
+                                          "<Да> - для продолжения проверки\n\n"
+                                          "<Нет> - для выхода в ручной режим")
+                if result:
+                    return True
+                else:
+                    return False
+
+            def step_8():
+                self.info_text_box.delete('1.0', END)
+                self.start_window.update_idletasks()
+                self.info_text_box.insert(END, "⫸ Прогресс ◖██████████ 75% █████▒▒▒▒▒◗\n", 'tag_green_text')
+                self.info_text_box.insert(END, "⫸ Проверка выполнения команды DRY\n", 'tag_black_text')
+                self.info_text_box.yview(END)
+                self.start_window.update_idletasks()
+                print("def step_1()")
+                time.sleep(0.1)
+                poa_dry_command()
+
+                self.info_text_box.insert(END, "✔ Ответ получен и проверен\n", 'tag_green_text')
+                self.info_text_box.yview(END)
+                self.start_window.update_idletasks()
+                time.sleep(2)
+                poa_status_command(False)
+                return error_control()
+
+            def step_9():
+                self.info_text_box.delete('1.0', END)
+                self.info_text_box.insert(END, "⫸ Прогресс ◖██████████ 80% ██████▒▒▒▒◗\n", 'tag_green_text')
+                self.info_text_box.insert(END, "⫸ Проверка выполнения опроса состояния \nсистемы (STATUS) - "
+                                               "[общий анализ]\n", 'tag_black_text')
+                self.info_text_box.yview(END)
+                self.start_window.update_idletasks()
+                poa_status_command(False)
+
+                self.info_text_box.insert(END, "✔ Ответ получен и проверен\n", 'tag_green_text')
+                self.info_text_box.yview(END)
+                self.start_window.update_idletasks()
+                time.sleep(0.5)
+                return error_control()
+
+            def step_10():
+                result = askyesno(title="Проверка работы после откачки",
+                                  message="Дождитесь окончания работы сигнализации, после чего "
+                                          "поверните ключ в положение <РАБОТА>\n\n"
+                                          "<Да> - для продолжения проверки\n\n"
+                                          "<Нет> - для выхода в ручной режим")
+                if result:
+                    return True
+                else:
+                    return False
+
+            def step_11():
+                self.info_text_box.delete('1.0', END)
+                self.info_text_box.insert(END, "⫸ Прогресс ◖██████████ 85% ███████▒▒▒◗\n", 'tag_green_text')
+                self.info_text_box.insert(END, "⫸ Проверка выполнения опроса состояния \nсистемы (STATUS) - "
+                                               "[общий анализ]\n", 'tag_black_text')
+                self.info_text_box.yview(END)
+                self.start_window.update_idletasks()
+                time.sleep(0.1)
+                poa_status_command(False)
+
+                self.info_text_box.insert(END, "✔ Ответ получен и проверен\n", 'tag_green_text')
+                self.info_text_box.yview(END)
+                self.start_window.update_idletasks()
+                time.sleep(0.1)
+                return error_control("key_exception")
+
+            def step_12():
+                self.info_text_box.delete('1.0', END)
+                self.start_window.update_idletasks()
+                self.info_text_box.insert(END, "⫸ Прогресс ◖██████████ 90% ████████▒▒◗\n", 'tag_green_text')
+                self.info_text_box.insert(END, "⫸ Проверка выполнения команды START\n", 'tag_black_text')
+                self.info_text_box.yview(END)
+                self.start_window.update_idletasks()
+                print("def step_1()")
+                time.sleep(0.1)
+                poa_start_command()
+
+                self.info_text_box.insert(END, "✔ Ответ получен и проверен\n", 'tag_green_text')
+                self.info_text_box.yview(END)
+                self.start_window.update_idletasks()
+                time.sleep(2)
+                poa_status_command(False)
+                return error_control()
+
+            def step_13():
+                self.info_text_box.delete('1.0', END)
+                self.info_text_box.insert(END, "⫸ Прогресс ◖██████████ 95% █████████▒◗\n", 'tag_green_text')
+                self.info_text_box.insert(END, "⫸ Проверка выполнения опроса состояния \nсистемы (STATUS) - "
+                                               "[общий анализ]\n", 'tag_black_text')
+                self.info_text_box.yview(END)
+                self.start_window.update_idletasks()
+                poa_status_command(False)
+
+                self.info_text_box.insert(END, "✔ Ответ получен и проверен\n", 'tag_green_text')
+                self.info_text_box.yview(END)
+                self.start_window.update_idletasks()
+                time.sleep(0.5)
+                return error_control()
+
+            def step_14():
+                time.sleep(0.1)
+                poa_stop_command()
+                time.sleep(2)
+                self.info_text_box.delete('1.0', END)
+                self.start_window.update_idletasks()
+                self.info_text_box.insert(END, "⫸ Прогресс ◖█████████ 100% ██████████◗\n", 'tag_green_text')
+                self.info_text_box.insert(END, "⫸ Остановка работы системы\n", 'tag_black_text')
+                self.info_text_box.yview(END)
+                self.start_window.update_idletasks()
+                print("def step_1()")
+                poa_status_command(False)
+                time.sleep(0.1)
+                self.info_text_box.insert(END, "✔ Ответ получен и проверен\n", 'tag_green_text')
+                self.info_text_box.yview(END)
+                self.start_window.update_idletasks()
+                return error_control()
+
+            def step_15():
+                result = askyesno(title="Проверка работы завершена",
+                                  message="Проверка завершена успешно.\nПоказатели соответствуют норме.\n\n"
+                                          "<Да> - для повторной проверки\n\n"
+                                          "<Нет> - для выхода в ручной режим")
+                if result:
+                    return True
+                else:
+                    return False
+
             def check_step(step_number):
                 out = None
+
                 if step_number == 1:
                     out = step_1()
                 elif step_number == 2:
                     out = step_2()
                 elif step_number == 3:
                     out = step_3()
+                elif step_number == 4:
+                    out = step_4()
+                elif step_number == 5:
+                    out = step_5()
+                elif step_number == 6:
+                    out = step_6()
+                elif step_number == 8:
+                    out = step_8()
+                elif step_number == 9:
+                    out = step_9()
+                elif step_number == 10:
+                    out = step_10()
+                elif step_number == 11:
+                    out = step_11()
+                elif step_number == 12:
+                    out = step_12()
+                elif step_number == 13:
+                    out = step_13()
+                elif step_number == 14:
+                    out = step_14()
+                elif step_number == 15:
+                    out = step_15()
 
+                if poa_auto_errors["beeper_error"]:
+                    while poa_auto_errors["beeper_error"]:
+                        time.sleep(1)
+                        poa_status_command(False)
                 if out:
                     while out:
-                        print("str(step_")
-                        poa_stop_command()
-                        print("while out")
-                        poa_start_command(False)
-                        print(out)
+                        print("Restart!!!!!!!!!!!!!!!!!!!")
+                        if step_number != 1:
+                            if step_number == 1 or step_number == 2 or step_number == 3 or step_number == 12 or \
+                                    step_number == 13:
+                                poa_stop_command()
+                                poa_start_command(False)
+                            if step_number == 4 or step_number == 5 or step_number == 6 or step_number == 9 or \
+                                    step_number == 11 or step_number == 14:
+                                poa_stop_command()
+                            if step_number == 8:
+                                poa_dry_command()
                         if step_number == 1:
                             out = step_1()
                         elif step_number == 2:
                             out = step_2()
                         elif step_number == 3:
                             out = step_3()
-                        print("after step_result")
-                        print(out)
+                        elif step_number == 4:
+                            out = step_4()
+                        elif step_number == 5:
+                            out = step_5()
+                        elif step_number == 6:
+                            out = step_6()
+                        elif step_number == 8:
+                            out = step_8()
+                        elif step_number == 9:
+                            out = step_9()
+                        elif step_number == 11:
+                            out = step_11()
+                        elif step_number == 12:
+                            out = step_12()
+                        elif step_number == 13:
+                            out = step_13()
+                        elif step_number == 14:
+                            out = step_14()
                     else:
                         if out is None:
                             pass
                         else:
+                            self.manual_parameters()
+                            self.poa_unit()
                             self.info_text_box.delete('1.0', END)
                             self.info_text_box.insert(END, "❌ АВТОМАТИЧЕСКАЯ ПРОВЕРКА ОСТАНОВЛЕНА\n", 'tag_red_text')
+                            self.info_text_box.insert(END, "⫸ Программа переведена в ручной режим\n", 'tag_black_text')
                             self.info_text_box.yview(END)
                             self.start_window.update_idletasks()
-                            all_grey()
                             return True
                 elif out is None:
                     pass
                 else:
+                    self.manual_parameters()
+                    self.poa_unit()
                     self.info_text_box.delete('1.0', END)
                     self.info_text_box.insert(END, "❌ АВТОМАТИЧЕСКАЯ ПРОВЕРКА ОСТАНОВЛЕНА\n", 'tag_red_text')
+                    self.info_text_box.insert(END, "⫸ Программа переведена в ручной режим\n", 'tag_black_text')
                     self.info_text_box.yview(END)
                     self.start_window.update_idletasks()
-                    all_grey()
                     return True
                 return
 
-            if not check_step(1):
-                if not check_step(2):
-                    if not check_step(3):
-                        return
+            def start_check():
+                if not check_step(1):
+                    if not check_step(2):
+                        if not check_step(3):
+                            if not check_step(4):
+                                if not check_step(5):
+                                    if not check_step(6):
+                                        if not step_7():
+                                            self.manual_parameters()
+                                            self.poa_unit()
+                                            self.info_text_box.delete('1.0', END)
+                                            self.info_text_box.insert(END, "❌ АВТОМАТИЧЕСКАЯ ПРОВЕРКА ОСТАНОВЛЕНА\n",
+                                                                      'tag_red_text')
+                                            self.info_text_box.insert(END, "⫸ Программа переведена в ручной режим\n",
+                                                                      'tag_black_text')
+                                            self.info_text_box.yview(END)
+                                            self.start_window.update_idletasks()
+                                            return
+                                        else:
+                                            if not check_step(8):
+                                                if not check_step(9):
+                                                    if not step_10():
+                                                        self.manual_parameters()
+                                                        self.poa_unit()
+                                                        self.info_text_box.delete('1.0', END)
+                                                        self.info_text_box.insert(END,
+                                                                                  "❌ АВТОМАТИЧЕСКАЯ ПРОВЕРКА ОСТАНОВЛЕНА\n",
+                                                                                  'tag_red_text')
+                                                        self.info_text_box.insert(END,
+                                                                                  "⫸ Программа переведена в ручной режим\n",
+                                                                                  'tag_black_text')
+                                                        self.info_text_box.yview(END)
+                                                        self.start_window.update_idletasks()
+                                                        return
+                                                    else:
+                                                        if not check_step(11):
+                                                            if not check_step(12):
+                                                                if not check_step(13):
+                                                                    if not check_step(14):
+                                                                        if not step_15():
+                                                                            self.manual_parameters()
+                                                                            self.poa_unit()
+                                                                            self.info_text_box.delete('1.0', END)
+                                                                            self.info_text_box.insert(END,
+                                                                                                      "❌ АВТОМАТИЧЕСКАЯ ПРОВЕРКА ОСТАНОВЛЕНА\n",
+                                                                                                      'tag_red_text')
+                                                                            self.info_text_box.insert(END,
+                                                                                                      "⫸ Программа переведена в ручной режим\n",
+                                                                                                      'tag_black_text')
+                                                                            self.info_text_box.yview(END)
+                                                                            self.start_window.update_idletasks()
+                                                                            return
+                                                                        else:
+                                                                            start_check()
 
-            """
-            step_result = step_2()
-            if step_result:
-                while step_result:
-                    print("str(step_")
-                    poa_stop_command()
-                    poa_start_command()
-                    step_result = step_2()
-                else:
-                    if step_result is None:
-                        pass
-                    else:
-                        self.info_text_box.delete('1.0', END)
-                        self.info_text_box.insert(END, "❌ АВТОМАТИЧЕСКАЯ ПРОВЕРКА ОСТАНОВЛЕНА\n", 'tag_red_text')
-                        self.info_text_box.yview(END)
-                        self.start_window.update_idletasks()
-                        all_grey()
-                        return
-            elif step_result is None:
-                pass
-            else:
-                self.info_text_box.delete('1.0', END)
-                self.info_text_box.insert(END, "❌ АВТОМАТИЧЕСКАЯ ПРОВЕРКА ОСТАНОВЛЕНА\n", 'tag_red_text')
-                self.info_text_box.yview(END)
-                self.start_window.update_idletasks()
-                all_grey()
-                return
-            """
+            start_check()
 
     def sth1_unit(self):
         # Прописывает с нуля интерфейсный фрейм
@@ -1568,14 +2050,14 @@ class AdjustmentUtility:
         self.frame_for_units.destroy()
         self.frame_for_units = LabelFrame(self.start_window, bg="gray90")
         self.frame_for_units.pack(side=TOP, padx=1, pady=1, fill=X)
-        self.poa_button.configure(state='normal', relief=GROOVE)
-        self.sth1_button.configure(state='normal', relief=GROOVE)
-        self.sth2_button.configure(state='normal', relief=GROOVE)
-        self.sth3_button.configure(state='normal', relief=GROOVE)
-        self.as_button.configure(state='normal', relief=GROOVE)
-        self.sc_button.configure(state='normal', relief=GROOVE)
-        self.ck_button.configure(state='normal', relief=GROOVE)
-        self.set_button.configure(state='normal', relief=GROOVE)
+        self.poa_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.sth1_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.sth2_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.sth3_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.as_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.sc_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.ck_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        self.set_button.configure(bg="gray60", state='normal', relief=GROOVE)
         self.timeout_combobox.configure(state='readonly')
         self.baudrate_combobox.configure(state='readonly')
         self.port_combobox.configure(state='readonly')
@@ -1605,6 +2087,7 @@ class AdjustmentUtility:
         self.port_combobox.set('')
         self.bytesize_combobox.configure(state='disabled')
         self.bytesize_combobox.set('')
+
 
     def terminal(self):
         if self.terminal_open:
@@ -1714,9 +2197,6 @@ class AdjustmentUtility:
             send_string_command_button.pack(side=RIGHT, padx=3, pady=1)
 
         self.terminal_open = not self.terminal_open
-
-    def auto_check(self):
-        pass
 
     def main_frame_unit(self, device):
         """Запускает первичное окно с основным функционалом, в которое потом интегрируются модули каждой из систем"""
@@ -1835,6 +2315,9 @@ class AdjustmentUtility:
         self.start_window.geometry('+{}+{}'.format(w, h))
         # не ясно, нужно ли то, что ниже
 
+        if device == "manual":
+            self.manual_parameters()
+
         if device == "poa_request":
             self.auto_parameters()
             self.poa_unit(True)
@@ -1843,4 +2326,4 @@ class AdjustmentUtility:
 
 
 # Закомментить для авто
-AdjustmentUtility().main_frame_unit("poa_request")
+#AdjustmentUtility().main_frame_unit("poa_request")
