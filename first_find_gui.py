@@ -24,23 +24,27 @@ class Gui:
         self.full_auto_button = None
 
     def run_manual(self):
+        """Запускает стартовое окно в ручном режиме"""
         self.start_window.destroy()
         control_unit.AdjustmentUtility().main_frame_unit("manual")
         return
 
     def run_full_auto(self):
-        """Запускает стартовое окно с запросом на генерацию баз данных"""
+        """Запускает стартовое окно с автоматическим поиском устройства"""
         self.manual_button['state'] = DISABLED
         self.full_auto_button['state'] = DISABLED
 
         def on_closing():
+            # При закрытии
             self.full_auto_init_window.destroy()
             self.full_auto_button['state'] = NORMAL
             self.manual_button['state'] = NORMAL
 
         def com_ports():
+            # Функция работы с COM-портами
 
             def update_info(port_number, message):
+                # Функция обновления отображений портов
 
                 # Обновляю поле отчёта о поиске портов
                 self.status_text_box.insert(END, message)
@@ -51,9 +55,8 @@ class Gui:
                 process_progressbar["value"] = port_number * 2
                 process_progressbar.update()
 
-            # noinspection PyGlobalUndefined
             def find_device():
-                global answer
+                # Функция поиска подключённых устройств
 
                 self.frame_for_find_device = LabelFrame(self.full_auto_init_window)
                 self.frame_for_find_device.pack(side=BOTTOM, fill=X)
@@ -243,6 +246,7 @@ class Gui:
         self.device_signature = com_ports()
 
         def start():
+            # Запускает поиск
             self.status_text_box.delete(0, END)
             self.restart_button.destroy()
             self.frame_for_find_device.destroy()
@@ -251,6 +255,8 @@ class Gui:
             return
 
         def no_signature():
+            # Исключение - ничего не нашло
+
             if not self.device_signature:
                 self.status_text_box.delete(0, END)
                 self.status_text_box.insert(END, "Не удаётся найти устройство. Проверьте")

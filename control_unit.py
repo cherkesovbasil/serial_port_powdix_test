@@ -11,7 +11,11 @@ global poa_auto_errors
 
 
 class AdjustmentUtility:
-    """Главное окно взаимодействия с девайсами"""
+    """
+    Основное окно взаимодействия с девайсами и основное тело программы
+    Доступные аксессуары на данный момент:
+    - Система охлаждения
+    """
 
     def __init__(self):
 
@@ -45,9 +49,11 @@ class AdjustmentUtility:
         self.last_command_except_status = None
 
     def poa_unit(self, auto=False):
+        """Функция управления системой охлаждения"""
 
         def all_grey():
             # Верхние поля отображения статусов
+
             device_label.config(text="-", bg="gray90")
             stat_ctrl_label.config(text="-", bg="gray90")
             stat_sens_label.config(text="-", bg="gray90")
@@ -70,7 +76,7 @@ class AdjustmentUtility:
             pwm_2_data.config(text="-", bg="gray90")
             crc_data.config(text="-", bg="gray90")
 
-            # Status sensors - all grey
+            # Status sensors - всё неактивно
             wts1_bit.config(text="--", bg="gray90")
             wts1_label.config(bg="gray90")
             wts2_bit.config(text="--", bg="gray90")
@@ -88,7 +94,7 @@ class AdjustmentUtility:
             reserve_3_bit.config(text="--", bg="gray90")
             reserve_3_label.config(bg="gray90")
 
-            # Status control - all grey
+            # Status control - всё неактивно
             rfp_bit.config(text="--", bg="gray90")
             rfp_label.config(bg="gray90")
             wpp_bit.config(text="--", bg="gray90")
@@ -106,10 +112,12 @@ class AdjustmentUtility:
             reserve_5_bit.config(text="--", bg="gray90")
             reserve_5_label.config(bg="gray90")
 
-        def transcript_other_stuff(recieved_command=None, send_command=None):
+        def transcript_other_stuff(recieved_command=None):
+            # Расшифровка прочих параметров из полученной команды
 
-            # расшифровка поля Device
             def transcript_status_device():
+                # расшифровка поля Device
+
                 device_hex = recieved_command[0] + recieved_command[1]
                 if device_hex == "40":
                     device_label.config(text="OK", bg="PaleGreen3")
@@ -117,8 +125,10 @@ class AdjustmentUtility:
                     device_label.config(text="❌", bg="salmon")
                 device_data.config(text=device_hex.upper())
 
-            # расшифровка поля t_max
+
             def transcript_status_t_max():
+                # расшифровка поля t_max
+
                 t_max_hex = recieved_command[6] + recieved_command[7]
                 t_max_dec = int(t_max_hex, 16)
                 if 10 <= t_max_dec <= 45:
@@ -132,8 +142,10 @@ class AdjustmentUtility:
                 t_max_label.config(text=str(t_max_dec).upper())
                 t_max_data.config(text=t_max_hex.upper())
 
-            # расшифровка поля t_min
+
             def transcript_status_t_min():
+                # расшифровка поля t_min
+
                 t_min_hex = recieved_command[8] + recieved_command[9]
                 t_min_dec = int(t_min_hex, 16)
                 if 10 <= t_min_dec <= 45:
@@ -147,8 +159,9 @@ class AdjustmentUtility:
                 t_min_label.config(text=str(t_min_dec).upper())
                 t_min_data.config(text=t_min_hex.upper())
 
-            # расшифровка поля flow
             def transcript_status_flow():
+                # расшифровка поля flow
+
                 flow_hex = recieved_command[10] + recieved_command[11]
                 flow_dec = int(flow_hex, 16)
                 flow_real = round(float(flow_dec / 73), 2)
@@ -171,8 +184,8 @@ class AdjustmentUtility:
                 flow_label.config(text=str(flow_real))
                 flow_data.config(text=flow_hex.upper())
 
-            # расшифровка поля errors
             def transcript_status_errors():
+                # расшифровка поля errors
                 errors_hex = recieved_command[12] + recieved_command[13]
                 if errors_hex == "00" or errors_hex == "10":
                     errors_label.config(bg="PaleGreen3", text="OK")
@@ -182,8 +195,9 @@ class AdjustmentUtility:
                     poa_auto_errors["errors_error"] = True
                 errors_data.config(text=errors_hex.upper())
 
-            # расшифровка полей pwm
             def transcript_status_pwm_1_2():
+                # расшифровка полей pwm
+
                 pwm_1_hex = recieved_command[14] + recieved_command[15]
                 pwm_2_hex = recieved_command[16] + recieved_command[17]
                 pwm_1_dec = int(pwm_1_hex, 16)
@@ -218,6 +232,8 @@ class AdjustmentUtility:
                 pwm_2_data.config(text=pwm_2_hex.upper())
 
             def check_crc():
+                # Проверяет контрольную сумму
+
                 full_dec_summ = 0
                 full_hex_summ = 0
                 for bit in range(0, 20):
@@ -241,7 +257,9 @@ class AdjustmentUtility:
             transcript_status_pwm_1_2()
             check_crc()
 
-        def transcript_statuses(recieved_command=None, send_command=None, manual_check=True):
+        def transcript_statuses(recieved_command=None, send_command=None):
+            # Расшифровывает статусы из полученных ответов от контроллера
+
             global poa_auto_errors
 
             poa_auto_errors = {
@@ -393,9 +411,9 @@ class AdjustmentUtility:
                     else:
                         stat_sens_label.config(text="❌", bg="salmon")
 
-                #
-                # Раскидка битов и статусов по Статус контроль
-                #
+                """
+                Раскидка битов и статусов по Статус контроль
+                """
 
                 for bit_number in range(0, 8):
 
@@ -758,6 +776,7 @@ class AdjustmentUtility:
                             stat_ctrl_label.config(text="❌", bg="salmon")
 
         def poa_start_command(manual_check=True):
+            # Отправляет команду на запуск насоса системы охлаждения
             all_grey()
             request_response.command_sender(
                 accepted_request=request_and_port_list.poa_request_dictionary["stop_poa_package"])
@@ -769,7 +788,7 @@ class AdjustmentUtility:
                     self.info_text_box.yview(END)
                 self.last_command_except_status = request_and_port_list.poa_request_dictionary["start_poa_package"]
                 transcript_statuses(answer, request_and_port_list.poa_request_dictionary["start_poa_package"])
-                transcript_other_stuff(answer, request_and_port_list.poa_request_dictionary["start_poa_package"])
+                transcript_other_stuff(answer)
                 if manual_check:
                     self.info_text_box.insert(END, " состояние расшифровано\n", 'tag_green_text')
                     self.info_text_box.yview(END)
@@ -780,6 +799,7 @@ class AdjustmentUtility:
                     self.info_text_box.yview(END)
 
         def poa_stop_command():
+            # Отправляет команду на остановку насоса системы охлаждения
             all_grey()
             answer = request_response.command_sender(
                 accepted_request=request_and_port_list.poa_request_dictionary["stop_poa_package"])
@@ -788,7 +808,7 @@ class AdjustmentUtility:
                 self.info_text_box.yview(END)
                 self.last_command_except_status = request_and_port_list.poa_request_dictionary["stop_poa_package"]
                 transcript_statuses(answer, request_and_port_list.poa_request_dictionary["stop_poa_package"])
-                transcript_other_stuff(answer, request_and_port_list.poa_request_dictionary["stop_poa_package"])
+                transcript_other_stuff(answer)
                 self.info_text_box.insert(END, " состояние расшифровано\n", 'tag_green_text')
                 self.info_text_box.yview(END)
             else:
@@ -797,6 +817,7 @@ class AdjustmentUtility:
                 self.info_text_box.yview(END)
 
         def poa_version_command():
+            # Отправляет команду на запрос версии системы охлаждения
             all_grey()
             answer = request_response.command_sender(
                 accepted_request=request_and_port_list.poa_request_dictionary["version_poa_package"])
@@ -815,6 +836,7 @@ class AdjustmentUtility:
                 self.info_text_box.yview(END)
 
         def poa_status_command(manual_check=True):
+            # Отправляет команду на запрос статуса системы охлаждения
             all_grey()
             answer = request_response.command_sender(
                 accepted_request=request_and_port_list.poa_request_dictionary["status_poa_package"])
@@ -822,7 +844,7 @@ class AdjustmentUtility:
                 if manual_check:
                     self.info_text_box.insert(END, "✔ Команда выполнена, ответ получен\n", 'tag_green_text')
                     self.info_text_box.yview(END)
-                transcript_statuses(answer, request_and_port_list.poa_request_dictionary["status_poa_package"], False)
+                transcript_statuses(answer, request_and_port_list.poa_request_dictionary["status_poa_package"])
                 transcript_other_stuff(answer)
                 if manual_check:
                     self.info_text_box.insert(END, " состояние расшифровано\n", 'tag_green_text')
@@ -834,6 +856,7 @@ class AdjustmentUtility:
                     self.info_text_box.yview(END)
 
         def poa_dry_command():
+            # Отправляет команду на откачку воды в системе охлаждения
             all_grey()
             request_response.command_sender(
                 accepted_request=request_and_port_list.poa_request_dictionary["stop_poa_package"])
@@ -844,7 +867,7 @@ class AdjustmentUtility:
                 self.info_text_box.yview(END)
                 self.last_command_except_status = request_and_port_list.poa_request_dictionary["dry_poa_package"]
                 transcript_statuses(answer, request_and_port_list.poa_request_dictionary["dry_poa_package"])
-                transcript_other_stuff(answer, request_and_port_list.poa_request_dictionary["dry_poa_package"])
+                transcript_other_stuff(answer)
                 self.info_text_box.insert(END, " состояние расшифровано\n", 'tag_green_text')
                 self.info_text_box.yview(END)
             else:
@@ -853,6 +876,7 @@ class AdjustmentUtility:
                 self.info_text_box.yview(END)
 
         def poa_info_command():
+            # Команда, вызывающая файл с основной информацией по подсистеме охлаждения
             pass
 
         # Прописывает с нуля интерфейсный фрейм
@@ -866,9 +890,9 @@ class AdjustmentUtility:
         self.baudrate_combobox.set(request_and_port_list.com_port_settings["baudrate"])
         self.port_combobox.set(request_and_port_list.com_port_settings["comport"])
 
-        #
-        # Информационное поле полученной и расшифрованной команды
-        #
+        """
+        Информационное поле полученной и расшифрованной команды
+        """
 
         # Поле аналитического юнита
         frame_for_analytical_label = LabelFrame(self.frame_for_units, bg="gray80")
@@ -991,9 +1015,9 @@ class AdjustmentUtility:
         frame_for_status_sensors = LabelFrame(frame_for_statuses, bg="gray95", text="Status Sensors transcription")
         frame_for_status_sensors.pack(side=LEFT, padx=6, pady=3, fill=X)
 
-        #
-        # поле отображения информации Status Control
-        #
+        """
+        Поле отображения информации Status Control
+        """
 
         # интерфейс расшифровки команды питания вентиляторов радиатора
         frame_for_rfp = LabelFrame(frame_for_status_control, bg="gray95")
@@ -1083,9 +1107,9 @@ class AdjustmentUtility:
                                 relief=SUNKEN, anchor=W)
         reserve_5_label.pack(side=LEFT, padx=3, pady=1)
 
-        #
-        # поле отображения информации Status Sensors
-        #
+        """
+        Поле отображения информации Status Sensors
+        """
 
         # интерфейс расшифровки статуса датчика температуры холодной воды
         frame_for_wts1 = LabelFrame(frame_for_status_sensors, bg="gray95")
@@ -1230,7 +1254,7 @@ class AdjustmentUtility:
                                bg="gray60", command=poa_status_command)
         status_button.pack(side=TOP, pady=4, padx=4)
 
-        # Изменяет состояние кнопок в окне
+        # Изменяет состояние кнопок в окне в случае автоматического режима
         if auto:
             self.poa_button.configure(bg="green3", state='disabled', relief=RIDGE)
             self.sth1_button.configure(bg="gray60", state='disabled', relief=GROOVE)
@@ -1257,6 +1281,7 @@ class AdjustmentUtility:
         if auto:
 
             def error_control(exception='None'):
+                # Функция проверки ошибок из команд от автоматического скрипта
                 reset = False
 
                 if exception == "key_exception":
@@ -1442,7 +1467,6 @@ class AdjustmentUtility:
                                 return True
                             else:
                                 return False
-
 
                     else:
                         reset = True
@@ -1869,6 +1893,7 @@ class AdjustmentUtility:
                 return
 
             def start_check():
+                # Запуск скрипта автоматической проверки системы охлаждения
                 if not check_step(1):
                     if not check_step(2):
                         if not check_step(3):
@@ -1894,11 +1919,11 @@ class AdjustmentUtility:
                                                         self.poa_unit()
                                                         self.info_text_box.delete('1.0', END)
                                                         self.info_text_box.insert(END,
-                                                                                  "❌ АВТОМАТИЧЕСКАЯ ПРОВЕРКА ОСТАНОВЛЕНА\n",
-                                                                                  'tag_red_text')
+                                                                                  "❌ АВТОМАТИЧЕСКАЯ ПРОВЕРКА "
+                                                                                  "ОСТАНОВЛЕНА\n", 'tag_red_text')
                                                         self.info_text_box.insert(END,
-                                                                                  "⫸ Программа переведена в ручной режим\n",
-                                                                                  'tag_black_text')
+                                                                                  "⫸ Программа переведена в ручной "
+                                                                                  "режим\n", 'tag_black_text')
                                                         self.info_text_box.yview(END)
                                                         self.start_window.update_idletasks()
                                                         return
@@ -1912,10 +1937,14 @@ class AdjustmentUtility:
                                                                             self.poa_unit()
                                                                             self.info_text_box.delete('1.0', END)
                                                                             self.info_text_box.insert(END,
-                                                                                                      "❌ АВТОМАТИЧЕСКАЯ ПРОВЕРКА ОСТАНОВЛЕНА\n",
+                                                                                                      "❌ АВТОМАТИЧЕСКАЯ"
+                                                                                                      " ПРОВЕРКА"
+                                                                                                      " ОСТАНОВЛЕНА\n",
                                                                                                       'tag_red_text')
                                                                             self.info_text_box.insert(END,
-                                                                                                      "⫸ Программа переведена в ручной режим\n",
+                                                                                                      "⫸ Программа "
+                                                                                                      "переведена в "
+                                                                                                      "ручной режим\n",
                                                                                                       'tag_black_text')
                                                                             self.info_text_box.yview(END)
                                                                             self.start_window.update_idletasks()
@@ -2019,6 +2048,7 @@ class AdjustmentUtility:
         pass
 
     def set_parameters(self):
+        # Устанавливает параметры COM-порта
         bytesize = self.bytesize_combobox.get()
         request_and_port_list.com_port_settings["bytesize"] = bytesize
         self.bytesize_combobox.configure(foreground="green3")
@@ -2045,6 +2075,7 @@ class AdjustmentUtility:
             self.info_text_box.yview(END)
 
     def manual_parameters(self):
+        # Функционал кнопки "Manual", разблокирует ручное управление
         self.auto_button.configure(bg="gray60", state="normal", relief=GROOVE)
         self.manual_button.configure(bg="PaleGreen3", state="disabled", relief=RIDGE)
         self.frame_for_units.destroy()
@@ -2064,6 +2095,7 @@ class AdjustmentUtility:
         self.bytesize_combobox.configure(state='readonly')
 
     def auto_parameters(self):
+        # функционал кнопки "Auto" (не доработан)
         if self.terminal_open:
             self.terminal()
         self.manual_button.configure(bg="gray60", state="normal", relief=GROOVE)
@@ -2087,7 +2119,6 @@ class AdjustmentUtility:
         self.port_combobox.set('')
         self.bytesize_combobox.configure(state='disabled')
         self.bytesize_combobox.set('')
-
 
     def terminal(self):
         if self.terminal_open:
@@ -2324,6 +2355,5 @@ class AdjustmentUtility:
 
         self.start_window.mainloop()
 
-
 # Закомментить для авто
-#AdjustmentUtility().main_frame_unit("poa_request")
+# AdjustmentUtility().main_frame_unit("poa_request")

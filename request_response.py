@@ -1,11 +1,11 @@
 import serial.tools.list_ports
 from tkinter.messagebox import showerror
 
-# Импортируем словарь!
 import request_and_port_list
 
 
 def command_sender(accepted_request=None):
+    """Функция отправки запросов контроллеру подключённого устройства"""
 
     port = serial.Serial(request_and_port_list.com_port_settings["comport"],
                          baudrate=int(request_and_port_list.com_port_settings["baudrate"]),
