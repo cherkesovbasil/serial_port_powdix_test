@@ -18,6 +18,7 @@ class AdjustmentUtility:
     """
 
     def __init__(self):
+        # Инициализация первичных переменных для класса
 
         self.frame_for_full_terminal = None
         self.terminal_open = False
