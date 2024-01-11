@@ -125,7 +125,6 @@ class AdjustmentUtility:
                     device_label.config(text="❌", bg="salmon")
                 device_data.config(text=device_hex.upper())
 
-
             def transcript_status_t_max():
                 # расшифровка поля t_max
 
@@ -141,7 +140,6 @@ class AdjustmentUtility:
                     t_max_label.config(bg="salmon")
                 t_max_label.config(text=str(t_max_dec).upper())
                 t_max_data.config(text=t_max_hex.upper())
-
 
             def transcript_status_t_min():
                 # расшифровка поля t_min
