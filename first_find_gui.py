@@ -121,7 +121,7 @@ class Gui:
                                     self.start_window.destroy()
                                 if self.full_auto_init_window:
                                     self.full_auto_init_window.destroy()
-                                control_unit.AdjustmentUtility().main_frame_unit(request_name)
+                                control_unit.AdjustmentUtility().main_frame_unit(answer)
                                 return answer
                             else:
                                 poa_label.config(background="gray90")
@@ -135,6 +135,11 @@ class Gui:
                                 sth1_label.config(background="SeaGreen1")
                                 sth1_label.update()
                                 answer = request_name
+                                if self.start_window:
+                                    self.start_window.destroy()
+                                if self.full_auto_init_window:
+                                    self.full_auto_init_window.destroy()
+                                control_unit.AdjustmentUtility().main_frame_unit(request_name)
                                 return answer
                             else:
                                 sth1_label.config(background="gray90")
@@ -148,6 +153,11 @@ class Gui:
                                 sth2_label.config(background="SeaGreen1")
                                 sth2_label.update()
                                 answer = request_name
+                                if self.start_window:
+                                    self.start_window.destroy()
+                                if self.full_auto_init_window:
+                                    self.full_auto_init_window.destroy()
+                                control_unit.AdjustmentUtility().main_frame_unit(request_name)
                                 return answer
                             else:
                                 sth2_label.config(background="gray90")
@@ -161,6 +171,11 @@ class Gui:
                                 sth3_label.config(background="SeaGreen1")
                                 sth3_label.update()
                                 answer = request_name
+                                if self.start_window:
+                                    self.start_window.destroy()
+                                if self.full_auto_init_window:
+                                    self.full_auto_init_window.destroy()
+                                control_unit.AdjustmentUtility().main_frame_unit(request_name)
                                 return answer
                             else:
                                 sth3_label.config(background="gray90")
@@ -174,6 +189,11 @@ class Gui:
                                 sc_label.config(background="SeaGreen1")
                                 sc_label.update()
                                 answer = request_name
+                                if self.start_window:
+                                    self.start_window.destroy()
+                                if self.full_auto_init_window:
+                                    self.full_auto_init_window.destroy()
+                                control_unit.AdjustmentUtility().main_frame_unit(request_name)
                                 return answer
                             else:
                                 sc_label.config(background="gray90")
@@ -270,7 +290,6 @@ class Gui:
         no_signature()
 
         return self.device_signature
-    # ВОЗВРАЩАЕТ СИГНАТУРУ В ФОРМАТЕ "poa_request"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     def init_start_window(self):
         """Запускает первичное окно с возможностью первичного просмотра баз данных, добавления, удаления, открытия"""

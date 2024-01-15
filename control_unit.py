@@ -2,7 +2,9 @@ import time
 from tkinter import *
 from tkinter import ttk
 from tkinter.messagebox import askyesno
+from math import ceil
 import serial
+import re
 
 import request_and_port_list
 import request_response
@@ -20,6 +22,9 @@ class AdjustmentUtility:
     def __init__(self):
         # Инициализация первичных переменных для класса
 
+        self.status_text_box = None
+        self.full_auto_init_window = None
+        self.device_signature = None
         self.frame_for_full_terminal = None
         self.terminal_open = False
 
@@ -1210,7 +1215,6 @@ class AdjustmentUtility:
         command_label.pack(side=LEFT, padx=3, pady=1)
 
         # фрэймы поля кнопок управления системой охлаждения
-
         frame_for_start_stop_buttons = LabelFrame(self.frame_for_units, bg="gray80")
         frame_for_start_stop_buttons.pack(side=RIGHT, padx=4, pady=1, fill=X)
 
@@ -1384,7 +1388,6 @@ class AdjustmentUtility:
                                     return False
 
                         if error == "t_max_error":
-                            print(status)
                             if status == 255:
                                 result = askyesno(title="Ошибка данных датчика температуры горячей воды",
                                                   message="Датчик температуры горячей воды не подключён либо "
@@ -1480,7 +1483,6 @@ class AdjustmentUtility:
                 self.info_text_box.insert(END, "⫸ Проверка выполнения команды START\n", 'tag_black_text')
                 self.info_text_box.yview(END)
                 self.start_window.update_idletasks()
-                print("def step_1()")
                 poa_start_command(False)
 
                 self.info_text_box.insert(END, "✔ Ответ получен и проверен\n", 'tag_green_text')
@@ -1574,7 +1576,6 @@ class AdjustmentUtility:
                 self.info_text_box.insert(END, "⫸ Проверка выполнения команды STOP\n", 'tag_black_text')
                 self.info_text_box.yview(END)
                 self.start_window.update_idletasks()
-                print("def step_1()")
                 time.sleep(0.1)
                 poa_stop_command()
 
@@ -1679,7 +1680,6 @@ class AdjustmentUtility:
                 self.info_text_box.insert(END, "⫸ Проверка выполнения команды DRY\n", 'tag_black_text')
                 self.info_text_box.yview(END)
                 self.start_window.update_idletasks()
-                print("def step_1()")
                 time.sleep(0.1)
                 poa_dry_command()
 
@@ -1739,7 +1739,6 @@ class AdjustmentUtility:
                 self.info_text_box.insert(END, "⫸ Проверка выполнения команды START\n", 'tag_black_text')
                 self.info_text_box.yview(END)
                 self.start_window.update_idletasks()
-                print("def step_1()")
                 time.sleep(0.1)
                 poa_start_command()
 
@@ -1775,7 +1774,6 @@ class AdjustmentUtility:
                 self.info_text_box.insert(END, "⫸ Остановка работы системы\n", 'tag_black_text')
                 self.info_text_box.yview(END)
                 self.start_window.update_idletasks()
-                print("def step_1()")
                 poa_status_command(False)
                 time.sleep(0.1)
                 self.info_text_box.insert(END, "✔ Ответ получен и проверен\n", 'tag_green_text')
@@ -1831,7 +1829,6 @@ class AdjustmentUtility:
                         poa_status_command(False)
                 if out:
                     while out:
-                        print("Restart!!!!!!!!!!!!!!!!!!!")
                         if step_number != 1:
                             if step_number == 1 or step_number == 2 or step_number == 3 or step_number == 12 or \
                                     step_number == 13:
@@ -2060,8 +2057,6 @@ class AdjustmentUtility:
         comport = self.port_combobox.get()
         request_and_port_list.com_port_settings["comport"] = comport
         self.port_combobox.configure(foreground="green3")
-        print("Ответ после кнопки SET:")
-        print(request_and_port_list.com_port_settings)
         try:
             serial.Serial(request_and_port_list.com_port_settings["comport"])
             self.set_button.configure(background="PaleGreen3")
@@ -2119,6 +2114,264 @@ class AdjustmentUtility:
         self.bytesize_combobox.configure(state='disabled')
         self.bytesize_combobox.set('')
 
+        #
+        ###
+        #
+
+        # Прописывает с нуля интерфейсный фрейм
+        if self.frame_for_units:
+            self.frame_for_units.destroy()
+        self.frame_for_units = LabelFrame(self.start_window, bg="gray90")
+        self.frame_for_units.pack(side=TOP, padx=1, pady=1, fill=X)
+
+        def com_ports():
+            # Функция работы с COM-портами
+            
+            def update_info(port_number, message):
+                # Функция обновления отображений портов
+
+                # Обновляю поле отчёта о поиске портов
+                self.status_text_box.insert(END, message)
+                self.status_text_box.update()
+                self.status_text_box.yview(END)
+
+                # обновляю шкалу загрузки
+                process_progressbar["value"] = port_number * 2
+                process_progressbar.update()
+
+            def find_device():
+                # Функция поиска подключённых устройств
+
+                self.frame_for_find_device = LabelFrame(self.full_auto_init_window)
+                self.frame_for_find_device.pack(side=BOTTOM, fill=X)
+
+                frame_for_comport = LabelFrame(self.frame_for_find_device, background="SeaGreen1")
+                frame_for_comport.pack(side=LEFT)
+
+                frame_for_requests = LabelFrame(self.frame_for_find_device)
+                frame_for_requests.pack(side=RIGHT)
+
+                com_port_label = Label(frame_for_comport, text="COM1", background="SeaGreen1")
+                com_port_label.pack(side=LEFT, fill=X, padx=27)
+
+                poa_label = Label(frame_for_requests, text="подсистема охлаждения", relief=GROOVE,
+                                  background="gray90")
+                poa_label.pack(side=TOP, fill=X, padx=10)
+
+                sth1_label = Label(frame_for_requests, text="датчик температуры-влажности 1", relief=GROOVE,
+                                   background="gray90")
+                sth1_label.pack(side=TOP, fill=X, padx=10)
+
+                sth2_label = Label(frame_for_requests, text="датчик температуры-влажности 2", relief=GROOVE,
+                                   background="gray90")
+                sth2_label.pack(side=TOP, fill=X, padx=10)
+
+                sth3_label = Label(frame_for_requests, text="датчик температуры-влажности 3", relief=GROOVE,
+                                   background="gray90")
+                sth3_label.pack(side=TOP, fill=X, padx=10)
+
+                sc_label = Label(frame_for_requests, text="автосменщик образцов/вращатель", relief=GROOVE,
+                                 background="gray90")
+                sc_label.pack(side=TOP, fill=X, padx=10)
+
+                ck_label = Label(frame_for_requests, text="автоматический коллиматор-нож", relief=GROOVE,
+                                 background="gray90")
+                ck_label.pack(side=TOP, fill=X, padx=10)
+
+                frame_for_status_full_auto.update()
+
+                answer = None
+                for extracted_port in open_ports:
+                    request_and_port_list.com_port_settings["comport"] = extracted_port
+                    if answer:
+                        break
+
+                    com_port_label.config(text="...........")
+                    com_port_label.update()
+                    time.sleep(0.1)
+                    com_port_label.config(text=extracted_port)
+                    com_port_label.update()
+                    for request_name, request in request_and_port_list.identification_dictionary.items():
+
+                        if request_name == "poa_request":
+                            poa_label.config(background="deep sky blue")
+                            poa_label.update()
+                            answer = request_response.command_sender(accepted_request=request)
+                            if answer:
+                                poa_label.config(background="SeaGreen1")
+                                poa_label.update()
+                                answer = request_name
+                                if self.start_window:
+                                    self.start_window.destroy()
+                                if self.full_auto_init_window:
+                                    self.full_auto_init_window.destroy()
+                                AdjustmentUtility().main_frame_unit(request_name)
+                                return answer
+                            else:
+                                poa_label.config(background="gray90")
+                                poa_label.update()
+
+                        elif request_name == "sth_1_request":
+                            sth1_label.config(background="deep sky blue")
+                            sth1_label.update()
+                            answer = request_response.command_sender(accepted_request=request)
+                            if answer:
+                                sth1_label.config(background="SeaGreen1")
+                                sth1_label.update()
+                                answer = request_name
+                                if self.start_window:
+                                    self.start_window.destroy()
+                                if self.full_auto_init_window:
+                                    self.full_auto_init_window.destroy()
+                                AdjustmentUtility().main_frame_unit(request_name)
+                                return answer
+                            else:
+                                sth1_label.config(background="gray90")
+                                sth1_label.update()
+
+                        elif request_name == "sth_2_request":
+                            sth2_label.config(background="deep sky blue")
+                            sth2_label.update()
+                            answer = request_response.command_sender(accepted_request=request)
+                            if answer:
+                                sth2_label.config(background="SeaGreen1")
+                                sth2_label.update()
+                                answer = request_name
+                                if self.start_window:
+                                    self.start_window.destroy()
+                                if self.full_auto_init_window:
+                                    self.full_auto_init_window.destroy()
+                                AdjustmentUtility().main_frame_unit(request_name)
+                                return answer
+                            else:
+                                sth2_label.config(background="gray90")
+                                sth2_label.update()
+
+                        elif request_name == "sth_3_request":
+                            sth3_label.config(background="deep sky blue")
+                            sth3_label.update()
+                            answer = request_response.command_sender(accepted_request=request)
+                            if answer:
+                                sth3_label.config(background="SeaGreen1")
+                                sth3_label.update()
+                                answer = request_name
+                                if self.start_window:
+                                    self.start_window.destroy()
+                                if self.full_auto_init_window:
+                                    self.full_auto_init_window.destroy()
+                                AdjustmentUtility().main_frame_unit(request_name)
+                                return answer
+                            else:
+                                sth3_label.config(background="gray90")
+                                sth3_label.update()
+
+                        elif request_name == "sc_request":
+                            sc_label.config(background="deep sky blue")
+                            sc_label.update()
+                            answer = request_response.command_sender(accepted_request=request)
+                            if answer:
+                                sc_label.config(background="SeaGreen1")
+                                sc_label.update()
+                                answer = request_name
+                                if self.start_window:
+                                    self.start_window.destroy()
+                                if self.full_auto_init_window:
+                                    self.full_auto_init_window.destroy()
+                                AdjustmentUtility().main_frame_unit(request_name)
+                                return answer
+                            else:
+                                sc_label.config(background="gray90")
+                                sc_label.update()
+
+            open_ports = []
+            found = False
+            for com_counter in range(1, 51):
+                step = "Checking COM-Port: " + str(com_counter)
+                update_info(com_counter, step)
+                try:
+                    port = "COM" + str(com_counter)
+                    ser = serial.Serial(port)
+                    ser.close()
+                    step = "Found the serial port: " + str(port)
+                    update_info(com_counter, step)
+                    open_ports.append(port)
+                    found = True
+                except serial.serialutil.SerialException:
+                    pass
+
+            if not found:
+                step = "No serial ports detected"
+                update_info(0, step)
+                return []
+
+            device_answer = find_device()
+
+            return device_answer
+
+        self.full_auto_init_window = Tk()
+        self.full_auto_init_window.title("Searching for available ports")
+        # команда при закрытии окна
+
+        # disables the ability to zoom the page
+        self.full_auto_init_window.resizable(False, False)
+
+        # frame for the interface
+        frame_for_status_full_auto = LabelFrame(self.full_auto_init_window)
+        frame_for_status_full_auto.pack(side=TOP)
+
+        progress_label = Label(frame_for_status_full_auto, text="Progress (checking ports):")
+        progress_label.pack(side=TOP, fill=X, padx=10)
+
+        process_progressbar = ttk.Progressbar(frame_for_status_full_auto, orient="horizontal")
+        process_progressbar.pack(side=TOP, fill=X, padx=10)
+
+        # outputs the information about the absolute error in the GUI
+        self.status_text_box = Listbox(frame_for_status_full_auto, relief=GROOVE, width=50, height=4,
+                                       selectbackground="grey60")
+        self.status_text_box.pack(side=TOP, padx=10, pady=10)
+
+        # sets the size of the window and places it in the center of the screen
+        self.full_auto_init_window.update_idletasks()  # Updates information after all frames are created
+        s = self.full_auto_init_window.geometry()
+        s = s.split('+')
+        s = s[0].split('x')
+        width_window = int(s[0])
+        height_window = int(s[1])
+
+        w = self.full_auto_init_window.winfo_screenwidth()
+        h = self.full_auto_init_window.winfo_screenheight()
+        w = w // 2
+        h = h // 2
+        w = w - width_window // 2 + 400
+        h = h - height_window // 2
+        self.full_auto_init_window.geometry('+{}+{}'.format(w, h))
+
+        self.device_signature = com_ports()
+
+        def start():
+            # Запускает поиск
+            self.status_text_box.delete(0, END)
+            self.device_signature = com_ports()
+            no_signature()
+            return
+
+        def no_signature():
+            # Исключение - ничего не нашло
+
+            if not self.device_signature:
+                self.status_text_box.delete(0, END)
+                self.status_text_box.insert(END, "Не удаётся найти устройство. Проверьте")
+                self.status_text_box.insert(END, "правильность подключения устройства и")
+                self.status_text_box.insert(END, "перезапустите поиск")
+                self.status_text_box.update()
+                self.restart_button = Button(frame_for_status_full_auto, text="RESTART PROCESS", relief=GROOVE,
+                                             background="brown1", command=start)
+                self.restart_button.pack(side=TOP, fill=X)
+
+        no_signature()
+
+        return self.device_signature
+
     def terminal(self):
         if self.terminal_open:
             self.terminal_button.configure(text="⮞\n⮞\n⮞\n\nT\nE\nR\nM\nI\nN\nA\nL\n\n⮞\n⮞\n⮞")
@@ -2135,7 +2388,56 @@ class AdjustmentUtility:
                 pass
 
             def bit_check_crc():
+                # БЛИН, ТУТ НУЖНО ЧТО-ТО ДУМАТЬ. СУММА НЕ ТО, ЧЕМ КАЖЕТСЯ
+                # Проверяет контрольную сумму
+                bit_1_hex = bit_1_entry.get().upper()
+                bit_2_hex = bit_2_entry.get().upper()
+                bit_3_hex = bit_3_entry.get().upper()
+                bit_4_hex = bit_4_entry.get().upper()
+                bit_5_hex = bit_5_entry.get().upper()
+                bit_6_hex = bit_6_entry.get().upper()
+                bit_7_hex = bit_7_entry.get().upper()
+                print(bit_1_hex + bit_2_hex + bit_3_hex)
+
+                bit_1_dec = int(bit_1_hex, 16)
+                bit_2_dec = int(bit_2_hex, 16)
+                bit_3_dec = int(bit_3_hex, 16)
+                bit_4_dec = int(bit_4_hex, 16)
+                bit_5_dec = int(bit_5_hex, 16)
+                bit_6_dec = int(bit_6_hex, 16)
+                bit_7_dec = int(bit_7_hex, 16)
+                print(str(bit_1_dec) + ":" + str(bit_2_dec) + ":" + str(bit_3_dec))
+
+                full_hex_summ = bit_1_dec + bit_2_dec + bit_3_dec + bit_4_dec + bit_5_dec + bit_6_dec + bit_7_dec
+                print(full_hex_summ)
+                # Округление до сотен
+
+                def ceil_to(num, to):
+                    return ceil(num / to) * to
+
+                bit_8_max = ceil_to(full_hex_summ, 100)
+                bit_8_dec = bit_8_max - full_hex_summ
+                print(bit_8_dec)
+                bit_8_hex = hex(bit_8_dec)
+                print(bit_8_hex)
+
+                """
+                full_dec_summ = 0
+                full_hex_summ = 0
+                for bit in range(0, 20):
+                    if bit % 2 != 0:
+                        hex_bit = recieved_command[bit - 1] + recieved_command[bit]
+                        full_dec_summ = full_dec_summ + int(hex_bit, 16)
+                        full_hex_summ = hex(full_dec_summ)
+                if full_hex_summ[len(full_hex_summ) - 1] == "0":
+                    crc_label.config(bg="PaleGreen3", text="OK")
+                    poa_auto_errors["crc_error"] = False
+                else:
+                    crc_label.config(bg="salmon", text=str(full_hex_summ))
+                    poa_auto_errors["crc_error"] = True
+                crc_data.config(text=recieved_command[18].upper() + recieved_command[19].upper())
                 pass
+                """
 
             def string_check_crc():
                 pass
@@ -2148,6 +2450,126 @@ class AdjustmentUtility:
 
             def send_string_command():
                 pass
+
+            def validate_command_1(bit):
+                if len(bit) == 1:
+                    return bit == "" or bit.isnumeric() or bit.isalpha()
+                elif len(bit) == 2:
+                    if bit[1].isnumeric() or bit[1].isalpha():
+                        bit_2_entry.focus_set()
+                        bit_1_entry.config(background="PaleGreen3")
+                    return bit[1] == "" or bit[1].isnumeric() or bit[1].isalpha()
+                else:
+                    bit_1_entry.config(background="salmon")
+                    bit_1_entry.update()
+                    time.sleep(0.1)
+                    bit_1_entry.config(background="PaleGreen3")
+                    return bit == ""
+
+            def validate_command_2(bit):
+                if len(bit) == 1:
+                    return bit == "" or bit.isnumeric() or bit.isalpha()
+                elif len(bit) == 2:
+                    if bit[1].isnumeric() or bit[1].isalpha():
+                        bit_3_entry.focus_set()
+                        bit_2_entry.config(background="PaleGreen3")
+                    return bit[1] == "" or bit[1].isnumeric() or bit[1].isalpha()
+                else:
+                    bit_2_entry.config(background="salmon")
+                    bit_2_entry.update()
+                    time.sleep(0.1)
+                    bit_2_entry.config(background="PaleGreen3")
+                    return bit == ""
+
+            def validate_command_3(bit):
+                if len(bit) == 1:
+                    return bit == "" or bit.isnumeric() or bit.isalpha()
+                elif len(bit) == 2:
+                    if bit[1].isnumeric() or bit[1].isalpha():
+                        bit_4_entry.focus_set()
+                        bit_3_entry.config(background="PaleGreen3")
+                    return bit[1] == "" or bit[1].isnumeric() or bit[1].isalpha()
+                else:
+                    bit_3_entry.config(background="salmon")
+                    bit_3_entry.update()
+                    time.sleep(0.1)
+                    bit_3_entry.config(background="PaleGreen3")
+                    return bit == ""
+
+            def validate_command_4(bit):
+                if len(bit) == 1:
+                    return bit == "" or bit.isnumeric() or bit.isalpha()
+                elif len(bit) == 2:
+                    if bit[1].isnumeric() or bit[1].isalpha():
+                        bit_5_entry.focus_set()
+                        bit_4_entry.config(background="PaleGreen3")
+                    return bit[1] == "" or bit[1].isnumeric() or bit[1].isalpha()
+                else:
+                    bit_4_entry.config(background="salmon")
+                    bit_4_entry.update()
+                    time.sleep(0.1)
+                    bit_4_entry.config(background="PaleGreen3")
+                    return bit == ""
+
+            def validate_command_5(bit):
+                if len(bit) == 1:
+                    return bit == "" or bit.isnumeric() or bit.isalpha()
+                elif len(bit) == 2:
+                    if bit[1].isnumeric() or bit[1].isalpha():
+                        bit_6_entry.focus_set()
+                        bit_5_entry.config(background="PaleGreen3")
+                    return bit[1] == "" or bit[1].isnumeric() or bit[1].isalpha()
+                else:
+                    bit_5_entry.config(background="salmon")
+                    bit_5_entry.update()
+                    time.sleep(0.1)
+                    bit_5_entry.config(background="PaleGreen3")
+                    return bit == ""
+
+            def validate_command_6(bit):
+                if len(bit) == 1:
+                    return bit == "" or bit.isnumeric() or bit.isalpha()
+                elif len(bit) == 2:
+                    if bit[1].isnumeric() or bit[1].isalpha():
+                        bit_7_entry.focus_set()
+                        bit_6_entry.config(background="PaleGreen3")
+                    return bit[1] == "" or bit[1].isnumeric() or bit[1].isalpha()
+                else:
+                    bit_6_entry.config(background="salmon")
+                    bit_6_entry.update()
+                    time.sleep(0.1)
+                    bit_6_entry.config(background="PaleGreen3")
+                    return bit == ""
+
+            def validate_command_7(bit):
+                if len(bit) == 1:
+                    return bit == "" or bit.isnumeric() or bit.isalpha()
+                elif len(bit) == 2:
+                    if bit[1].isnumeric() or bit[1].isalpha():
+                        bit_check_crc_button.focus_set()
+                        bit_7_entry.config(background="PaleGreen3")
+                    return bit[1] == "" or bit[1].isnumeric() or bit[1].isalpha()
+                else:
+                    bit_7_entry.config(background="salmon")
+                    bit_7_entry.update()
+                    time.sleep(0.1)
+                    bit_7_entry.config(background="PaleGreen3")
+                    return bit == ""
+
+            def validate_command_8(bit):
+                if len(bit) == 1:
+                    return bit == "" or bit.isnumeric() or bit.isalpha()
+                elif len(bit) == 2:
+                    if bit[1].isnumeric() or bit[1].isalpha():
+                        bit_check_crc_button.focus_set()
+                        bit_8_entry.config(background="PaleGreen3")
+                    return bit[1] == "" or bit[1].isnumeric() or bit[1].isalpha()
+                else:
+                    bit_8_entry.config(background="salmon")
+                    bit_8_entry.update()
+                    time.sleep(0.1)
+                    bit_8_entry.config(background="PaleGreen3")
+                    return bit == ""
 
             self.terminal_button.configure(text="⮜\n⮜\n⮜\n\nT\nE\nR\nM\nI\nN\nA\nL\n\n⮜\n⮜\n⮜")
 
@@ -2189,21 +2611,45 @@ class AdjustmentUtility:
             right_terminal_clear_button.pack(side=TOP, padx=1, pady=1)
 
             # Побитное поле для введения команды
-            bit_1_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=4, selectbackground="grey60")
+            check_1_bit = (frame_for_per_byte_command.register(validate_command_1), "%P")
+            bit_1_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=4, background="grey100",
+                                validate="key", validatecommand=check_1_bit)
             bit_1_entry.pack(side=LEFT, padx=1, pady=1, fill=X)
-            bit_2_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=4, selectbackground="grey60")
+            bit_1_entry.focus_set()
+
+            check_2_bit = (frame_for_per_byte_command.register(validate_command_2), "%P")
+            bit_2_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=4, background="grey100",
+                                validate="key", validatecommand=check_2_bit)
             bit_2_entry.pack(side=LEFT, padx=1, pady=1, fill=X)
-            bit_3_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=4, selectbackground="grey60")
+
+            check_3_bit = (frame_for_per_byte_command.register(validate_command_3), "%P")
+            bit_3_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=4, background="grey100",
+                                validate="key", validatecommand=check_3_bit)
             bit_3_entry.pack(side=LEFT, padx=1, pady=1, fill=X)
-            bit_4_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=4, selectbackground="grey60")
+
+            check_4_bit = (frame_for_per_byte_command.register(validate_command_4), "%P")
+            bit_4_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=4, background="grey100",
+                                validate="key", validatecommand=check_4_bit)
             bit_4_entry.pack(side=LEFT, padx=1, pady=1, fill=X)
-            bit_5_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=4, selectbackground="grey60")
+
+            check_5_bit = (frame_for_per_byte_command.register(validate_command_5), "%P")
+            bit_5_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=4, background="grey100",
+                                validate="key", validatecommand=check_5_bit)
             bit_5_entry.pack(side=LEFT, padx=1, pady=1, fill=X)
-            bit_6_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=4, selectbackground="grey60")
+
+            check_6_bit = (frame_for_per_byte_command.register(validate_command_6), "%P")
+            bit_6_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=4, background="grey100",
+                                validate="key", validatecommand=check_6_bit)
             bit_6_entry.pack(side=LEFT, padx=1, pady=1, fill=X)
-            bit_7_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=4, selectbackground="grey60")
+
+            check_7_bit = (frame_for_per_byte_command.register(validate_command_7), "%P")
+            bit_7_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=4, background="grey100",
+                                validate="key", validatecommand=check_7_bit)
             bit_7_entry.pack(side=LEFT, padx=1, pady=1, fill=X)
-            bit_8_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=4, selectbackground="grey60")
+
+            check_8_bit = (frame_for_per_byte_command.register(validate_command_8), "%P")
+            bit_8_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=4, background="grey80",
+                                validate="key", validatecommand=check_8_bit)
             bit_8_entry.pack(side=LEFT, padx=1, pady=1, fill=X)
 
             bit_check_crc_button = Button(frame_for_per_byte_command, text="CRC", relief=GROOVE, width=4,
@@ -2349,10 +2795,6 @@ class AdjustmentUtility:
             self.manual_parameters()
 
         if device == "poa_request":
-            self.auto_parameters()
             self.poa_unit(True)
 
         self.start_window.mainloop()
-
-# Закомментить для авто
-# AdjustmentUtility().main_frame_unit("poa_request")
