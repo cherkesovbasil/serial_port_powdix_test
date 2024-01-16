@@ -2126,7 +2126,7 @@ class AdjustmentUtility:
 
         def com_ports():
             # Функция работы с COM-портами
-            
+
             def update_info(port_number, message):
                 # Функция обновления отображений портов
 
@@ -2397,7 +2397,8 @@ class AdjustmentUtility:
                 bit_5_hex = bit_5_entry.get().upper()
                 bit_6_hex = bit_6_entry.get().upper()
                 bit_7_hex = bit_7_entry.get().upper()
-                print(bit_1_hex + bit_2_hex + bit_3_hex)
+                bit_8_hex = bit_8_entry.get().upper()
+                bit_9_hex = bit_9_entry.get().upper()
 
                 bit_1_dec = int(bit_1_hex, 16)
                 bit_2_dec = int(bit_2_hex, 16)
@@ -2406,20 +2407,42 @@ class AdjustmentUtility:
                 bit_5_dec = int(bit_5_hex, 16)
                 bit_6_dec = int(bit_6_hex, 16)
                 bit_7_dec = int(bit_7_hex, 16)
-                print(str(bit_1_dec) + ":" + str(bit_2_dec) + ":" + str(bit_3_dec))
+                bit_8_dec = int(bit_8_hex, 16)
+                bit_9_dec = int(bit_9_hex, 16)
+                print(str(bit_1_dec) + ":" + str(bit_2_dec) + ":" + str(bit_3_dec) + ":" + str(bit_4_dec) + ":" + str(bit_5_dec) + ":" + str(bit_6_dec) + ":" + str(bit_7_dec) + ":" + str(bit_8_dec) + ":" + str(bit_9_dec))
 
-                full_hex_summ = bit_1_dec + bit_2_dec + bit_3_dec + bit_4_dec + bit_5_dec + bit_6_dec + bit_7_dec
-                print(full_hex_summ)
+                full_dec_summ = bit_1_dec + bit_2_dec + bit_3_dec + bit_4_dec + bit_5_dec + \
+                                bit_6_dec + bit_7_dec + bit_8_dec + bit_9_dec
+                print("full_hex_summ:")
+                print(full_dec_summ)
+
                 # Округление до сотен
 
                 def ceil_to(num, to):
                     return ceil(num / to) * to
 
-                bit_8_max = ceil_to(full_hex_summ, 100)
-                bit_8_dec = bit_8_max - full_hex_summ
-                print(bit_8_dec)
-                bit_8_hex = hex(bit_8_dec)
-                print(bit_8_hex)
+                bit_10_max = ceil_to(full_dec_summ, 256)
+
+                print("bit_10_max:")
+                print(bit_10_max)
+
+                bit_10_dec = bit_10_max - full_dec_summ
+
+                print("bit_10_dec:")
+                print(bit_10_dec)
+
+                bit_10_hex = hex(bit_10_dec)
+
+                print("bit_10_hex:")
+                print(bit_10_hex)
+
+                bit_10_entry.delete(0, END)
+                if len(bit_10_hex) == 3:
+                    bit_10_entry.insert(0, "0" + bit_10_hex[2].upper())
+                if len(bit_10_hex) == 4:
+                    bit_10_entry.insert(0, bit_10_hex[2].upper() + bit_10_hex[3].upper())
+
+                send_bit_command_button.focus_set()
 
                 """
                 full_dec_summ = 0
@@ -2443,15 +2466,129 @@ class AdjustmentUtility:
                 pass
 
             def send_bit_command():
-                left_terminal_text_box.insert(END, "40 15 74 1C 7E 00 00 68 ⮘ crc ok")
+                def pseudo_validate():
+                    return True
+
+                bit_1_entry.config(background="grey100", validatecommand=pseudo_validate)
+                bit_1_entry.delete(0, END)
+                bit_1_entry.config(background="grey100", validatecommand=self.check_1_bit)
+
+                bit_2_entry.config(background="grey100", validatecommand=pseudo_validate)
+                bit_2_entry.delete(0, END)
+                bit_2_entry.config(background="grey100", validatecommand=check_2_bit)
+
+                bit_3_entry.config(background="grey100", validatecommand=pseudo_validate)
+                bit_3_entry.delete(0, END)
+                bit_3_entry.config(background="grey100", validatecommand=check_3_bit)
+
+                bit_4_entry.config(background="grey100", validatecommand=pseudo_validate)
+                bit_4_entry.delete(0, END)
+                bit_4_entry.config(background="grey100", validatecommand=check_4_bit)
+
+                bit_5_entry.config(background="grey100", validatecommand=pseudo_validate)
+                bit_5_entry.delete(0, END)
+                bit_5_entry.config(background="grey100", validatecommand=check_5_bit)
+
+                bit_6_entry.config(background="grey100", validatecommand=pseudo_validate)
+                bit_6_entry.delete(0, END)
+                bit_6_entry.config(background="grey100", validatecommand=check_6_bit)
+
+                bit_7_entry.config(background="grey100", validatecommand=pseudo_validate)
+                bit_7_entry.delete(0, END)
+                bit_7_entry.config(background="grey100", validatecommand=check_7_bit)
+
+                bit_8_entry.config(background="grey100", validatecommand=pseudo_validate)
+                bit_8_entry.delete(0, END)
+                bit_8_entry.config(background="grey100", validatecommand=check_8_bit)
+
+                bit_9_entry.config(background="grey100", validatecommand=pseudo_validate)
+                bit_9_entry.delete(0, END)
+                bit_9_entry.config(background="grey100", validatecommand=check_9_bit)
+
+                bit_10_entry.config(background="grey80", validatecommand=pseudo_validate)
+                bit_10_entry.delete(0, END)
+                bit_10_entry.config(background="grey80", validatecommand=check_10_bit)
+
+                bit_1_entry.focus_set()
+
+                left_terminal_text_box.insert(END, "  40 57 22 00 FE 01 32 7F 7F 18")
+                right_terminal_text_box.insert(END, "  40 15 74 1C 7E 00 00 00 00 68 ⮘ crc ok")
                 left_terminal_text_box.update()
+                right_terminal_text_box.update()
                 left_terminal_text_box.yview(END)
-                pass
 
             def send_string_command():
                 pass
 
+            def validate_first_bit(bit):
+                print(bit)
+                if len(bit) == 1:
+                    return validate_command_1(bit[0])
+                elif len(bit) == 2:
+                    return validate_command_1(bit[0] + bit[1])
+                else:
+                    if len(bit) >= 18:
+                        bit = bit.replace(' ', '')
+                        if len(bit) == 18:
+                            bit_2_entry.delete(0, END)
+                            bit_2_entry.insert(END, bit[2] + bit[3])
+                            bit_3_entry.delete(0, END)
+                            bit_3_entry.insert(END, bit[4] + bit[5])
+                            bit_4_entry.delete(0, END)
+                            bit_4_entry.insert(END, bit[6] + bit[7])
+                            bit_5_entry.delete(0, END)
+                            bit_5_entry.insert(END, bit[8] + bit[9])
+                            bit_6_entry.delete(0, END)
+                            bit_6_entry.insert(END, bit[10] + bit[11])
+                            bit_7_entry.delete(0, END)
+                            bit_7_entry.insert(END, bit[12] + bit[13])
+                            bit_8_entry.delete(0, END)
+                            bit_8_entry.insert(END, bit[14] + bit[15])
+                            bit_9_entry.delete(0, END)
+                            bit_9_entry.insert(END, bit[16] + bit[17])
+                            validate_command_1(bit[0] + bit[1])
+                            send_bit_command_button.focus_set()
+                        elif len(bit) == 20:
+                            # Вот эти двое снизу ломают всю малину
+                            bit_1_entry.delete(0, END)
+                            bit_1_entry.insert(END, bit[0] + bit[1])
+
+
+
+                            bit_2_entry.delete(0, END)
+                            bit_2_entry.insert(END, bit[2] + bit[3])
+                            bit_3_entry.delete(0, END)
+                            bit_3_entry.insert(END, bit[4] + bit[5])
+                            bit_4_entry.delete(0, END)
+                            bit_4_entry.insert(END, bit[6] + bit[7])
+                            bit_5_entry.delete(0, END)
+                            bit_5_entry.insert(END, bit[8] + bit[9])
+                            bit_6_entry.delete(0, END)
+                            bit_6_entry.insert(END, bit[10] + bit[11])
+                            bit_7_entry.delete(0, END)
+                            bit_7_entry.insert(END, bit[12] + bit[13])
+                            bit_8_entry.delete(0, END)
+                            bit_8_entry.insert(END, bit[14] + bit[15])
+                            bit_9_entry.delete(0, END)
+                            bit_9_entry.insert(END, bit[16] + bit[17])
+                            bit_10_entry.delete(0, END)
+                            bit_10_entry.insert(END, bit[18] + bit[19])
+                            validate_command_1(bit[0] + bit[1])
+                            send_bit_command_button.focus_set()
+                        else:
+                            bit_1_entry.config(background="salmon")
+                            bit_1_entry.update()
+                            time.sleep(0.1)
+                            bit_1_entry.config(background="PaleGreen3")
+                    else:
+                        bit_1_entry.config(background="salmon")
+                        bit_1_entry.update()
+                        time.sleep(0.1)
+                        bit_1_entry.config(background="PaleGreen3")
+                    return bit[1] == ""
+
             def validate_command_1(bit):
+                print("validate_1")
                 if len(bit) == 1:
                     return bit == "" or bit.isnumeric() or bit.isalpha()
                 elif len(bit) == 2:
@@ -2467,6 +2604,7 @@ class AdjustmentUtility:
                     return bit == ""
 
             def validate_command_2(bit):
+                print("validate_2")
                 if len(bit) == 1:
                     return bit == "" or bit.isnumeric() or bit.isalpha()
                 elif len(bit) == 2:
@@ -2482,6 +2620,7 @@ class AdjustmentUtility:
                     return bit == ""
 
             def validate_command_3(bit):
+                print("validate_3")
                 if len(bit) == 1:
                     return bit == "" or bit.isnumeric() or bit.isalpha()
                 elif len(bit) == 2:
@@ -2497,6 +2636,7 @@ class AdjustmentUtility:
                     return bit == ""
 
             def validate_command_4(bit):
+                print("validate_4")
                 if len(bit) == 1:
                     return bit == "" or bit.isnumeric() or bit.isalpha()
                 elif len(bit) == 2:
@@ -2512,6 +2652,7 @@ class AdjustmentUtility:
                     return bit == ""
 
             def validate_command_5(bit):
+                print("validate_5")
                 if len(bit) == 1:
                     return bit == "" or bit.isnumeric() or bit.isalpha()
                 elif len(bit) == 2:
@@ -2527,6 +2668,7 @@ class AdjustmentUtility:
                     return bit == ""
 
             def validate_command_6(bit):
+                print("validate_6")
                 if len(bit) == 1:
                     return bit == "" or bit.isnumeric() or bit.isalpha()
                 elif len(bit) == 2:
@@ -2546,7 +2688,7 @@ class AdjustmentUtility:
                     return bit == "" or bit.isnumeric() or bit.isalpha()
                 elif len(bit) == 2:
                     if bit[1].isnumeric() or bit[1].isalpha():
-                        bit_check_crc_button.focus_set()
+                        bit_8_entry.focus_set()
                         bit_7_entry.config(background="PaleGreen3")
                     return bit[1] == "" or bit[1].isnumeric() or bit[1].isalpha()
                 else:
@@ -2561,7 +2703,7 @@ class AdjustmentUtility:
                     return bit == "" or bit.isnumeric() or bit.isalpha()
                 elif len(bit) == 2:
                     if bit[1].isnumeric() or bit[1].isalpha():
-                        bit_check_crc_button.focus_set()
+                        bit_9_entry.focus_set()
                         bit_8_entry.config(background="PaleGreen3")
                     return bit[1] == "" or bit[1].isnumeric() or bit[1].isalpha()
                 else:
@@ -2569,6 +2711,36 @@ class AdjustmentUtility:
                     bit_8_entry.update()
                     time.sleep(0.1)
                     bit_8_entry.config(background="PaleGreen3")
+                    return bit == ""
+
+            def validate_command_9(bit):
+                if len(bit) == 1:
+                    return bit == "" or bit.isnumeric() or bit.isalpha()
+                elif len(bit) == 2:
+                    if bit[1].isnumeric() or bit[1].isalpha():
+                        bit_check_crc_button.focus_set()
+                        bit_9_entry.config(background="PaleGreen3")
+                    return bit[1] == "" or bit[1].isnumeric() or bit[1].isalpha()
+                else:
+                    bit_9_entry.config(background="salmon")
+                    bit_9_entry.update()
+                    time.sleep(0.1)
+                    bit_9_entry.config(background="PaleGreen3")
+                    return bit == ""
+
+            def validate_command_10(bit):
+                if len(bit) == 1:
+                    return bit == "" or bit.isnumeric() or bit.isalpha()
+                elif len(bit) == 2:
+                    if bit[1].isnumeric() or bit[1].isalpha():
+                        bit_check_crc_button.focus_set()
+                        bit_10_entry.config(background="PaleGreen3")
+                    return bit[1] == "" or bit[1].isnumeric() or bit[1].isalpha()
+                else:
+                    bit_10_entry.config(background="salmon")
+                    bit_10_entry.update()
+                    time.sleep(0.1)
+                    bit_10_entry.config(background="PaleGreen3")
                     return bit == ""
 
             self.terminal_button.configure(text="⮜\n⮜\n⮜\n\nT\nE\nR\nM\nI\nN\nA\nL\n\n⮜\n⮜\n⮜")
@@ -2593,70 +2765,81 @@ class AdjustmentUtility:
             frame_for_text_command.pack(side=TOP, padx=1, pady=1, fill=X)
 
             # Левое поле терминала
-            left_terminal_text_box = Listbox(frame_for_left_window, relief=GROOVE, width=25, height=25,
+            left_terminal_text_box = Listbox(frame_for_left_window, relief=GROOVE, width=22, height=25,
                                              selectbackground="grey60")
             left_terminal_text_box.pack(side=TOP, padx=1, pady=1, fill=X)
 
-            left_terminal_clear_button = Button(frame_for_left_window, text="Clear", relief=GROOVE, width=25, height=1,
+            left_terminal_clear_button = Button(frame_for_left_window, text="Clear", relief=GROOVE, width=22, height=1,
                                                 bg="gray60", command=clear_left_terminal)
             left_terminal_clear_button.pack(side=TOP, padx=1, pady=1)
 
             # Правое поле терминала
-            right_terminal_text_box = Listbox(frame_for_right_window, relief=GROOVE, width=25, height=25,
+            right_terminal_text_box = Listbox(frame_for_right_window, relief=GROOVE, width=35, height=25,
                                               selectbackground="grey60")
             right_terminal_text_box.pack(side=TOP, padx=1, pady=1, fill=X)
 
-            right_terminal_clear_button = Button(frame_for_right_window, text="Clear", relief=GROOVE, width=25,
+            right_terminal_clear_button = Button(frame_for_right_window, text="Clear", relief=GROOVE, width=29,
                                                  height=1, bg="gray60", command=clear_right_terminal)
             right_terminal_clear_button.pack(side=TOP, padx=1, pady=1)
 
             # Побитное поле для введения команды
-            check_1_bit = (frame_for_per_byte_command.register(validate_command_1), "%P")
-            bit_1_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=4, background="grey100",
-                                validate="key", validatecommand=check_1_bit)
+
+            self.check_1_bit = (frame_for_per_byte_command.register(validate_first_bit), "%P")
+            bit_1_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=3, background="grey100",
+                                validate="key", validatecommand=self.check_1_bit, justify=CENTER)
             bit_1_entry.pack(side=LEFT, padx=1, pady=1, fill=X)
             bit_1_entry.focus_set()
 
             check_2_bit = (frame_for_per_byte_command.register(validate_command_2), "%P")
-            bit_2_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=4, background="grey100",
-                                validate="key", validatecommand=check_2_bit)
+            bit_2_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=3, background="grey100",
+                                validate="key", validatecommand=check_2_bit, justify=CENTER)
             bit_2_entry.pack(side=LEFT, padx=1, pady=1, fill=X)
 
             check_3_bit = (frame_for_per_byte_command.register(validate_command_3), "%P")
-            bit_3_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=4, background="grey100",
-                                validate="key", validatecommand=check_3_bit)
+            bit_3_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=3, background="grey100",
+                                validate="key", validatecommand=check_3_bit, justify=CENTER)
             bit_3_entry.pack(side=LEFT, padx=1, pady=1, fill=X)
 
             check_4_bit = (frame_for_per_byte_command.register(validate_command_4), "%P")
-            bit_4_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=4, background="grey100",
-                                validate="key", validatecommand=check_4_bit)
+            bit_4_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=3, background="grey100",
+                                validate="key", validatecommand=check_4_bit, justify=CENTER)
             bit_4_entry.pack(side=LEFT, padx=1, pady=1, fill=X)
 
             check_5_bit = (frame_for_per_byte_command.register(validate_command_5), "%P")
-            bit_5_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=4, background="grey100",
-                                validate="key", validatecommand=check_5_bit)
+            bit_5_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=3, background="grey100",
+                                validate="key", validatecommand=check_5_bit, justify=CENTER)
             bit_5_entry.pack(side=LEFT, padx=1, pady=1, fill=X)
 
             check_6_bit = (frame_for_per_byte_command.register(validate_command_6), "%P")
-            bit_6_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=4, background="grey100",
-                                validate="key", validatecommand=check_6_bit)
+            bit_6_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=3, background="grey100",
+                                validate="key", validatecommand=check_6_bit, justify=CENTER)
             bit_6_entry.pack(side=LEFT, padx=1, pady=1, fill=X)
 
             check_7_bit = (frame_for_per_byte_command.register(validate_command_7), "%P")
-            bit_7_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=4, background="grey100",
-                                validate="key", validatecommand=check_7_bit)
+            bit_7_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=3, background="grey100",
+                                validate="key", validatecommand=check_7_bit, justify=CENTER)
             bit_7_entry.pack(side=LEFT, padx=1, pady=1, fill=X)
 
             check_8_bit = (frame_for_per_byte_command.register(validate_command_8), "%P")
-            bit_8_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=4, background="grey80",
-                                validate="key", validatecommand=check_8_bit)
+            bit_8_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=3, background="grey100",
+                                validate="key", validatecommand=check_8_bit, justify=CENTER)
             bit_8_entry.pack(side=LEFT, padx=1, pady=1, fill=X)
+
+            check_9_bit = (frame_for_per_byte_command.register(validate_command_9), "%P")
+            bit_9_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=3, background="grey100",
+                                validate="key", validatecommand=check_9_bit, justify=CENTER)
+            bit_9_entry.pack(side=LEFT, padx=1, pady=1, fill=X)
+
+            check_10_bit = (frame_for_per_byte_command.register(validate_command_10), "%P")
+            bit_10_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=3, background="grey80",
+                                 validate="key", validatecommand=check_10_bit, justify=CENTER)
+            bit_10_entry.pack(side=LEFT, padx=1, pady=1, fill=X)
 
             bit_check_crc_button = Button(frame_for_per_byte_command, text="CRC", relief=GROOVE, width=4,
                                           height=1, bg="gray60", command=bit_check_crc)
             bit_check_crc_button.pack(side=LEFT, padx=6, pady=1)
 
-            send_bit_command_button = Button(frame_for_per_byte_command, text="Send", relief=GROOVE, width=11,
+            send_bit_command_button = Button(frame_for_per_byte_command, text="Send", relief=GROOVE, width=12,
                                              height=1, bg="gray60", command=send_bit_command)
             send_bit_command_button.pack(side=RIGHT, padx=3, pady=1)
 
@@ -2668,7 +2851,7 @@ class AdjustmentUtility:
                                              height=1, bg="gray60", command=string_check_crc)
             string_check_crc_button.pack(side=LEFT, padx=6, pady=1)
 
-            send_string_command_button = Button(frame_for_text_command, text="Send", relief=GROOVE, width=11,
+            send_string_command_button = Button(frame_for_text_command, text="Send", relief=GROOVE, width=12,
                                                 height=1, bg="gray60", command=send_string_command)
             send_string_command_button.pack(side=RIGHT, padx=3, pady=1)
 
