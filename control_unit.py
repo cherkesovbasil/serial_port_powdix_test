@@ -4,7 +4,6 @@ from tkinter import ttk
 from tkinter.messagebox import askyesno
 from math import ceil
 import serial
-import re
 
 import request_and_port_list
 import request_response
@@ -2060,13 +2059,15 @@ class AdjustmentUtility:
         try:
             serial.Serial(request_and_port_list.com_port_settings["comport"])
             self.set_button.configure(background="PaleGreen3")
-            self.info_text_box.insert(END, "✔ Подключено к порту " + comport + "\n", 'tag_green_text')
-            self.info_text_box.yview(END)
+            if self.info_text_box:
+                self.info_text_box.insert(END, "✔ Подключено к порту " + comport + "\n", 'tag_green_text')
+                self.info_text_box.yview(END)
         except serial.serialutil.SerialException:
             self.port_combobox.configure(foreground="brown1")
             self.set_button.configure(background="brown1")
-            self.info_text_box.insert(END, "❌ Порт " + comport + " недоступен\n", 'tag_red_text')
-            self.info_text_box.yview(END)
+            if self.info_text_box:
+                self.info_text_box.insert(END, "❌ Порт " + comport + " недоступен\n", 'tag_red_text')
+                self.info_text_box.yview(END)
 
     def manual_parameters(self):
         # Функционал кнопки "Manual", разблокирует ручное управление
@@ -2373,6 +2374,8 @@ class AdjustmentUtility:
         return self.device_signature
 
     def terminal(self):
+        """Окно классического терминала для прямого обмена данными с контроллером в ручном режиме"""
+
         if self.terminal_open:
             self.terminal_button.configure(text="⮞\n⮞\n⮞\n\nT\nE\nR\nM\nI\nN\nA\nL\n\n⮞\n⮞\n⮞")
             self.frame_for_full_terminal.destroy()
@@ -2388,7 +2391,6 @@ class AdjustmentUtility:
                 pass
 
             def bit_check_crc():
-                # БЛИН, ТУТ НУЖНО ЧТО-ТО ДУМАТЬ. СУММА НЕ ТО, ЧЕМ КАЖЕТСЯ
                 # Проверяет контрольную сумму
                 bit_1_hex = bit_1_entry.get().upper()
                 bit_2_hex = bit_2_entry.get().upper()
@@ -2444,24 +2446,6 @@ class AdjustmentUtility:
 
                 send_bit_command_button.focus_set()
 
-                """
-                full_dec_summ = 0
-                full_hex_summ = 0
-                for bit in range(0, 20):
-                    if bit % 2 != 0:
-                        hex_bit = recieved_command[bit - 1] + recieved_command[bit]
-                        full_dec_summ = full_dec_summ + int(hex_bit, 16)
-                        full_hex_summ = hex(full_dec_summ)
-                if full_hex_summ[len(full_hex_summ) - 1] == "0":
-                    crc_label.config(bg="PaleGreen3", text="OK")
-                    poa_auto_errors["crc_error"] = False
-                else:
-                    crc_label.config(bg="salmon", text=str(full_hex_summ))
-                    poa_auto_errors["crc_error"] = True
-                crc_data.config(text=recieved_command[18].upper() + recieved_command[19].upper())
-                pass
-                """
-
             def string_check_crc():
                 pass
 
@@ -2469,9 +2453,45 @@ class AdjustmentUtility:
                 def pseudo_validate():
                     return True
 
+                bit_1_hex = bit_1_entry.get().upper()
+
+                bit_2_hex = bit_2_entry.get().upper()
+
+                bit_3_hex = bit_3_entry.get().upper()
+
+                bit_4_hex = bit_4_entry.get().upper()
+
+                bit_5_hex = bit_5_entry.get().upper()
+
+                bit_6_hex = bit_6_entry.get().upper()
+
+                bit_7_hex = bit_7_entry.get().upper()
+
+                bit_8_hex = bit_8_entry.get().upper()
+
+                bit_9_hex = bit_9_entry.get().upper()
+
+                bit_10_hex = bit_10_entry.get().upper()
+
+                request = (str.encode(bit_1_hex), str.encode(bit_2_hex), str.encode(bit_3_hex), str.encode(bit_4_hex), str.encode(bit_5_hex),
+                           str.encode(bit_6_hex), str.encode(bit_7_hex), str.encode(bit_8_hex), str.encode(bit_9_hex), str.encode(bit_10_hex))
+                print(request)
+                #request = bit_1_hex + bit_2_hex + bit_3_hex + bit_4_hex + bit_5_hex + bit_6_hex + bit_7_hex + bit_8_hex + bit_9_hex + bit_10_hex
+                #request = str.encode(request)
+                answer = request_response.command_sender(accepted_request=request)
+                left_terminal_text_box.insert(END, request, 'tag_black_text')
+                if answer:
+                    right_terminal_text_box.insert(END, "  " + str(answer) + " ⮘ crc ok")
+                    right_terminal_text_box.update()
+                    right_terminal_text_box.yview(END)
+                else:
+                    right_terminal_text_box.insert(END, "  NO ANSWER")
+                    right_terminal_text_box.update()
+                    right_terminal_text_box.yview(END)
+
                 bit_1_entry.config(background="grey100", validatecommand=pseudo_validate)
                 bit_1_entry.delete(0, END)
-                bit_1_entry.config(background="grey100", validatecommand=self.check_1_bit)
+                bit_1_entry.config(background="grey100", validatecommand=check_1_bit)
 
                 bit_2_entry.config(background="grey100", validatecommand=pseudo_validate)
                 bit_2_entry.delete(0, END)
@@ -2511,12 +2531,6 @@ class AdjustmentUtility:
 
                 bit_1_entry.focus_set()
 
-                left_terminal_text_box.insert(END, "  40 57 22 00 FE 01 32 7F 7F 18")
-                right_terminal_text_box.insert(END, "  40 15 74 1C 7E 00 00 00 00 68 ⮘ crc ok")
-                left_terminal_text_box.update()
-                right_terminal_text_box.update()
-                left_terminal_text_box.yview(END)
-
             def send_string_command():
                 pass
 
@@ -2552,9 +2566,6 @@ class AdjustmentUtility:
                             # Вот эти двое снизу ломают всю малину
                             bit_1_entry.delete(0, END)
                             bit_1_entry.insert(END, bit[0] + bit[1])
-
-
-
                             bit_2_entry.delete(0, END)
                             bit_2_entry.insert(END, bit[2] + bit[3])
                             bit_3_entry.delete(0, END)
@@ -2784,9 +2795,9 @@ class AdjustmentUtility:
 
             # Побитное поле для введения команды
 
-            self.check_1_bit = (frame_for_per_byte_command.register(validate_first_bit), "%P")
+            check_1_bit = (frame_for_per_byte_command.register(validate_first_bit), "%P")
             bit_1_entry = Entry(frame_for_per_byte_command, relief=GROOVE, width=3, background="grey100",
-                                validate="key", validatecommand=self.check_1_bit, justify=CENTER)
+                                validate="key", validatecommand=check_1_bit, justify=CENTER)
             bit_1_entry.pack(side=LEFT, padx=1, pady=1, fill=X)
             bit_1_entry.focus_set()
 
