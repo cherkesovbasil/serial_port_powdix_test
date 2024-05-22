@@ -2043,7 +2043,49 @@ class AdjustmentUtility:
         self.ck_button.configure(bg="green3", state='disabled', relief=RIDGE)
 
     def refind_device(self):
-        pass
+        """
+        Обновление открытых портов в интерфейсе POA
+        """
+
+        open_ports = []
+        found = False
+        for com_counter in range(1, 51):
+            step = "Checking COM-Port: " + str(com_counter)
+            self.info_text_box.insert(END, str(step) + "\n")
+            self.info_text_box.yview(END)
+            self.info_text_box.update()
+            try:
+                port = "COM" + str(com_counter)
+                ser = serial.Serial(port)
+                ser.close()
+                step = "Found the serial port: " + str(port)
+                self.info_text_box.insert(END, str(step) + "\n", 'tag_green_text')
+                self.info_text_box.yview(END)
+                self.info_text_box.update()
+                open_ports.append(port)
+                found = True
+            except serial.serialutil.SerialException:
+                pass
+
+        if not found:
+            step = "No serial ports detected"
+            self.info_text_box.insert(END, str(step) + "\n", 'tag_red_text')
+            self.info_text_box.yview(END)
+            self.info_text_box.update()
+            return []
+        else:
+            self.info_text_box.insert(END, "Ports added to green list:\n", 'tag_green_text')
+            self.info_text_box.yview(END)
+            self.info_text_box.update()
+            for port_number in open_ports:
+                self.info_text_box.insert(END, str(port_number) + "; ", 'tag_green_text')
+                self.info_text_box.yview(END)
+                self.info_text_box.update()
+
+        self.port_combobox['values'] = open_ports
+        self.port_combobox.configure(state='readonly')
+        self.port_combobox.set(open_ports[0])
+        self.port_combobox.update()
 
     def set_parameters(self):
         # Устанавливает параметры COM-порта
