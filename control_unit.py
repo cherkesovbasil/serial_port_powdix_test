@@ -21,6 +21,8 @@ class AdjustmentUtility:
     def __init__(self):
         # Инициализация первичных переменных для класса
 
+        self.frame_for_find_device = None
+        self.restart_button = None
         self.status_text_box = None
         self.full_auto_init_window = None
         self.device_signature = None
@@ -178,7 +180,7 @@ class AdjustmentUtility:
                         flow_label.config(bg="salmon")
                         poa_auto_errors["flow_error"] = True
                 else:
-                    if 2.5 <= flow_real <= 5:
+                    if 1.9 <= flow_real <= 5:
                         flow_label.config(bg="PaleGreen3")
                         poa_auto_errors["flow_error"] = False
                     else:
@@ -2051,17 +2053,19 @@ class AdjustmentUtility:
         found = False
         for com_counter in range(1, 51):
             step = "Checking COM-Port: " + str(com_counter)
-            self.info_text_box.insert(END, str(step) + "\n")
-            self.info_text_box.yview(END)
-            self.info_text_box.update()
+            if self.info_text_box:
+                self.info_text_box.insert(END, str(step) + "\n")
+                self.info_text_box.yview(END)
+                self.info_text_box.update()
             try:
                 port = "COM" + str(com_counter)
                 ser = serial.Serial(port)
                 ser.close()
                 step = "Found the serial port: " + str(port)
-                self.info_text_box.insert(END, str(step) + "\n", 'tag_green_text')
-                self.info_text_box.yview(END)
-                self.info_text_box.update()
+                if self.info_text_box:
+                    self.info_text_box.insert(END, str(step) + "\n", 'tag_green_text')
+                    self.info_text_box.yview(END)
+                    self.info_text_box.update()
                 open_ports.append(port)
                 found = True
             except serial.serialutil.SerialException:
@@ -2069,18 +2073,21 @@ class AdjustmentUtility:
 
         if not found:
             step = "No serial ports detected"
-            self.info_text_box.insert(END, str(step) + "\n", 'tag_red_text')
-            self.info_text_box.yview(END)
-            self.info_text_box.update()
-            return []
-        else:
-            self.info_text_box.insert(END, "Ports added to green list:\n", 'tag_green_text')
-            self.info_text_box.yview(END)
-            self.info_text_box.update()
-            for port_number in open_ports:
-                self.info_text_box.insert(END, str(port_number) + "; ", 'tag_green_text')
+            if self.info_text_box:
+                self.info_text_box.insert(END, str(step) + "\n", 'tag_red_text')
                 self.info_text_box.yview(END)
                 self.info_text_box.update()
+            return []
+        else:
+            if self.info_text_box:
+                self.info_text_box.insert(END, "Ports added to green list:\n", 'tag_green_text')
+                self.info_text_box.yview(END)
+                self.info_text_box.update()
+            for port_number in open_ports:
+                if self.info_text_box:
+                    self.info_text_box.insert(END, str(port_number) + "; ", 'tag_green_text')
+                    self.info_text_box.yview(END)
+                    self.info_text_box.update()
 
         self.port_combobox['values'] = open_ports
         self.port_combobox.configure(state='readonly')
@@ -2397,6 +2404,8 @@ class AdjustmentUtility:
         def start():
             # Запускает поиск
             self.status_text_box.delete(0, END)
+            self.restart_button.destroy()
+            self.frame_for_find_device.destroy()
             self.device_signature = com_ports()
             no_signature()
             return
