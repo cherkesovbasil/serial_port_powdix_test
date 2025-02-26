@@ -1,6 +1,5 @@
 import serial.tools.list_ports
 from tkinter.messagebox import showerror
-
 import request_and_port_list
 
 
