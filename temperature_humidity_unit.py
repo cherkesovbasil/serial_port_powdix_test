@@ -164,7 +164,7 @@ def sth(gui, sensor=None, auto=False):
 
     # Поле управляющего юнита
 
-    # фрэймы поля кнопок управления системой охлаждения
+    # фрэймы поля кнопок управления
     frame_for_check_status_button = LabelFrame(gui.frame_for_units, bg="gray90")
     frame_for_check_status_button.pack(side=RIGHT, padx=4, pady=24, fill=X)
 

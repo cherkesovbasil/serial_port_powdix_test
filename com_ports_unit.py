@@ -139,6 +139,7 @@ def com_ports(gui):
                     gui.report_box.update()
                     gui.poa_button.config(background="deep sky blue")
                     gui.poa_button.update()
+                    request_and_port_list.com_port_settings["baudrate"] = 115200
                     answer = request_response.command_sender(accepted_request=request)
 
                     if answer:
@@ -159,6 +160,7 @@ def com_ports(gui):
                     gui.report_box.insert(END, " -  Опрос датчика температуры/влажности №1")
                     gui.sth1_button.config(background="deep sky blue")
                     gui.sth1_button.update()
+                    request_and_port_list.com_port_settings["baudrate"] = 115200
                     answer = request_response.command_sender(accepted_request=request)
                     if answer:
                         gui.report_box.delete(0, END)
@@ -178,6 +180,7 @@ def com_ports(gui):
                     gui.report_box.insert(END, " -  Опрос датчика температуры/влажности №2")
                     gui.sth2_button.config(background="deep sky blue")
                     gui.sth2_button.update()
+                    request_and_port_list.com_port_settings["baudrate"] = 115200
                     answer = request_response.command_sender(accepted_request=request)
                     if answer:
                         gui.report_box.delete(0, END)
@@ -197,6 +200,7 @@ def com_ports(gui):
                     gui.report_box.insert(END, " -  Опрос датчика температуры/влажности №3")
                     gui.sth3_button.config(background="deep sky blue")
                     gui.sth3_button.update()
+                    request_and_port_list.com_port_settings["baudrate"] = 115200
                     answer = request_response.command_sender(accepted_request=request)
                     if answer:
                         gui.report_box.delete(0, END)
@@ -216,6 +220,7 @@ def com_ports(gui):
                     gui.report_box.insert(END, " -  Опрос автоматического сменщика образца")
                     gui.as_button.config(background="deep sky blue")
                     gui.as_button.update()
+                    request_and_port_list.com_port_settings["baudrate"] = 1000000
                     answer = request_response.command_sender(accepted_request=request)
                     if answer:
                         gui.report_box.delete(0, END)
@@ -235,6 +240,7 @@ def com_ports(gui):
                     gui.report_box.insert(END, " -  Опрос вращателя образца")
                     gui.sc_button.config(background="deep sky blue")
                     gui.sc_button.update()
+                    request_and_port_list.com_port_settings["baudrate"] = 1000000
                     answer = request_response.command_sender(accepted_request=request)
                     if answer:
                         gui.report_box.delete(0, END)
@@ -254,6 +260,7 @@ def com_ports(gui):
                     gui.report_box.insert(END, " -  Опрос автоматического коллиматора-ножа")
                     gui.ck_button.config(background="deep sky blue")
                     gui.ck_button.update()
+                    request_and_port_list.com_port_settings["baudrate"] = 500000
                     answer = request_response.command_sender(accepted_request=request)
                     if answer:
                         gui.report_box.delete(0, END)
@@ -273,6 +280,7 @@ def com_ports(gui):
                     gui.report_box.insert(END, " -  Опрос автоматизированной варьируемой щели")
                     gui.vs_button.config(background="deep sky blue")
                     gui.vs_button.update()
+                    request_and_port_list.com_port_settings["baudrate"] = 115200
                     answer = request_response.command_sender(accepted_request=request)
                     if answer:
                         gui.report_box.delete(0, END)

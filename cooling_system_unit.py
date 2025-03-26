@@ -362,7 +362,7 @@ def poa(gui, auto):
     gui.version_button.pack(side=TOP, pady=4, padx=4)
 
     gui.info_button = Button(frame_for_version_info_buttons, text="Помощь", relief=GROOVE, width=14, height=2,
-                             bg="gray60", command=lambda: poa_buttons.poa_info_command(gui))
+                             bg="gray60", command=lambda: poa_buttons.poa_info_command())
     gui.info_button.pack(side=TOP, pady=4, padx=4)
 
     gui.dry_button = Button(frame_for_dry_status_buttons, text="Откачка", relief=GROOVE, width=14, height=2,
