@@ -1,5 +1,5 @@
 import time
-
+import auto_sampler_transcriptions
 import request_response
 import request_and_port_list
 from tkinter import *
@@ -10,28 +10,44 @@ def all_grey(gui):
     # Верхние поля отображения статусов
     gui.device_name_label.config(text="--", bg="gray90")
     gui.stat_request_label.config(text="--", bg="gray90")
-    gui.stat_hi_label.config(text="--", bg="gray90")
-    gui.stat_low_label.config(text="--", bg="gray90")
-    gui.temp_hi_label.config(text="--", bg="gray90")
-    gui.temp_low_label.config(text="--", bg="gray90")
-    gui.humidity_hi_label.config(text="--", bg="gray90")
-    gui.humidity_low_label.config(text="--", bg="gray90")
-    gui.package_number_label.config(text="--", bg="gray90")
+    gui.reserve_1_label.config(text="--", bg="gray90")
+    gui.state_1_label.config(text="--", bg="gray90")
+    gui.rotate_low_label.config(text="--", bg="gray90")
+    gui.rotate_high_label.config(text="--", bg="gray90")
+    gui.errors_label.config(text="--", bg="gray90")
+    gui.state_2_label.config(text="--", bg="gray90")
+    gui.state_set_sample_label.config(text="--", bg="gray90")
     gui.crc_label.config(text="--", bg="gray90")
 
     gui.device_name_data.config(text="--", bg="gray90")
     gui.stat_request_data.config(text="--", bg="gray90")
-    gui.stat_hi_data.config(text="--", bg="gray90")
-    gui.stat_low_data.config(text="--", bg="gray90")
-    gui.temp_hi_data.config(text="--", bg="gray90")
-    gui.temp_low_data.config(text="--", bg="gray90")
-    gui.humidity_hi_data.config(text="--", bg="gray90")
-    gui.humidity_low_data.config(text="--", bg="gray90")
-    gui.package_number_data.config(text="--", bg="gray90")
+    gui.reserve_1_data.config(text="--", bg="gray90")
+    gui.state_1_data.config(text="--", bg="gray90")
+    gui.rotate_low_data.config(text="--", bg="gray90")
+    gui.rotate_high_data.config(text="--", bg="gray90")
+    gui.errors_data.config(text="--", bg="gray90")
+    gui.state_2_data.config(text="--", bg="gray90")
+    gui.state_set_sample_data.config(text="--", bg="gray90")
     gui.crc_data.config(text="--", bg="gray90")
 
     gui.info_text_box.delete('1.0', END)
     gui.info_text_box.yview(END)
+
+    gui.full_set_textbox.config(state="normal", bg="gray70")
+    gui.full_set_textbox.delete('1.0', END)
+    gui.full_set_textbox.config(state="disabled")
+
+    gui.lift_textbox.config(state="normal", bg="gray70")
+    gui.lift_textbox.delete('1.0', END)
+    gui.lift_textbox.config(state="disabled")
+
+    gui.position_textbox.config(state="normal", bg="gray70")
+    gui.position_textbox.delete('1.0', END)
+    gui.position_textbox.config(state="disabled")
+
+    gui.speed_textbox.config(state="normal", bg="gray70")
+    gui.speed_textbox.delete('1.0', END)
+    gui.speed_textbox.config(state="disabled")
 
     # Status sensors - всё неактивно
     # gui.temperature_label.config(text="--", bg="gray90")
@@ -51,12 +67,29 @@ def auto_sampler_version_command(gui):
         for bit_number in range(2, 16):
             version_answer_hex = str(version_answer_hex) + str(answer[bit_number])
         version_answer_ascii = bytearray.fromhex(version_answer_hex).decode(encoding='ascii')
-        gui.info_text_box.insert(END, "✔ Ответ контроллера:\n", 'tag_green_text')
-        gui.info_text_box.insert(END, "⫸ HEX:    " + answer.upper() + "\n⫸ ASCII:  " + version_answer_ascii +
-                                 "\n", 'tag_black_text')
+        gui.info_text_box.insert(END, "✔ Ответ контроллера Atmega 2560:\n", 'tag_green_text')
+        gui.info_text_box.insert(END, "⫸ ASCII:  " + version_answer_ascii + "\n", 'tag_black_text')
         gui.info_text_box.yview(END)
     else:
-        gui.info_text_box.insert(END, "❌ Нет ответа контроллера\n * проверьте подключение устройства *\n",
+        gui.info_text_box.insert(END, "❌ Нет ответа контроллера Atmega 2560\n * проверьте подключение устройства *\n",
+                                 'tag_red_text')
+        gui.info_text_box.yview(END)
+        gui.version_button.configure(bg="salmon")
+        gui.frame_for_units.update_idletasks()
+        time.sleep(0.5)
+        gui.version_button.configure(bg="gray60")
+    answer = request_response.command_sender(
+        accepted_request=request_and_port_list.samplechanger_request_dictionary["version_l_sc_package"])
+    if answer:
+        version_answer_hex = str()
+        for bit_number in range(2, 16):
+            version_answer_hex = str(version_answer_hex) + str(answer[bit_number])
+        version_answer_ascii = bytearray.fromhex(version_answer_hex).decode(encoding='ascii')
+        gui.info_text_box.insert(END, "✔ Ответ контроллера Atmega 162:\n", 'tag_green_text')
+        gui.info_text_box.insert(END, "⫸ ASCII:  " + version_answer_ascii + "\n", 'tag_black_text')
+        gui.info_text_box.yview(END)
+    else:
+        gui.info_text_box.insert(END, "❌ Нет ответа контроллера Atmega 162\n * проверьте подключение устройства *\n",
                                  'tag_red_text')
         gui.info_text_box.yview(END)
         gui.version_button.configure(bg="salmon")
@@ -65,52 +98,100 @@ def auto_sampler_version_command(gui):
         gui.version_button.configure(bg="gray60")
 
 
-def auto_sampler_status_command(gui):
-    pass
+def auto_sampler_status_command(gui, auto=False):
+    if not auto:
+        all_grey(gui)
+        gui.info_text_box.insert(END, ">> Выполнение команды *Статус*\n")
+        gui.info_text_box.yview(END)
+        gui.frame_for_units.update_idletasks()
+    answer = request_response.command_sender(
+        accepted_request=request_and_port_list.samplechanger_request_dictionary["status_sc_package"])
+    if answer:
+        if not auto:
+            gui.info_text_box.insert(END, "✔ Команда выполнена, ответ получен\n", 'tag_green_text')
+            gui.info_text_box.yview(END)
+        auto_sampler_transcriptions.transcript_status(gui, answer)
+    else:
+        if not auto:
+            gui.info_text_box.insert(END, "❌ Нет ответа контроллера\n * проверьте подключение устройства *\n",
+                                     'tag_red_text')
+            gui.info_text_box.yview(END)
+            gui.status_button.configure(bg="salmon")
+            gui.frame_for_units.update_idletasks()
+            time.sleep(0.5)
+            gui.status_button.configure(bg="gray60")
 
 
-def auto_sampler_status_l_command(gui):
-    pass
+def auto_sampler_status_l_command(gui, auto=False):
+    if not auto:
+        all_grey(gui)
+        gui.info_text_box.insert(END, ">> Выполнение команды *Статус_L*\n")
+        gui.info_text_box.yview(END)
+        gui.frame_for_units.update_idletasks()
+    answer = request_response.command_sender(
+        accepted_request=request_and_port_list.samplechanger_request_dictionary["status_l_sc_package"])
+    if answer:
+        if not auto:
+            gui.info_text_box.insert(END, "✔ Команда выполнена, ответ получен\n", 'tag_green_text')
+            gui.info_text_box.yview(END)
+        auto_sampler_transcriptions.transcript_status_l(gui, answer)
+    else:
+        if not auto:
+            gui.info_text_box.insert(END, "❌ Нет ответа контроллера\n * проверьте подключение устройства *\n",
+                                     'tag_red_text')
+            gui.info_text_box.yview(END)
+            gui.status_l_button.configure(bg="salmon")
+            gui.frame_for_units.update_idletasks()
+            time.sleep(0.5)
+            gui.status_l_button.configure(bg="gray60")
 
 
-def auto_sampler_stop_base_command(gui):
-    all_grey(gui)
-    gui.info_text_box.insert(END, ">> Выполнение команды *Стоп-База*\n")
-    gui.info_text_box.yview(END)
-    gui.frame_for_units.update_idletasks()
+def auto_sampler_stop_base_command(gui, auto=False):
+    gui.auto_sampler_last_command = "stop_base"
+    if not auto:
+        all_grey(gui)
+        gui.info_text_box.insert(END, ">> Выполнение команды *Стоп-База*\n")
+        gui.info_text_box.yview(END)
+        gui.frame_for_units.update_idletasks()
     answer = request_response.command_sender(
         accepted_request=request_and_port_list.samplechanger_request_dictionary["stop_base_sc_package"])
     if answer:
-        gui.info_text_box.insert(END, "✔ Команда выполнена, ответ получен\n", 'tag_green_text')
-        gui.info_text_box.yview(END)
+        if not auto:
+            gui.info_text_box.insert(END, "✔ Команда выполнена, ответ получен\n", 'tag_green_text')
+            gui.info_text_box.yview(END)
     else:
-        gui.info_text_box.insert(END, "❌ Нет ответа контроллера\n * проверьте подключение устройства *\n",
-                                 'tag_red_text')
+        if not auto:
+            gui.info_text_box.insert(END, "❌ Нет ответа контроллера\n * проверьте подключение устройства *\n",
+                                     'tag_red_text')
+            gui.info_text_box.yview(END)
+            gui.stop_base_button.configure(bg="salmon")
+            gui.frame_for_units.update_idletasks()
+            time.sleep(0.5)
+            gui.stop_base_button.configure(bg="gray60")
+
+
+def auto_sampler_stop_command(gui, auto=False):
+    gui.auto_sampler_last_command = "stop"
+    if not auto:
+        all_grey(gui)
+        gui.info_text_box.insert(END, ">> Выполнение команды *Стоп*\n")
         gui.info_text_box.yview(END)
-        gui.stop_base_button.configure(bg="salmon")
         gui.frame_for_units.update_idletasks()
-        time.sleep(0.5)
-        gui.stop_base_button.configure(bg="gray60")
-
-
-def auto_sampler_stop_command(gui):
-    all_grey(gui)
-    gui.info_text_box.insert(END, ">> Выполнение команды *Стоп*\n")
-    gui.info_text_box.yview(END)
-    gui.frame_for_units.update_idletasks()
     answer = request_response.command_sender(
         accepted_request=request_and_port_list.samplechanger_request_dictionary["stop_sc_package"])
     if answer:
-        gui.info_text_box.insert(END, "✔ Команда выполнена, ответ получен\n", 'tag_green_text')
-        gui.info_text_box.yview(END)
+        if not auto:
+            gui.info_text_box.insert(END, "✔ Команда выполнена, ответ получен\n", 'tag_green_text')
+            gui.info_text_box.yview(END)
     else:
-        gui.info_text_box.insert(END, "❌ Нет ответа контроллера\n * проверьте подключение устройства *\n",
-                                 'tag_red_text')
-        gui.info_text_box.yview(END)
-        gui.stop_button.configure(bg="salmon")
-        gui.frame_for_units.update_idletasks()
-        time.sleep(0.5)
-        gui.stop_button.configure(bg="gray60")
+        if not auto:
+            gui.info_text_box.insert(END, "❌ Нет ответа контроллера\n * проверьте подключение устройства *\n",
+                                     'tag_red_text')
+            gui.info_text_box.yview(END)
+            gui.stop_button.configure(bg="salmon")
+            gui.frame_for_units.update_idletasks()
+            time.sleep(0.5)
+            gui.stop_button.configure(bg="gray60")
 
 
 def auto_sampler_write_eeprom_command(gui):
@@ -272,8 +353,8 @@ def auto_sampler_read_eeprom_command(gui):
             gui.info_text_box.yview(END)
         else:
             gui.info_text_box.insert(END,
-                                     "❌ Нет ответа контроллера на запрос байта LOW\n * проверьте подключение устройства *\n",
-                                     'tag_red_text')
+                                     "❌ Нет ответа контроллера на запрос байта LOW\n * проверьте подключение "
+                                     "устройства *\n", 'tag_red_text')
             gui.info_text_box.yview(END)
             gui.read_eeprom_button.configure(bg="salmon")
             gui.frame_for_units.update_idletasks()
@@ -294,8 +375,8 @@ def auto_sampler_read_eeprom_command(gui):
             gui.info_text_box.yview(END)
         else:
             gui.info_text_box.insert(END,
-                                     "❌ Нет ответа контроллера на запрос байта HIGH\n * проверьте подключение устройства *\n",
-                                     'tag_red_text')
+                                     "❌ Нет ответа контроллера на запрос байта HIGH\n * проверьте подключение "
+                                     "устройства *\n", 'tag_red_text')
             gui.info_text_box.yview(END)
             gui.read_eeprom_button.configure(bg="salmon")
             gui.frame_for_units.update_idletasks()
@@ -338,12 +419,14 @@ def auto_sampler_read_eeprom_command(gui):
     gui.value_export_textbox_high.config(state="disabled")
 
 
-def auto_sampler_engine1_command(gui):
-    all_grey(gui)
-    gui.info_text_box.insert(END, ">> Выполнение команды *Запуск барабана на\nпозицию №" +
-                             str(gui.speed_engine_1_combobox.get()) + "*\n")
-    gui.info_text_box.yview(END)
-    gui.frame_for_units.update_idletasks()
+def auto_sampler_engine1_command(gui, auto=False):
+    gui.auto_sampler_last_command = "engine1"
+    if not auto:
+        all_grey(gui)
+        gui.info_text_box.insert(END, ">> Выполнение команды *Запуск барабана на\nпозицию №" +
+                                 str(gui.speed_engine_1_combobox.get()) + "*\n")
+        gui.info_text_box.yview(END)
+        gui.frame_for_units.update_idletasks()
     position_number = gui.speed_engine_1_combobox.get()
     position_numbers = [0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80]
     request_and_port_list.samplechanger_request_dictionary["engine1_sc_package"][2] = position_numbers[
@@ -352,72 +435,88 @@ def auto_sampler_engine1_command(gui):
     answer = request_response.command_sender(
         accepted_request=request_and_port_list.samplechanger_request_dictionary["engine1_sc_package"])
     if answer:
-        gui.info_text_box.insert(END, "✔ Команда выполнена, ответ получен\n", 'tag_green_text')
-        gui.info_text_box.yview(END)
+        if not auto:
+            gui.info_text_box.insert(END, "✔ Команда выполнена, ответ получен\n", 'tag_green_text')
+            gui.info_text_box.yview(END)
     else:
-        gui.info_text_box.insert(END, "❌ Нет ответа контроллера\n * проверьте подключение устройства *\n",
-                                 'tag_red_text')
+        if not auto:
+            gui.info_text_box.insert(END, "❌ Нет ответа контроллера\n * проверьте подключение устройства *\n",
+                                     'tag_red_text')
+            gui.info_text_box.yview(END)
+            gui.engine_1_button.configure(bg="salmon")
+            gui.frame_for_units.update_idletasks()
+            time.sleep(0.5)
+            gui.engine_1_button.configure(bg="gray60")
+
+
+def auto_sampler_engine2_up_command(gui, auto=False):
+    gui.auto_sampler_last_command = "engine2_up"
+    if not auto:
+        all_grey(gui)
+        gui.info_text_box.insert(END, ">> Выполнение команды *Лифт вверх*\n")
         gui.info_text_box.yview(END)
-        gui.engine_1_button.configure(bg="salmon")
         gui.frame_for_units.update_idletasks()
-        time.sleep(0.5)
-        gui.engine_1_button.configure(bg="gray60")
-
-
-def auto_sampler_engine2_up_command(gui):
-    all_grey(gui)
-    gui.info_text_box.insert(END, ">> Выполнение команды *Лифт вверх*\n")
-    gui.info_text_box.yview(END)
-    gui.frame_for_units.update_idletasks()
     answer = request_response.command_sender(
         accepted_request=request_and_port_list.samplechanger_request_dictionary["engine2_up_sc_package"])
     if answer:
-        gui.info_text_box.insert(END, "✔ Команда выполнена, ответ получен\n", 'tag_green_text')
-        gui.info_text_box.yview(END)
+        if not auto:
+            gui.info_text_box.insert(END, "✔ Команда выполнена, ответ получен\n", 'tag_green_text')
+            gui.info_text_box.yview(END)
     else:
-        gui.info_text_box.insert(END, "❌ Нет ответа контроллера\n * проверьте подключение устройства *\n",
-                                 'tag_red_text')
+        if not auto:
+            gui.info_text_box.insert(END, "❌ Нет ответа контроллера\n * проверьте подключение устройства *\n",
+                                     'tag_red_text')
+            gui.info_text_box.yview(END)
+            gui.left_engine_2_button.configure(bg="salmon")
+            gui.frame_for_units.update_idletasks()
+            time.sleep(0.5)
+            gui.left_engine_2_button.configure(bg="gray60")
+
+
+def auto_sampler_engine2_down_command(gui, auto=False):
+    gui.auto_sampler_last_command = "engine2_down"
+    if not auto:
+        all_grey(gui)
+        gui.info_text_box.insert(END, ">> Выполнение команды *Лифт вниз*\n")
         gui.info_text_box.yview(END)
-        gui.left_engine_2_button.configure(bg="salmon")
         gui.frame_for_units.update_idletasks()
-        time.sleep(0.5)
-        gui.left_engine_2_button.configure(bg="gray60")
-
-
-def auto_sampler_engine2_down_command(gui):
-    all_grey(gui)
-    gui.info_text_box.insert(END, ">> Выполнение команды *Лифт вниз*\n")
-    gui.info_text_box.yview(END)
-    gui.frame_for_units.update_idletasks()
     answer = request_response.command_sender(
         accepted_request=request_and_port_list.samplechanger_request_dictionary["engine2_down_sc_package"])
     if answer:
-        gui.info_text_box.insert(END, "✔ Команда выполнена, ответ получен\n", 'tag_green_text')
-        gui.info_text_box.yview(END)
+        if not auto:
+            gui.info_text_box.insert(END, "✔ Команда выполнена, ответ получен\n", 'tag_green_text')
+            gui.info_text_box.yview(END)
     else:
-        gui.info_text_box.insert(END, "❌ Нет ответа контроллера\n * проверьте подключение устройства *\n",
-                                 'tag_red_text')
+        if not auto:
+            gui.info_text_box.insert(END, "❌ Нет ответа контроллера\n * проверьте подключение устройства *\n",
+                                     'tag_red_text')
+            gui.info_text_box.yview(END)
+            gui.right_engine_2_button.configure(bg="salmon")
+            gui.frame_for_units.update_idletasks()
+            time.sleep(0.5)
+            gui.right_engine_2_button.configure(bg="gray60")
+
+
+def auto_sampler_engine3_left_command(gui, auto=False):
+    gui.auto_sampler_last_command = "engine3_left"
+    if not auto:
+        all_grey(gui)
+        gui.info_text_box.insert(END, ">> Выполнение команды *Вращение против часовой\nсо скоростью "
+                                 + str(gui.speed_engine_3_combobox.get()) + " об/мин*\n")
         gui.info_text_box.yview(END)
-        gui.right_engine_2_button.configure(bg="salmon")
         gui.frame_for_units.update_idletasks()
-        time.sleep(0.5)
-        gui.right_engine_2_button.configure(bg="gray60")
-
-
-def auto_sampler_engine3_left_command(gui):
-    all_grey(gui)
-    gui.info_text_box.insert(END, ">> Выполнение команды *Вращение против часовой\nсо скоростью "
-                             + str(gui.speed_engine_3_combobox.get()) + " об/мин*\n")
-    gui.info_text_box.yview(END)
-    gui.frame_for_units.update_idletasks()
     speed = gui.speed_engine_3_combobox.get()
     speeds = {"10": [0x08, 0x80, 0x0C],
               "20": [0x06, 0x80, 0x0C],
               "30": [0x04, 0xEE, 0x08],
+              "35": [0x04, 0xC6, 0x0A],
               "40": [0x04, 0x80, 0x0C],
+              "45": [0x04, 0x96, 0x0D],
               "50": [0x04, 0xE2, 0x0E],
-              "60": [0x02, 0xEE, 0x08],
+              "55": [0x04, 0x72, 0x10],
+              "65": [0x02, 0x14, 0x0A],
               "70": [0x02, 0xC6, 0x0A],
+              "75": [0x02, 0x92, 0x0B],
               "80": [0x02, 0x80, 0x0C],
               "90": [0x02, 0x96, 0x0D],
               "100": [0x02, 0xE2, 0x0E],
@@ -430,32 +529,40 @@ def auto_sampler_engine3_left_command(gui):
     answer = request_response.command_sender(
         accepted_request=request_and_port_list.samplechanger_request_dictionary["engine3_left_sc_package"])
     if answer:
-        gui.info_text_box.insert(END, "✔ Команда выполнена, ответ получен\n", 'tag_green_text')
-        gui.info_text_box.yview(END)
+        if not auto:
+            gui.info_text_box.insert(END, "✔ Команда выполнена, ответ получен\n", 'tag_green_text')
+            gui.info_text_box.yview(END)
     else:
-        gui.info_text_box.insert(END, "❌ Нет ответа контроллера\n * проверьте подключение устройства *\n",
-                                 'tag_red_text')
+        if not auto:
+            gui.info_text_box.insert(END, "❌ Нет ответа контроллера\n * проверьте подключение устройства *\n",
+                                     'tag_red_text')
+            gui.info_text_box.yview(END)
+            gui.left_engine_3_button.configure(bg="salmon")
+            gui.frame_for_units.update_idletasks()
+            time.sleep(0.5)
+            gui.left_engine_3_button.configure(bg="gray60")
+
+
+def auto_sampler_engine3_right_command(gui, auto=False):
+    gui.auto_sampler_last_command = "engine3_right"
+    if not auto:
+        all_grey(gui)
+        gui.info_text_box.insert(END, ">> Выполнение команды *Вращение по часовой со\nскоростью "
+                                 + str(gui.speed_engine_3_combobox.get()) + " об/мин*\n")
         gui.info_text_box.yview(END)
-        gui.left_engine_3_button.configure(bg="salmon")
         gui.frame_for_units.update_idletasks()
-        time.sleep(0.5)
-        gui.left_engine_3_button.configure(bg="gray60")
-
-
-def auto_sampler_engine3_right_command(gui):
-    all_grey(gui)
-    gui.info_text_box.insert(END, ">> Выполнение команды *Вращение по часовой со\nскоростью "
-                             + str(gui.speed_engine_3_combobox.get()) + " об/мин*\n")
-    gui.info_text_box.yview(END)
-    gui.frame_for_units.update_idletasks()
     speed = gui.speed_engine_3_combobox.get()
     speeds = {"10": [0x08, 0x80, 0x0C],
               "20": [0x06, 0x80, 0x0C],
               "30": [0x04, 0xEE, 0x08],
+              "35": [0x04, 0xC6, 0x0A],
               "40": [0x04, 0x80, 0x0C],
+              "45": [0x04, 0x96, 0x0D],
               "50": [0x04, 0xE2, 0x0E],
-              "60": [0x02, 0xEE, 0x08],
+              "55": [0x04, 0x72, 0x10],
+              "65": [0x02, 0x14, 0x0A],
               "70": [0x02, 0xC6, 0x0A],
+              "75": [0x02, 0x92, 0x0B],
               "80": [0x02, 0x80, 0x0C],
               "90": [0x02, 0x96, 0x0D],
               "100": [0x02, 0xE2, 0x0E],
@@ -468,42 +575,130 @@ def auto_sampler_engine3_right_command(gui):
     answer = request_response.command_sender(
         accepted_request=request_and_port_list.samplechanger_request_dictionary["engine3_right_sc_package"])
     if answer:
-        gui.info_text_box.insert(END, "✔ Команда выполнена, ответ получен\n", 'tag_green_text')
-        gui.info_text_box.yview(END)
+        if not auto:
+            gui.info_text_box.insert(END, "✔ Команда выполнена, ответ получен\n", 'tag_green_text')
+            gui.info_text_box.yview(END)
     else:
-        gui.info_text_box.insert(END, "❌ Нет ответа контроллера\n * проверьте подключение устройства *\n",
-                                 'tag_red_text')
+        if not auto:
+            gui.info_text_box.insert(END, "❌ Нет ответа контроллера\n * проверьте подключение устройства *\n",
+                                     'tag_red_text')
+            gui.info_text_box.yview(END)
+            gui.right_engine_3_button.configure(bg="salmon")
+            gui.frame_for_units.update_idletasks()
+            time.sleep(0.5)
+            gui.right_engine_3_button.configure(bg="gray60")
+
+
+def auto_sampler_set_sample_command(gui, auto=False):
+    auto_sampler_stop_command(gui, auto)
+    if not auto:
+        all_grey(gui)
+        gui.info_text_box.insert(END, ">> Выполнение команды *Установить скорость \nвращения = "
+                                 + str(gui.speed_engine_3_combobox.get()) + "*\n")
         gui.info_text_box.yview(END)
-        gui.right_engine_3_button.configure(bg="salmon")
         gui.frame_for_units.update_idletasks()
-        time.sleep(0.5)
-        gui.right_engine_3_button.configure(bg="gray60")
 
+    speed = gui.speed_engine_3_combobox.get()
+    speeds = {"10": [0x08, 0x80, 0x0C],
+              "20": [0x06, 0x80, 0x0C],
+              "30": [0x04, 0xEE, 0x08],
+              "35": [0x04, 0xC6, 0x0A],
+              "40": [0x04, 0x80, 0x0C],
+              "45": [0x04, 0x96, 0x0D],
+              "50": [0x04, 0xE2, 0x0E],
+              "55": [0x04, 0x72, 0x10],
+              "65": [0x02, 0x14, 0x0A],
+              "70": [0x02, 0xC6, 0x0A],
+              "75": [0x02, 0x92, 0x0B],
+              "80": [0x02, 0x80, 0x0C],
+              "90": [0x02, 0x96, 0x0D],
+              "100": [0x02, 0xE2, 0x0E],
+              }
 
-def auto_sampler_set_sample_command(gui):
-    all_grey(gui)
-    gui.info_text_box.insert(END, ">> Выполнение команды *Установить образец №"
-                             + str(gui.speed_engine_1_combobox.get()) + "*\n")
-    gui.info_text_box.yview(END)
-    gui.frame_for_units.update_idletasks()
+    # Запись low byte
+    request_and_port_list.samplechanger_request_dictionary["write_eeprom_sc_package"][2] = \
+        request_and_port_list.autosampler_eeprom_dictionary["Скорость ШД3"][0]
+    request_and_port_list.samplechanger_request_dictionary["write_eeprom_sc_package"][4] = speeds[speed][1]
+    answer = request_response.command_sender(
+        accepted_request=request_and_port_list.samplechanger_request_dictionary["write_eeprom_sc_package"])
+    time.sleep(0.02)
+    if not answer:
+        if not auto:
+            gui.info_text_box.insert(END,
+                                     "❌ Нет ответа контроллера на попытку установки \nскорости\n"
+                                     " * проверьте подключение устройства *\n",
+                                     'tag_red_text')
+            gui.info_text_box.yview(END)
+            gui.set_sample_button.configure(bg="salmon")
+            gui.frame_for_units.update_idletasks()
+            time.sleep(0.5)
+            gui.set_sample_button.configure(bg="gray60")
+            return ()
+    # Запись high byte
+    request_and_port_list.samplechanger_request_dictionary["write_eeprom_sc_package"][2] = \
+        request_and_port_list.autosampler_eeprom_dictionary["Скорость ШД3"][1]
+    request_and_port_list.samplechanger_request_dictionary["write_eeprom_sc_package"][4] = speeds[speed][2]
+    answer = request_response.command_sender(
+        accepted_request=request_and_port_list.samplechanger_request_dictionary["write_eeprom_sc_package"])
+    time.sleep(0.02)
+    if not answer:
+        if not auto:
+            gui.info_text_box.insert(END,
+                                     "❌ Нет ответа контроллера на попытку установки \nскорости\n"
+                                     " * проверьте подключение устройства *\n",
+                                     'tag_red_text')
+            gui.info_text_box.yview(END)
+            gui.set_sample_button.configure(bg="salmon")
+            gui.frame_for_units.update_idletasks()
+            time.sleep(0.5)
+            gui.set_sample_button.configure(bg="gray60")
+            return ()
+    # Запись дробления
+    request_and_port_list.samplechanger_request_dictionary["write_eeprom_sc_package"][2] = \
+        request_and_port_list.autosampler_eeprom_dictionary["Дробление ШД3"][0]
+    request_and_port_list.samplechanger_request_dictionary["write_eeprom_sc_package"][4] = speeds[speed][0]
+    answer = request_response.command_sender(
+        accepted_request=request_and_port_list.samplechanger_request_dictionary["write_eeprom_sc_package"])
+    time.sleep(0.02)
+    if not answer:
+        if not auto:
+            gui.info_text_box.insert(END,
+                                     "❌ Нет ответа контроллера на попытку установки \nскорости\n"
+                                     " * проверьте подключение устройства *\n",
+                                     'tag_red_text')
+            gui.info_text_box.yview(END)
+            gui.set_sample_button.configure(bg="salmon")
+            gui.frame_for_units.update_idletasks()
+            time.sleep(0.5)
+            gui.set_sample_button.configure(bg="gray60")
+            return ()
+
+    if not auto:
+        all_grey(gui)
+        gui.info_text_box.insert(END, ">> Выполнение команды *Установить образец №"
+                                 + str(gui.speed_engine_1_combobox.get()) + "*\n")
+        gui.info_text_box.yview(END)
+        gui.frame_for_units.update_idletasks()
     position_number = gui.speed_engine_1_combobox.get()
     position_numbers = [0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80]
     request_and_port_list.samplechanger_request_dictionary["set_sample_sc_package"][2] = position_numbers[
         int(position_number) - 1]
-
     answer = request_response.command_sender(
         accepted_request=request_and_port_list.samplechanger_request_dictionary["set_sample_sc_package"])
     if answer:
-        gui.info_text_box.insert(END, "✔ Команда выполнена, ответ получен\n", 'tag_green_text')
-        gui.info_text_box.yview(END)
+        if not auto:
+            gui.auto_sampler_last_command = "set_sample"
+            gui.info_text_box.insert(END, "✔ Команда выполнена, ответ получен\n", 'tag_green_text')
+            gui.info_text_box.yview(END)
     else:
-        gui.info_text_box.insert(END, "❌ Нет ответа контроллера\n * проверьте подключение устройства *\n",
-                                 'tag_red_text')
-        gui.info_text_box.yview(END)
-        gui.set_sample_button.configure(bg="salmon")
-        gui.frame_for_units.update_idletasks()
-        time.sleep(0.5)
-        gui.set_sample_button.configure(bg="gray60")
+        if not auto:
+            gui.info_text_box.insert(END, "❌ Нет ответа контроллера\n * проверьте подключение устройства *\n",
+                                     'tag_red_text')
+            gui.info_text_box.yview(END)
+            gui.set_sample_button.configure(bg="salmon")
+            gui.frame_for_units.update_idletasks()
+            time.sleep(0.5)
+            gui.set_sample_button.configure(bg="gray60")
 
 
 def auto_sampler_info_command(gui):

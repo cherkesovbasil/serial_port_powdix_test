@@ -23,13 +23,23 @@ def command_sender(accepted_request=None):
         answer = port.readline(10).hex()
 
     if answer is not None:
-        port.close()
         if len(answer) < 15 and answer:
-            showerror(title="Некорректный ответ контроллера",
-                      message="Часто появляется при незамкнутом датчике крана горячей воды (X6). Либо в случае "
-                              "некорректного подключения устройства/проблемах связи с контроллером.\n\n"
-                              "<Запрос>  -  " + str(accepted_request).upper() +
-                              "\n<Ответ>    -   " + str(answer).upper())
+            port.write(accepted_request)
+            answer = port.readline(10).hex()
+            if answer is not None:
+                port.close()
+                if len(answer) < 15 and answer:
+                    showerror(title="Некорректный ответ контроллера",
+                              message="Повторный некорректный ответ контроллера. Проверьте правильность подключения "
+                                      "устройства, отсутствие плохих контактов, после чего подайте команду заново. "
+                                      "Периодически появляется, когда контроллер устройства находится в процессе "
+                                      "выполнения побочных задач\n\n"
+                                      "<Запрос>  -  " + str(accepted_request).upper() +
+                                      "\n<Ответ>    -   " + str(answer).upper())
+                    return ()
+            else:
+                port.close()
+                return "No answer"
         return answer
     else:
         port.close()

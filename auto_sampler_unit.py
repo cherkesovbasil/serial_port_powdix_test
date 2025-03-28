@@ -1,11 +1,16 @@
 from tkinter import *
 from tkinter import ttk
 import tkinter as tk
+
+import auto_sampler_auto_script
 import request_and_port_list
 import auto_sampler_buttons
 
 
-def aus(gui):
+def aus(gui, auto=False):
+    gui.auto_sampler_last_command = None
+    gui.auto_sampler_real_state = {}
+
     # Прописывает с нуля интерфейсный фрейм
     for widgets in gui.frame_for_units.winfo_children():
         widgets.destroy()
@@ -26,37 +31,37 @@ def aus(gui):
     frame_for_response_name = LabelFrame(gui.frame_for_units, bg="gray10")
     frame_for_response_name.pack(side=TOP, padx=1, pady=1, fill=X)
 
-    device_name = Label(frame_for_response_name, text="Устройство", width=10, height=1, bg="gray90", relief=SUNKEN)
-    device_name.pack(side=LEFT, padx=3, pady=1)
+    gui.device_name = Label(frame_for_response_name, text="--", width=10, height=1, bg="gray90", relief=SUNKEN)
+    gui.device_name.pack(side=LEFT, padx=3, pady=1)
 
-    stat_request = Label(frame_for_response_name, text="Команда", width=8, height=1, bg="gray90",
-                         relief=SUNKEN)
-    stat_request.pack(side=LEFT, padx=3, pady=1)
+    gui.stat_request = Label(frame_for_response_name, text="--", width=8, height=1, bg="gray90",
+                             relief=SUNKEN)
+    gui.stat_request.pack(side=LEFT, padx=3, pady=1)
 
-    stat_hi = Label(frame_for_response_name, text="Статус Hi", width=10, height=1, bg="gray90",
-                    relief=SUNKEN)
-    stat_hi.pack(side=LEFT, padx=3, pady=1)
+    gui.reserve_1 = Label(frame_for_response_name, text="--", width=10, height=1, bg="gray90",
+                          relief=SUNKEN)
+    gui.reserve_1.pack(side=LEFT, padx=3, pady=1)
 
-    stat_low = Label(frame_for_response_name, text="Статус Low", width=10, height=1, bg="gray90", relief=SUNKEN)
-    stat_low.pack(side=LEFT, padx=3, pady=1)
+    gui.state_1 = Label(frame_for_response_name, text="--", width=10, height=1, bg="gray90", relief=SUNKEN)
+    gui.state_1.pack(side=LEFT, padx=3, pady=1)
 
-    temp_hi = Label(frame_for_response_name, text="Темп Hi", width=10, height=1, bg="gray90", relief=SUNKEN)
-    temp_hi.pack(side=LEFT, padx=3, pady=1)
+    gui.rotate_low = Label(frame_for_response_name, text="--", width=10, height=1, bg="gray90", relief=SUNKEN)
+    gui.rotate_low.pack(side=LEFT, padx=3, pady=1)
 
-    temp_low = Label(frame_for_response_name, text="Темп Low", width=10, height=1, bg="gray90", relief=SUNKEN)
-    temp_low.pack(side=LEFT, padx=3, pady=1)
+    gui.rotate_high = Label(frame_for_response_name, text="--", width=10, height=1, bg="gray90", relief=SUNKEN)
+    gui.rotate_high.pack(side=LEFT, padx=3, pady=1)
 
-    humidity_hi = Label(frame_for_response_name, text="Влажн Hi", width=10, height=1, bg="gray90", relief=SUNKEN)
-    humidity_hi.pack(side=LEFT, padx=3, pady=1)
+    gui.errors = Label(frame_for_response_name, text="--", width=10, height=1, bg="gray90", relief=SUNKEN)
+    gui.errors.pack(side=LEFT, padx=3, pady=1)
 
-    humidity_low = Label(frame_for_response_name, text="Влажн Low", width=10, height=1, bg="gray90", relief=SUNKEN)
-    humidity_low.pack(side=LEFT, padx=3, pady=1)
+    gui.state_2 = Label(frame_for_response_name, text="--", width=10, height=1, bg="gray90", relief=SUNKEN)
+    gui.state_2.pack(side=LEFT, padx=3, pady=1)
 
-    package_number = Label(frame_for_response_name, text="№ Пакета", width=8, height=1, bg="gray90", relief=SUNKEN)
-    package_number.pack(side=LEFT, padx=3, pady=1)
+    gui.state_set_sample = Label(frame_for_response_name, text="--", width=8, height=1, bg="gray90", relief=SUNKEN)
+    gui.state_set_sample.pack(side=LEFT, padx=3, pady=1)
 
-    crc_name = Label(frame_for_response_name, text="Сумм (CRC)", width=10, height=1, bg="gray90", relief=SUNKEN)
-    crc_name.pack(side=LEFT, padx=3, pady=1)
+    gui.crc_name = Label(frame_for_response_name, text="--", width=10, height=1, bg="gray90", relief=SUNKEN)
+    gui.crc_name.pack(side=LEFT, padx=3, pady=1)
 
     # поле отображения обработанной информации
     frame_for_response_data = LabelFrame(gui.frame_for_units, bg="gray10")
@@ -68,26 +73,27 @@ def aus(gui):
     gui.stat_request_label = Label(frame_for_response_data, text="--", width=8, height=2, bg="gray95", relief=SUNKEN)
     gui.stat_request_label.pack(side=LEFT, padx=3, pady=1)
 
-    gui.stat_hi_label = Label(frame_for_response_data, text="--", width=10, height=2, bg="gray95", relief=SUNKEN)
-    gui.stat_hi_label.pack(side=LEFT, padx=3, pady=1)
+    gui.reserve_1_label = Label(frame_for_response_data, text="--", width=10, height=2, bg="gray95", relief=SUNKEN)
+    gui.reserve_1_label.pack(side=LEFT, padx=3, pady=1)
 
-    gui.stat_low_label = Label(frame_for_response_data, text="--", width=10, height=2, bg="gray95", relief=SUNKEN)
-    gui.stat_low_label.pack(side=LEFT, padx=3, pady=1)
+    gui.state_1_label = Label(frame_for_response_data, text="--", width=10, height=2, bg="gray95", relief=SUNKEN)
+    gui.state_1_label.pack(side=LEFT, padx=3, pady=1)
 
-    gui.temp_hi_label = Label(frame_for_response_data, text="--", width=10, height=2, bg="gray95", relief=SUNKEN)
-    gui.temp_hi_label.pack(side=LEFT, padx=3, pady=1)
+    gui.rotate_low_label = Label(frame_for_response_data, text="--", width=10, height=2, bg="gray95", relief=SUNKEN)
+    gui.rotate_low_label.pack(side=LEFT, padx=3, pady=1)
 
-    gui.temp_low_label = Label(frame_for_response_data, text="--", width=10, height=2, bg="gray95", relief=SUNKEN)
-    gui.temp_low_label.pack(side=LEFT, padx=3, pady=1)
+    gui.rotate_high_label = Label(frame_for_response_data, text="--", width=10, height=2, bg="gray95", relief=SUNKEN)
+    gui.rotate_high_label.pack(side=LEFT, padx=3, pady=1)
 
-    gui.humidity_hi_label = Label(frame_for_response_data, text="--", width=10, height=2, bg="gray95", relief=SUNKEN)
-    gui.humidity_hi_label.pack(side=LEFT, padx=3, pady=1)
+    gui.errors_label = Label(frame_for_response_data, text="--", width=10, height=2, bg="gray95", relief=SUNKEN)
+    gui.errors_label.pack(side=LEFT, padx=3, pady=1)
 
-    gui.humidity_low_label = Label(frame_for_response_data, text="--", width=10, height=2, bg="gray95", relief=SUNKEN)
-    gui.humidity_low_label.pack(side=LEFT, padx=3, pady=1)
+    gui.state_2_label = Label(frame_for_response_data, text="--", width=10, height=2, bg="gray95", relief=SUNKEN)
+    gui.state_2_label.pack(side=LEFT, padx=3, pady=1)
 
-    gui.package_number_label = Label(frame_for_response_data, text="--", width=8, height=2, bg="gray95", relief=SUNKEN)
-    gui.package_number_label.pack(side=LEFT, padx=3, pady=1)
+    gui.state_set_sample_label = Label(frame_for_response_data, text="--", width=8, height=2, bg="gray95",
+                                       relief=SUNKEN)
+    gui.state_set_sample_label.pack(side=LEFT, padx=3, pady=1)
 
     gui.crc_label = Label(frame_for_response_data, text="--", width=10, height=2, bg="gray95", relief=SUNKEN)
     gui.crc_label.pack(side=LEFT, padx=3, pady=1)
@@ -104,29 +110,31 @@ def aus(gui):
                                   relief=SUNKEN)
     gui.stat_request_data.pack(side=LEFT, padx=3, pady=1)
 
-    gui.stat_hi_data = Label(frame_for_response_clear_data, text="--", width=10, height=1, bg="gray90", relief=SUNKEN)
-    gui.stat_hi_data.pack(side=LEFT, padx=3, pady=1)
+    gui.reserve_1_data = Label(frame_for_response_clear_data, text="--", width=10, height=1, bg="gray90", relief=SUNKEN)
+    gui.reserve_1_data.pack(side=LEFT, padx=3, pady=1)
 
-    gui.stat_low_data = Label(frame_for_response_clear_data, text="--", width=10, height=1, bg="gray90", relief=SUNKEN)
-    gui.stat_low_data.pack(side=LEFT, padx=3, pady=1)
+    gui.state_1_data = Label(frame_for_response_clear_data, text="--", width=10, height=1, bg="gray90", relief=SUNKEN)
+    gui.state_1_data.pack(side=LEFT, padx=3, pady=1)
 
-    gui.temp_hi_data = Label(frame_for_response_clear_data, text="--", width=10, height=1, bg="gray90", relief=SUNKEN)
-    gui.temp_hi_data.pack(side=LEFT, padx=3, pady=1)
+    gui.rotate_low_data = Label(frame_for_response_clear_data, text="--", width=10, height=1, bg="gray90",
+                                relief=SUNKEN)
+    gui.rotate_low_data.pack(side=LEFT, padx=3, pady=1)
 
-    gui.temp_low_data = Label(frame_for_response_clear_data, text="--", width=10, height=1, bg="gray90", relief=SUNKEN)
-    gui.temp_low_data.pack(side=LEFT, padx=3, pady=1)
-
-    gui.humidity_hi_data = Label(frame_for_response_clear_data, text="--", width=10, height=1, bg="gray90",
+    gui.rotate_high_data = Label(frame_for_response_clear_data, text="--", width=10, height=1, bg="gray90",
                                  relief=SUNKEN)
-    gui.humidity_hi_data.pack(side=LEFT, padx=3, pady=1)
+    gui.rotate_high_data.pack(side=LEFT, padx=3, pady=1)
 
-    gui.humidity_low_data = Label(frame_for_response_clear_data, text="--", width=10, height=1, bg="gray90",
-                                  relief=SUNKEN)
-    gui.humidity_low_data.pack(side=LEFT, padx=3, pady=1)
+    gui.errors_data = Label(frame_for_response_clear_data, text="--", width=10, height=1, bg="gray90",
+                            relief=SUNKEN)
+    gui.errors_data.pack(side=LEFT, padx=3, pady=1)
 
-    gui.package_number_data = Label(frame_for_response_clear_data, text="--", width=8, height=1, bg="gray90",
-                                    relief=SUNKEN)
-    gui.package_number_data.pack(side=LEFT, padx=3, pady=1)
+    gui.state_2_data = Label(frame_for_response_clear_data, text="--", width=10, height=1, bg="gray90",
+                             relief=SUNKEN)
+    gui.state_2_data.pack(side=LEFT, padx=3, pady=1)
+
+    gui.state_set_sample_data = Label(frame_for_response_clear_data, text="--", width=8, height=1, bg="gray90",
+                                      relief=SUNKEN)
+    gui.state_set_sample_data.pack(side=LEFT, padx=3, pady=1)
 
     gui.crc_data = Label(frame_for_response_clear_data, text="--", width=10, height=1, bg="gray90", relief=SUNKEN)
     gui.crc_data.pack(side=LEFT, padx=3, pady=1)
@@ -139,10 +147,10 @@ def aus(gui):
     frame_for_eeprom.pack(side=LEFT, padx=1, pady=1, fill=X)
 
     frame_for_indication = LabelFrame(frame_for_eeprom_indication, bg="gray10")
-    frame_for_indication.pack(side=RIGHT, padx=1, pady=1, fill=X)
+    frame_for_indication.pack(side=LEFT, padx=18, pady=1, fill=X)
 
     frame_for_import_eeprom = LabelFrame(frame_for_eeprom, bg="gray10", text="Записать в EEPROM", fg="white")
-    frame_for_import_eeprom.pack(side=LEFT, padx=10, pady=15, fill=X)
+    frame_for_import_eeprom.pack(side=LEFT, padx=10, pady=20, fill=X)
 
     frame_for_export_eeprom = LabelFrame(frame_for_eeprom, bg="gray10", text="Считать из EEPROM", fg="white")
     frame_for_export_eeprom.pack(side=LEFT, padx=10, pady=15, fill=X)
@@ -191,7 +199,7 @@ def aus(gui):
             gui.value_export_textbox_high.config(state="disabled")
 
     gui.parameter_import_combobox = ttk.Combobox(frame_for_parameter_import, width=17, height=50, state="readonly",
-                                             values=parameters_init())
+                                                 values=parameters_init())
     gui.parameter_import_combobox.pack(side=RIGHT, padx=3, pady=1)
 
     gui.parameter_import_combobox.bind("<<ComboboxSelected>>", value_init)
@@ -204,19 +212,19 @@ def aus(gui):
     var_h.trace('w', value_init)
 
     gui.value_import_combobox_low = ttk.Combobox(frame_for_value_import, width=6, height=50,
-                                              state="normal", textvariable=var_h)
+                                                 state="normal", textvariable=var_h)
     gui.value_import_combobox_low.pack(side=RIGHT, padx=3, pady=1)
 
     var_l = tk.StringVar()
     var_l.trace('w', value_init)
 
     gui.value_import_combobox_high = ttk.Combobox(frame_for_value_import, width=6, height=50,
-                                             state="normal", textvariable=var_l)
+                                                  state="normal", textvariable=var_l)
     gui.value_import_combobox_high.pack(side=RIGHT, padx=3, pady=1)
 
     gui.write_eeprom_button = Button(frame_for_button_import, text="Записать", relief=GROOVE, width=27, height=1,
-                                 bg="gray60", state="normal",
-                                 command=lambda: auto_sampler_buttons.auto_sampler_write_eeprom_command(gui))
+                                     bg="gray60", state="normal",
+                                     command=lambda: auto_sampler_buttons.auto_sampler_write_eeprom_command(gui))
     gui.write_eeprom_button.pack(side=LEFT, pady=1)
 
     frame_for_parameter_export = LabelFrame(frame_for_export_eeprom, bg="gray10")
@@ -242,8 +250,9 @@ def aus(gui):
         gui.value_export_textbox_high.delete('1.0', END)
         gui.value_export_textbox_high.config(state="disabled")
 
-    gui.parameter_export_combobox = ttk.Combobox(frame_for_parameter_export, values=parameters_init(), width=17, height=50,
-                                             state="readonly")
+    gui.parameter_export_combobox = ttk.Combobox(frame_for_parameter_export, values=parameters_init(), width=17,
+                                                 height=50,
+                                                 state="readonly")
     gui.parameter_export_combobox.pack(side=RIGHT, padx=3, pady=1)
 
     gui.parameter_export_combobox.bind("<<ComboboxSelected>>", clear_high_low)
@@ -259,9 +268,47 @@ def aus(gui):
     gui.value_export_textbox_high.pack(side=RIGHT, padx=3, pady=1)
 
     gui.read_eeprom_button = Button(frame_for_button_export, text="Считать", relief=GROOVE, width=27, height=1,
-                                bg="gray60", state="normal",
-                                command=lambda: auto_sampler_buttons.auto_sampler_read_eeprom_command(gui))
+                                    bg="gray60", state="normal",
+                                    command=lambda: auto_sampler_buttons.auto_sampler_read_eeprom_command(gui))
     gui.read_eeprom_button.pack(side=LEFT, pady=1)
+
+    # Индикация статусов и ошибок
+    frame_for_speed = LabelFrame(frame_for_indication, bg="gray10")
+    frame_for_speed.pack(side=TOP, padx=1, pady=1, fill=X)
+    frame_for_set_indication = LabelFrame(frame_for_indication, bg="gray10", fg="white")
+    frame_for_set_indication.pack(side=TOP, padx=1, pady=1, fill=X)
+
+    frame_for_speed_1 = LabelFrame(frame_for_speed, bg="gray10")
+    frame_for_speed_1.pack(side=TOP, padx=1, pady=1, fill=X)
+    speed_label = Label(frame_for_speed_1, text="Скорость вращения", width=17, height=1, bg="gray10",
+                        fg="white")
+    speed_label.pack(side=LEFT, padx=1, pady=1)
+    gui.speed_textbox = Text(frame_for_speed_1, width=17, height=1, state="disabled", bg="gray70")
+    gui.speed_textbox.pack(side=TOP, padx=1, pady=1)
+
+    frame_for_set = LabelFrame(frame_for_set_indication, bg="gray10")
+    frame_for_set.pack(side=TOP, padx=1, pady=1, fill=X)
+    full_set_label = Label(frame_for_set, text="Установка образца", width=17, height=1, bg="gray10",
+                           fg="white")
+    full_set_label.pack(side=LEFT, padx=1, pady=1)
+    gui.full_set_textbox = Text(frame_for_set, width=17, height=1, state="disabled", bg="gray70")
+    gui.full_set_textbox.pack(side=LEFT, padx=1, pady=1)
+
+    frame_for_lift = LabelFrame(frame_for_set_indication, bg="gray10")
+    frame_for_lift.pack(side=TOP, padx=1, pady=1, fill=X)
+    lift_label = Label(frame_for_lift, text="Лифт", width=17, height=1, bg="gray10",
+                       fg="white")
+    lift_label.pack(side=LEFT, padx=1, pady=1)
+    gui.lift_textbox = Text(frame_for_lift, width=17, height=1, state="disabled", bg="gray70")
+    gui.lift_textbox.pack(side=LEFT, padx=1, pady=1)
+
+    frame_for_position = LabelFrame(frame_for_set_indication, bg="gray10")
+    frame_for_position.pack(side=TOP, padx=1, pady=1, fill=X)
+    position_label = Label(frame_for_position, text="Барабан", width=17, height=1, bg="gray10",
+                           fg="white")
+    position_label.pack(side=LEFT, padx=1, pady=1)
+    gui.position_textbox = Text(frame_for_position, width=17, height=1, state="disabled", bg="gray70")
+    gui.position_textbox.pack(side=LEFT, padx=1, pady=1)
 
     # фреймы для ЗАПУСКА ДВИГАТЕЛЕЙ И УСТАНОВКИ ОБРАЗЦА
     frame_for_engines = LabelFrame(gui.frame_for_units, bg="gray10")
@@ -279,7 +326,7 @@ def aus(gui):
     frame_for_set_sample = LabelFrame(frame_for_engines, bg="gray10", text="Установить образец", fg="white")
     frame_for_set_sample.pack(side=LEFT, padx=15, pady=12, fill=X)
 
-    speed = ["10", "20", "30", "40", "50", "60", "70", "80", "90", "100"]
+    speed = ["10", "20", "30", "35", "40", "45", "50", "55", "65", "70", "75", "80", "90", "100"]
     position = ["1", "2", "3", "4", "5", "6", "7", "8"]
 
     # Двигатель №1
@@ -291,7 +338,7 @@ def aus(gui):
     speed_engine_1_label.pack(side=LEFT, padx=3, pady=1)
 
     gui.speed_engine_1_combobox = ttk.Combobox(frame_for_speed_engine_1, width=5, height=50, state="readonly",
-                                           values=position)
+                                               values=position)
     gui.speed_engine_1_combobox.pack(side=RIGHT, padx=3, pady=1)
 
     gui.speed_engine_1_combobox.set("1")
@@ -300,8 +347,8 @@ def aus(gui):
     frame_for_buttons_engine_1.pack(side=TOP, padx=1, pady=1, fill=X)
 
     gui.engine_1_button = Button(frame_for_buttons_engine_1, text="Запуск", relief=GROOVE, width=20, height=1,
-                                  bg="gray60", state="normal",
-                                  command=lambda: auto_sampler_buttons.auto_sampler_engine1_command(gui))
+                                 bg="gray60", state="normal",
+                                 command=lambda: auto_sampler_buttons.auto_sampler_engine1_command(gui))
     gui.engine_1_button.pack(side=LEFT, pady=1)
 
     # Двигатель №2
@@ -309,20 +356,20 @@ def aus(gui):
     frame_for_speed_engine_2.pack(side=TOP, padx=1, pady=1, fill=X)
 
     lift_engine_2_label = Label(frame_for_speed_engine_2, text="---", width=10, height=1, bg="gray10",
-                                 fg="white")
+                                fg="white")
     lift_engine_2_label.pack(side=TOP, padx=3, pady=1)
 
     frame_for_buttons_engine_2 = LabelFrame(frame_for_engine_2, bg="gray10")
     frame_for_buttons_engine_2.pack(side=TOP, padx=1, pady=1, fill=X)
 
     gui.left_engine_2_button = Button(frame_for_buttons_engine_2, text="⮝⮝⮝", relief=GROOVE, width=10, height=1,
-                                  bg="gray60", state="normal",
-                                  command=lambda: auto_sampler_buttons.auto_sampler_engine2_up_command(gui))
+                                      bg="gray60", state="normal",
+                                      command=lambda: auto_sampler_buttons.auto_sampler_engine2_up_command(gui))
     gui.left_engine_2_button.pack(side=LEFT, pady=1)
 
     gui.right_engine_2_button = Button(frame_for_buttons_engine_2, text="⮟⮟⮟", relief=GROOVE, width=10, height=1,
-                                   bg="gray60", state="normal",
-                                   command=lambda: auto_sampler_buttons.auto_sampler_engine2_down_command(gui))
+                                       bg="gray60", state="normal",
+                                       command=lambda: auto_sampler_buttons.auto_sampler_engine2_down_command(gui))
     gui.right_engine_2_button.pack(side=LEFT, pady=1)
 
     # Двигатель №3
@@ -334,22 +381,22 @@ def aus(gui):
     speed_engine_3_label.pack(side=LEFT, padx=3, pady=1)
 
     gui.speed_engine_3_combobox = ttk.Combobox(frame_for_speed_engine_3, width=5, height=50, state="readonly",
-                                           values=speed)
+                                               values=speed)
     gui.speed_engine_3_combobox.pack(side=RIGHT, padx=3, pady=1)
 
-    gui.speed_engine_3_combobox.set("60")
+    gui.speed_engine_3_combobox.set("50")
 
     frame_for_buttons_engine_3 = LabelFrame(frame_for_engine_3, bg="gray10")
     frame_for_buttons_engine_3.pack(side=TOP, padx=1, pady=1, fill=X)
 
     gui.left_engine_3_button = Button(frame_for_buttons_engine_3, text="⮜⮜⮜", relief=GROOVE, width=10, height=1,
-                                  bg="gray60", state="normal",
-                                  command=lambda: auto_sampler_buttons.auto_sampler_engine3_left_command(gui))
+                                      bg="gray60", state="normal",
+                                      command=lambda: auto_sampler_buttons.auto_sampler_engine3_left_command(gui))
     gui.left_engine_3_button.pack(side=LEFT, pady=1)
 
     gui.right_engine_3_button = Button(frame_for_buttons_engine_3, text="⮞⮞⮞", relief=GROOVE, width=10, height=1,
-                                   bg="gray60", state="normal",
-                                   command=lambda: auto_sampler_buttons.auto_sampler_engine3_right_command(gui))
+                                       bg="gray60", state="normal",
+                                       command=lambda: auto_sampler_buttons.auto_sampler_engine3_right_command(gui))
     gui.right_engine_3_button.pack(side=LEFT, pady=1)
 
     # Установить образец
@@ -364,8 +411,8 @@ def aus(gui):
     frame_for_button_set_sample.pack(side=TOP, padx=1, pady=1, fill=X)
 
     gui.set_sample_button = Button(frame_for_button_set_sample, text="Установить", relief=GROOVE, width=20, height=1,
-                        bg="gray60", state="normal",
-                        command=lambda: auto_sampler_buttons.auto_sampler_set_sample_command(gui))
+                                   bg="gray60", state="normal",
+                                   command=lambda: auto_sampler_buttons.auto_sampler_set_sample_command(gui))
     gui.set_sample_button.pack(side=LEFT, pady=1)
 
     #
@@ -374,16 +421,16 @@ def aus(gui):
 
     # Поле управляющего юнита
 
-    # фрэймы поля кнопок управления системой охлаждения
+    # фрэймы поля кнопок управления автосменщиком
 
     frame_for_stop_base_buttons = LabelFrame(gui.frame_for_units, bg="gray90")
-    frame_for_stop_base_buttons.pack(side=RIGHT, padx=4, pady=24, fill=X)
+    frame_for_stop_base_buttons.pack(side=RIGHT, padx=4, pady=19, fill=X)
 
     frame_for_version_info_buttons = LabelFrame(gui.frame_for_units, bg="gray90")
-    frame_for_version_info_buttons.pack(side=LEFT, padx=4, pady=24, fill=X)
+    frame_for_version_info_buttons.pack(side=LEFT, padx=4, pady=19, fill=X)
 
     frame_for_status_l_buttons = LabelFrame(gui.frame_for_units, bg="gray90")
-    frame_for_status_l_buttons.pack(side=LEFT, padx=4, pady=24, fill=X)
+    frame_for_status_l_buttons.pack(side=LEFT, padx=4, pady=19, fill=X)
 
     # подполе мини-терминала
     gui.info_text_box = Text(gui.frame_for_units, relief=GROOVE, width=48, height=6,
@@ -418,7 +465,6 @@ def aus(gui):
                              bg="gray60", command=lambda: auto_sampler_buttons.auto_sampler_stop_command(gui))
     gui.stop_button.pack(side=TOP, pady=4, padx=4)
 
-    auto = False
     # Изменяет состояние кнопок в окне в случае автоматического режима
     if auto:
         gui.poa_button.configure(bg="gray60", state='disabled', relief=GROOVE)
@@ -429,13 +475,23 @@ def aus(gui):
         gui.sc_button.configure(bg="gray60", state='disabled', relief=GROOVE)
         gui.ck_button.configure(bg="gray60", state='disabled', relief=GROOVE)
         gui.vs_button.configure(bg="gray60", state='disabled', relief=GROOVE)
-        gui.start_button.configure(bg="gray60", state='disabled', relief=GROOVE)
         gui.stop_button.configure(bg="gray60", state='disabled', relief=GROOVE)
+        gui.stop_base_button.configure(bg="gray60", state='disabled', relief=GROOVE)
         gui.version_button.configure(bg="gray60", state='disabled', relief=GROOVE)
         gui.info_button.configure(bg="gray60", state='disabled', relief=GROOVE)
-        gui.dry_button.configure(bg="gray60", state='disabled', relief=GROOVE)
         gui.status_button.configure(bg="gray60", state='disabled', relief=GROOVE)
-        # Тут будет запуск автоматического скрипта !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        gui.status_l_button.configure(bg="gray60", state='disabled', relief=GROOVE)
+        gui.set_sample_button.configure(bg="gray60", state='disabled', relief=GROOVE)
+        gui.right_engine_3_button.configure(bg="gray60", state='disabled', relief=GROOVE)
+        gui.left_engine_3_button.configure(bg="gray60", state='disabled', relief=GROOVE)
+        gui.right_engine_2_button.configure(bg="gray60", state='disabled', relief=GROOVE)
+        gui.left_engine_2_button.configure(bg="gray60", state='disabled', relief=GROOVE)
+        gui.engine_1_button.configure(bg="gray60", state='disabled', relief=GROOVE)
+        gui.read_eeprom_button.configure(bg="gray60", state='disabled', relief=GROOVE)
+        gui.write_eeprom_button.configure(bg="gray60", state='disabled', relief=GROOVE)
+        gui.manual_button.configure(state="normal", bg="gray60")
+        gui.auto_button.configure(state="disabled", bg="SeaGreen1")
+        auto_sampler_auto_script.start_check(gui)
     else:
         gui.poa_button.configure(bg="gray60", state='normal', relief=GROOVE)
         gui.sth1_button.configure(bg="gray60", state='normal', relief=GROOVE)
@@ -445,3 +501,19 @@ def aus(gui):
         gui.sc_button.configure(bg="gray60", state='normal', relief=GROOVE)
         gui.ck_button.configure(bg="gray60", state='normal', relief=GROOVE)
         gui.vs_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        gui.stop_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        gui.stop_base_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        gui.version_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        gui.info_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        gui.status_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        gui.status_l_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        gui.set_sample_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        gui.right_engine_3_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        gui.left_engine_3_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        gui.right_engine_2_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        gui.left_engine_2_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        gui.engine_1_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        gui.read_eeprom_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        gui.write_eeprom_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        gui.manual_button.configure(state="disabled", bg="SeaGreen1")
+        gui.auto_button.configure(state="normal", bg="gray60")

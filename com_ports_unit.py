@@ -229,7 +229,7 @@ def com_ports(gui):
                         gui.as_button.config(background="SeaGreen1")
                         gui.as_button.update()
                         if_answer(answer, request_name)
-                        auto_sampler_unit.aus(gui)
+                        auto_sampler_unit.aus(gui, auto=True)
                         return answer
                     else:
                         gui.report_box.insert(END, " -  Ответ отсутствует")
