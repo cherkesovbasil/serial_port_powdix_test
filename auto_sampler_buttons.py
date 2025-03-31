@@ -211,7 +211,6 @@ def auto_sampler_write_eeprom_command(gui):
 
     low_byte = gui.value_import_combobox_low.get().lower()
     if len(low_byte) != 2 and len(low_byte) != 0:
-        print(low_byte)
         gui.info_text_box.insert(END, "❌ Убедитесь, что ввели корректное значение\n"
                                       "('hex' содержит только 2 значения (цифра либо \nбуква) [low byte])\n",
                                  'tag_red_text')
@@ -686,8 +685,8 @@ def auto_sampler_set_sample_command(gui, auto=False):
     answer = request_response.command_sender(
         accepted_request=request_and_port_list.samplechanger_request_dictionary["set_sample_sc_package"])
     if answer:
+        gui.auto_sampler_last_command = "set_sample"
         if not auto:
-            gui.auto_sampler_last_command = "set_sample"
             gui.info_text_box.insert(END, "✔ Команда выполнена, ответ получен\n", 'tag_green_text')
             gui.info_text_box.yview(END)
     else:

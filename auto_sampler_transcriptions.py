@@ -181,10 +181,9 @@ def transcript_status_l(gui, recieved_command=None):
                 gui.position_textbox.delete('1.0', END)
                 gui.position_textbox.insert(tk.END, "Позиция найдена")
                 gui.position_textbox.config(state="disabled")
+                gui.wait_status = False
 
             if state_set_sample == "a8":
-                gui.wait_status = True
-
                 gui.state_set_sample_label.config(text="...", bg="gray70")
 
                 gui.full_set_textbox.config(state="normal", bg="gray70")
@@ -201,10 +200,9 @@ def transcript_status_l(gui, recieved_command=None):
                 gui.position_textbox.delete('1.0', END)
                 gui.position_textbox.insert(tk.END, "Ищет позицию")
                 gui.position_textbox.config(state="disabled")
-
-            if state_set_sample == "e8":
                 gui.wait_status = True
 
+            if state_set_sample == "e8":
                 gui.state_set_sample_label.config(text="...", bg="gray70")
 
                 gui.full_set_textbox.config(state="normal", bg="gray70")
@@ -221,10 +219,9 @@ def transcript_status_l(gui, recieved_command=None):
                 gui.position_textbox.delete('1.0', END)
                 gui.position_textbox.insert(tk.END, "Позиция установл.")
                 gui.position_textbox.config(state="disabled")
-
-            if state_set_sample == "88":
                 gui.wait_status = True
 
+            if state_set_sample == "88":
                 gui.state_set_sample_label.config(text="...", bg="gray70")
 
                 gui.full_set_textbox.config(state="normal", bg="gray70")
@@ -241,6 +238,7 @@ def transcript_status_l(gui, recieved_command=None):
                 gui.position_textbox.delete('1.0', END)
                 gui.position_textbox.insert(tk.END, "Ожидание лифта")
                 gui.position_textbox.config(state="disabled")
+                gui.wait_status = True
 
             if state_set_sample == "00":
                 gui.state_set_sample_label.config(text="❌", bg="salmon")
@@ -260,6 +258,7 @@ def transcript_status_l(gui, recieved_command=None):
                 gui.position_textbox.insert(tk.END, "Не производится")
                 gui.position_textbox.config(state="disabled")
                 gui.auto_sampler_real_state["set_sample_state"] = "lift_fault"
+                gui.wait_status = False
 
             if state_set_sample == "a0":
                 gui.state_set_sample_label.config(text="❌", bg="salmon")
@@ -279,6 +278,7 @@ def transcript_status_l(gui, recieved_command=None):
                 gui.position_textbox.insert(tk.END, "Позиция не найдена")
                 gui.position_textbox.config(state="disabled")
                 gui.auto_sampler_real_state["set_sample_state"] = "engine1"
+                gui.wait_status = False
 
             if state_set_sample == "e0":
                 gui.state_set_sample_label.config(text="❌", bg="salmon")
@@ -298,6 +298,7 @@ def transcript_status_l(gui, recieved_command=None):
                 gui.position_textbox.insert(tk.END, "Позиция установл.")
                 gui.position_textbox.config(state="disabled")
                 gui.auto_sampler_real_state["set_sample_state"] = "lift_up"
+                gui.wait_status = False
 
             if state_set_sample == "80":
                 gui.state_set_sample_label.config(text="❌", bg="salmon")
@@ -317,6 +318,7 @@ def transcript_status_l(gui, recieved_command=None):
                 gui.position_textbox.insert(tk.END, "Не использовался")
                 gui.position_textbox.config(state="disabled")
                 gui.auto_sampler_real_state["set_sample_state"] = "lift_down"
+                gui.wait_status = False
 
         else:
             gui.state_set_sample_label.config(text="OK", bg="PaleGreen3")
@@ -332,6 +334,7 @@ def transcript_status_l(gui, recieved_command=None):
             gui.position_textbox.config(state="normal", bg="gray70")
             gui.position_textbox.delete('1.0', END)
             gui.position_textbox.config(state="disabled")
+            gui.wait_status = False
 
     def check_crc():
         # Проверяет контрольную сумму
@@ -479,10 +482,9 @@ def transcript_status(gui, recieved_command=None):
                 gui.position_textbox.delete('1.0', END)
                 gui.position_textbox.insert(tk.END, "Позиция найдена")
                 gui.position_textbox.config(state="disabled")
+                gui.wait_status = False
 
             if state_set_sample == "a8":
-                gui.wait_status = True
-
                 gui.rotate_low_label.config(text="...", bg="gray70")
 
                 gui.full_set_textbox.config(state="normal", bg="gray70")
@@ -499,10 +501,9 @@ def transcript_status(gui, recieved_command=None):
                 gui.position_textbox.delete('1.0', END)
                 gui.position_textbox.insert(tk.END, "Ищет позицию")
                 gui.position_textbox.config(state="disabled")
-
-            if state_set_sample == "e8":
                 gui.wait_status = True
 
+            if state_set_sample == "e8":
                 gui.rotate_low_label.config(text="...", bg="gray70")
 
                 gui.full_set_textbox.config(state="normal", bg="gray70")
@@ -519,10 +520,9 @@ def transcript_status(gui, recieved_command=None):
                 gui.position_textbox.delete('1.0', END)
                 gui.position_textbox.insert(tk.END, "Позиция установл.")
                 gui.position_textbox.config(state="disabled")
-
-            if state_set_sample == "88":
                 gui.wait_status = True
 
+            if state_set_sample == "88":
                 gui.rotate_low_label.config(text="...", bg="gray70")
 
                 gui.full_set_textbox.config(state="normal", bg="gray70")
@@ -539,6 +539,7 @@ def transcript_status(gui, recieved_command=None):
                 gui.position_textbox.delete('1.0', END)
                 gui.position_textbox.insert(tk.END, "Ожидание лифта")
                 gui.position_textbox.config(state="disabled")
+                gui.wait_status = True
 
             if state_set_sample == "00":
                 gui.rotate_low_label.config(text="❌", bg="salmon")
@@ -557,6 +558,7 @@ def transcript_status(gui, recieved_command=None):
                 gui.position_textbox.delete('1.0', END)
                 gui.position_textbox.insert(tk.END, "Не производится")
                 gui.position_textbox.config(state="disabled")
+                gui.wait_status = False
 
             if state_set_sample == "a0":
                 gui.rotate_low_label.config(text="❌", bg="salmon")
@@ -575,6 +577,7 @@ def transcript_status(gui, recieved_command=None):
                 gui.position_textbox.delete('1.0', END)
                 gui.position_textbox.insert(tk.END, "Позиция не найдена")
                 gui.position_textbox.config(state="disabled")
+                gui.wait_status = False
 
             if state_set_sample == "e0":
                 gui.rotate_low_label.config(text="❌", bg="salmon")
@@ -593,6 +596,7 @@ def transcript_status(gui, recieved_command=None):
                 gui.position_textbox.delete('1.0', END)
                 gui.position_textbox.insert(tk.END, "Позиция установл.")
                 gui.position_textbox.config(state="disabled")
+                gui.wait_status = False
 
             if state_set_sample == "80":
                 gui.rotate_low_label.config(text="❌", bg="salmon")
@@ -611,6 +615,7 @@ def transcript_status(gui, recieved_command=None):
                 gui.position_textbox.delete('1.0', END)
                 gui.position_textbox.insert(tk.END, "Не использовался")
                 gui.position_textbox.config(state="disabled")
+                gui.wait_status = False
 
         else:
             gui.rotate_low_label.config(text="OK", bg="PaleGreen3")
@@ -626,6 +631,7 @@ def transcript_status(gui, recieved_command=None):
             gui.position_textbox.config(state="normal", bg="gray70")
             gui.position_textbox.delete('1.0', END)
             gui.position_textbox.config(state="disabled")
+            gui.wait_status = False
 
     def transcript_state_2():
         # расшифровка поля state_2
@@ -649,7 +655,6 @@ def transcript_status(gui, recieved_command=None):
         # расшифровка поля driver_fault
 
         rotate_low = recieved_command[14] + recieved_command[15]
-        print(rotate_low)
         if str(rotate_low) == "10":
             gui.state_2_label.config(text="Внизу", bg="gray90")
             gui.state_2_data.config(text=rotate_low.upper())
