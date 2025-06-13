@@ -7,6 +7,7 @@ import cooling_system_unit
 import temperature_humidity_unit
 import auto_sampler_unit
 import sample_changer_unit
+import auto_changer_unit
 import knife_unit
 import find_active_device
 import manual_parameters
@@ -66,6 +67,9 @@ class Main_frame_unit:
         self.sc_button = Button(frame_for_device_buttons, text="ВРАЩАТЕЛЬ", relief=GROOVE, width=11, height=2,
                                 bg="gray60", command=lambda: sample_changer_unit.sc(self), state="disabled")
         self.sc_button.pack(side=TOP, padx=1, pady=2)
+        self.auc_button = Button(frame_for_device_buttons, text="ПРОБОПОД.", relief=GROOVE, width=11, height=2,
+                                 bg="gray60", command=lambda: auto_changer_unit.auch(self), state="disabled")
+        self.auc_button.pack(side=TOP, padx=1, pady=2)
         self.ck_button = Button(frame_for_device_buttons, text="КОЛЛИМАТОР", relief=GROOVE, width=11, height=2,
                                 bg="gray60", command=lambda: knife_unit.knife(self), state="disabled")
         self.ck_button.pack(side=TOP, padx=1, pady=2)

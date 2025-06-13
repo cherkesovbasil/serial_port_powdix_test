@@ -8,6 +8,7 @@ import cooling_system_unit
 import temperature_humidity_unit
 import auto_sampler_unit
 import sample_changer_unit
+import auto_changer_unit
 import knife_unit
 import variable_slit_unit
 
@@ -134,6 +135,18 @@ def com_ports(gui):
             # Ищет, какое устройство подключено к данному порту
             for request_name, request in request_and_port_list.identification_dictionary.items():
 
+                def version_of_sampler():
+                    version_answer = request_response.command_sender(
+                        accepted_request=request_and_port_list.samplechanger_request_dictionary["version_sc_package"])
+                    if version_answer:
+                        version_answer_hex = str()
+                        for bit_number in range(2, 16):
+                            version_answer_hex = str(version_answer_hex) + str(version_answer[bit_number])
+                        version_answer_ascii = bytearray.fromhex(version_answer_hex).decode(encoding='ascii')
+                        return version_answer_ascii
+                    else:
+                        return None
+
                 if request_name == "poa_request":
                     gui.report_box.insert(END, " -  Опрос подсистемы охлаждения анода")
                     gui.report_box.update()
@@ -222,7 +235,7 @@ def com_ports(gui):
                     gui.as_button.update()
                     request_and_port_list.com_port_settings["baudrate"] = 1000000
                     answer = request_response.command_sender(accepted_request=request)
-                    if answer:
+                    if answer and version_of_sampler() == "V:00.02":
                         gui.report_box.delete(0, END)
                         gui.report_box.insert(END, "                                   "
                                                    "⮜⮜⮜ ПОДКЛЮЧЕНО К АВТОМАТИЧЕСКОМУ СМЕНЩИКУ ОБРАЗЦОВ ⮞⮞⮞")
@@ -242,19 +255,39 @@ def com_ports(gui):
                     gui.sc_button.update()
                     request_and_port_list.com_port_settings["baudrate"] = 1000000
                     answer = request_response.command_sender(accepted_request=request)
-                    if answer:
+                    if answer and version_of_sampler() == "V:00.03":
                         gui.report_box.delete(0, END)
                         gui.report_box.insert(END, "                                   "
                                                    "⮜⮜⮜ ПОДКЛЮЧЕНО К ВРАЩАТЕЛЮ ОБРАЗЦА ⮞⮞⮞")
                         gui.sc_button.config(background="SeaGreen1")
                         gui.sc_button.update()
                         if_answer(answer, request_name)
-                        sample_changer_unit.sc(gui)
+                        sample_changer_unit.sc(gui, auto=True)
                         return answer
                     else:
                         gui.report_box.insert(END, " -  Ответ отсутствует")
                         gui.sc_button.config(background="gray60")
                         gui.sc_button.update()
+
+                elif request_name == "auto_ch_request":
+                    gui.report_box.insert(END, " -  Опрос автоматического пробоподатчика")
+                    gui.auc_button.config(background="deep sky blue")
+                    gui.auc_button.update()
+                    request_and_port_list.com_port_settings["baudrate"] = 1000000
+                    answer = request_response.command_sender(accepted_request=request)
+                    if answer and version_of_sampler() == "V:00.04":
+                        gui.report_box.delete(0, END)
+                        gui.report_box.insert(END, "                                   "
+                                                   "⮜⮜⮜ ПОДКЛЮЧЕНО К АВТОМАТИЧЕСКОМУ ПРОБОПОДАТЧИКУ ⮞⮞⮞")
+                        gui.auc_button.config(background="SeaGreen1")
+                        gui.auc_button.update()
+                        if_answer(answer, request_name)
+                        auto_changer_unit.auch(gui, auto=True)
+                        return answer
+                    else:
+                        gui.report_box.insert(END, " -  Ответ отсутствует")
+                        gui.auc_button.config(background="gray60")
+                        gui.auc_button.update()
 
                 elif request_name == "ck_request":
                     gui.report_box.insert(END, " -  Опрос автоматического коллиматора-ножа")

@@ -746,3 +746,154 @@ def auto_sampler_info_command(gui):
     auto_sampler_help_window.mainloop()
 
     pass
+
+
+def auto_changer_engine1_base_command(gui, auto=False):
+    gui.auto_sampler_last_command = "engine1_base"
+    if not auto:
+        all_grey(gui)
+        gui.info_text_box.insert(END, ">> Выполнение команды *Каретка в базу*\n")
+        gui.info_text_box.yview(END)
+        gui.frame_for_units.update_idletasks()
+    answer = request_response.command_sender(
+        accepted_request=request_and_port_list.autochanger_request_dictionary["engine1_base_auc_package"])
+    if answer:
+        if not auto:
+            gui.info_text_box.insert(END, "✔ Команда выполнена, ответ получен\n", 'tag_green_text')
+            gui.info_text_box.yview(END)
+    else:
+        if not auto:
+            gui.info_text_box.insert(END, "❌ Нет ответа контроллера\n * проверьте подключение устройства *\n",
+                                     'tag_red_text')
+            gui.info_text_box.yview(END)
+            gui.base_engine_1_button.configure(bg="salmon")
+            gui.frame_for_units.update_idletasks()
+            time.sleep(0.5)
+            gui.base_engine_1_button.configure(bg="gray60")
+
+
+def auto_changer_engine1_load_command(gui, auto=False):
+    gui.auto_sampler_last_command = "engine1_load"
+    if not auto:
+        all_grey(gui)
+        gui.info_text_box.insert(END, ">> Выполнение команды *Каретка в зону загрузки*\n")
+        gui.info_text_box.yview(END)
+        gui.frame_for_units.update_idletasks()
+    answer = request_response.command_sender(
+        accepted_request=request_and_port_list.autochanger_request_dictionary["engine1_load_auc_package"])
+    if answer:
+        if not auto:
+            gui.info_text_box.insert(END, "✔ Команда выполнена, ответ получен\n", 'tag_green_text')
+            gui.info_text_box.yview(END)
+    else:
+        if not auto:
+            gui.info_text_box.insert(END, "❌ Нет ответа контроллера\n * проверьте подключение устройства *\n",
+                                     'tag_red_text')
+            gui.info_text_box.yview(END)
+            gui.load_engine_1_button.configure(bg="salmon")
+            gui.frame_for_units.update_idletasks()
+            time.sleep(0.5)
+            gui.load_engine_1_button.configure(bg="gray60")
+
+
+def auto_changer_engine2_base_command(gui, auto=False):
+    gui.auto_sampler_last_command = "engine2_base"
+    if not auto:
+        all_grey(gui)
+        gui.info_text_box.insert(END, ">> Выполнение команды *Каретка в зону загрузки*\n")
+        gui.info_text_box.yview(END)
+        gui.frame_for_units.update_idletasks()
+    answer = request_response.command_sender(
+        accepted_request=request_and_port_list.autochanger_request_dictionary["engine2_base_auc_package"])
+    if answer:
+        if not auto:
+            gui.info_text_box.insert(END, "✔ Команда выполнена, ответ получен\n", 'tag_green_text')
+            gui.info_text_box.yview(END)
+    else:
+        if not auto:
+            gui.info_text_box.insert(END, "❌ Нет ответа контроллера\n * проверьте подключение устройства *\n",
+                                     'tag_red_text')
+            gui.info_text_box.yview(END)
+            gui.right_engine_2_button.configure(bg="salmon")
+            gui.frame_for_units.update_idletasks()
+            time.sleep(0.5)
+            gui.right_engine_2_button.configure(bg="gray60")
+
+
+def auto_changer_engine2_scan_command(gui, auto=False):
+    gui.auto_sampler_last_command = "engine2_scan"
+    if not auto:
+        all_grey(gui)
+        gui.info_text_box.insert(END, ">> Выполнение команды *Каретка в зону загрузки*\n")
+        gui.info_text_box.yview(END)
+        gui.frame_for_units.update_idletasks()
+    answer = request_response.command_sender(
+        accepted_request=request_and_port_list.autochanger_request_dictionary["engine2_scan_auc_package"])
+    if answer:
+        if not auto:
+            gui.info_text_box.insert(END, "✔ Команда выполнена, ответ получен\n", 'tag_green_text')
+            gui.info_text_box.yview(END)
+    else:
+        if not auto:
+            gui.info_text_box.insert(END, "❌ Нет ответа контроллера\n * проверьте подключение устройства *\n",
+                                     'tag_red_text')
+            gui.info_text_box.yview(END)
+            gui.left_engine_2_button.configure(bg="salmon")
+            gui.frame_for_units.update_idletasks()
+            time.sleep(0.5)
+            gui.left_engine_2_button.configure(bg="gray60")
+
+
+def auto_changer_set_load_command(gui, auto=False):
+    gui.auto_sampler_last_command = "engine2_scan"
+    if not auto:
+        all_grey(gui)
+        gui.info_text_box.insert(END, ">> Выполнение команды *Сценарий перемещения в зону загрузки*\n")
+        gui.info_text_box.yview(END)
+        gui.frame_for_units.update_idletasks()
+    answer = request_response.command_sender(
+        accepted_request=request_and_port_list.autochanger_request_dictionary["load_sample_auc_package"])
+    if answer:
+        print(request_and_port_list.autochanger_request_dictionary["load_sample_auc_package"])
+        print(answer)
+        if not auto:
+            gui.info_text_box.insert(END, "✔ Команда выполнена, ответ получен\n", 'tag_green_text')
+            gui.info_text_box.yview(END)
+    else:
+        if not auto:
+            gui.info_text_box.insert(END, "❌ Нет ответа контроллера\n * проверьте подключение устройства *\n",
+                                     'tag_red_text')
+            gui.info_text_box.yview(END)
+            gui.load_sample_button.configure(bg="salmon")
+            gui.frame_for_units.update_idletasks()
+            time.sleep(0.5)
+            gui.load_sample_button.configure(bg="gray60")
+
+
+def auto_changer_set_scan_command(gui, auto=False):
+    gui.auto_sampler_last_command = "engine2_scan"
+    if not auto:
+        all_grey(gui)
+        gui.info_text_box.insert(END, ">> Выполнение команды *Сценарий перемещения в зону сканирования*\n")
+        gui.info_text_box.yview(END)
+        gui.frame_for_units.update_idletasks()
+    answer = request_response.command_sender(
+        accepted_request=request_and_port_list.autochanger_request_dictionary["scan_sample_auc_package"])
+    if answer:
+        print(request_and_port_list.autochanger_request_dictionary["scan_sample_auc_package"])
+        print(answer)
+        if not auto:
+            gui.info_text_box.insert(END, "✔ Команда выполнена, ответ получен\n", 'tag_green_text')
+            gui.info_text_box.yview(END)
+    else:
+        if not auto:
+            gui.info_text_box.insert(END, "❌ Нет ответа контроллера\n * проверьте подключение устройства *\n",
+                                     'tag_red_text')
+            gui.info_text_box.yview(END)
+            gui.scan_sample_button.configure(bg="salmon")
+            gui.frame_for_units.update_idletasks()
+            time.sleep(0.5)
+            gui.scan_sample_button.configure(bg="gray60")
+
+Загрузка работает из любого положения
+Скан работает только после перемещения картеки в положение загрузки командой перемещения в загрузку

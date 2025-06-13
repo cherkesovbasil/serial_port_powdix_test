@@ -1,4 +1,7 @@
 from tkinter import *
+
+import back_to_manual_param
+import go_to_auto_param
 import temperature_buttons
 import temperature_humidity_auto_script
 
@@ -203,14 +206,9 @@ def sth(gui, sensor=None, auto=False):
         else:
             return
 
-        gui.poa_button.configure(bg="gray60", state='disabled', relief=GROOVE)
-        gui.as_button.configure(bg="gray60", state='disabled', relief=GROOVE)
-        gui.sc_button.configure(bg="gray60", state='disabled', relief=GROOVE)
-        gui.ck_button.configure(bg="gray60", state='disabled', relief=GROOVE)
-        gui.vs_button.configure(bg="gray60", state='disabled', relief=GROOVE)
+        go_to_auto_param.go_to_auto_parameters(gui)
         gui.info_button.configure(bg="gray60", state='disabled', relief=GROOVE)
         gui.check_status_button.configure(bg="gray60", state='disabled', relief=GROOVE)
-        gui.info_button.configure(bg="gray60", state='disabled', relief=GROOVE)
         temperature_humidity_auto_script.start_check(gui, sensor)
     else:
         gui.sth1_button.configure(bg="gray60", state='normal', relief=GROOVE)
@@ -225,15 +223,6 @@ def sth(gui, sensor=None, auto=False):
         else:
             return
 
-        gui.poa_button.configure(bg="gray60", state='normal', relief=GROOVE)
-        gui.as_button.configure(bg="gray60", state='normal', relief=GROOVE)
-        gui.sc_button.configure(bg="gray60", state='normal', relief=GROOVE)
-        gui.ck_button.configure(bg="gray60", state='normal', relief=GROOVE)
-        gui.vs_button.configure(bg="gray60", state='normal', relief=GROOVE)
+        back_to_manual_param.back_to_manual_parameters(gui)
         gui.check_status_button.configure(bg="gray60", state='normal', relief=GROOVE)
         gui.info_button.configure(bg="gray60", state='normal', relief=GROOVE)
-        gui.refind_button.configure(state="normal", bg="gray60")
-        gui.set_button.configure(state="normal", bg="gray60")
-        gui.manual_button.configure(state="disabled", bg="SeaGreen1")
-        gui.auto_button.configure(state="normal", bg="gray60")
-        gui.terminal_button.configure(state="normal", bg="gray60")

@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter.scrolledtext import ScrolledText
 import com_ports_unit
+import go_to_auto_param
 
 
 def auto(gui):
@@ -9,30 +10,8 @@ def auto(gui):
     for widget in gui.frame_for_units.winfo_children():
         widget.destroy()
 
-    # Делает интерфейс активным для взаимодействия
-    gui.poa_button.configure(state="disabled", bg="gray60")
-    gui.sth1_button.configure(state="disabled", bg="gray60")
-    gui.sth2_button.configure(state="disabled", bg="gray60")
-    gui.sth3_button.configure(state="disabled", bg="gray60")
-    gui.as_button.configure(state="disabled", bg="gray60")
-    gui.sc_button.configure(state="disabled", bg="gray60")
-    gui.ck_button.configure(state="disabled", bg="gray60")
-    gui.vs_button.configure(state="disabled", bg="gray60")
-    gui.refind_button.configure(state="disabled", bg="gray60")
-    gui.set_button.configure(state="disabled", bg="gray60")
-    gui.manual_button.configure(state="normal", bg="gray60")
-    gui.auto_button.configure(state="disabled", bg="SeaGreen1")
-    gui.terminal_button.configure(state="disabled", bg="gray60")
-
-    gui.bytesize_combobox.configure(state="disabled")
-    gui.timeout_combobox.configure(state="disabled")
-    gui.baudrate_combobox.configure(state="disabled")
-    gui.port_combobox.configure(state="disabled")
-
-    gui.bytesize_label.configure(fg="gray60")
-    gui.timeout_label.configure(fg="gray60")
-    gui.baudrate_label.configure(fg="gray60")
-    gui.port_label.configure(fg="gray60")
+    # Делает интерфейс неактивным для взаимодействия
+    go_to_auto_param.go_to_auto_parameters(gui)
 
     # Создание графической оболочки для отображения поиска и подключения к устройству
     upper_frame = LabelFrame(gui.frame_for_units, bg="gray10")

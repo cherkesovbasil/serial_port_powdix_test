@@ -14,6 +14,7 @@ def manual(gui):
     gui.sth3_button.configure(state="normal", bg="gray60")
     gui.as_button.configure(state="normal", bg="gray60")
     gui.sc_button.configure(state="normal", bg="gray60")
+    gui.auc_button.configure(state="normal", bg="gray60")
     gui.ck_button.configure(state="normal", bg="gray60")
     gui.vs_button.configure(state="normal", bg="gray60")
     gui.refind_button.configure(state="normal", bg="gray60")
@@ -72,9 +73,16 @@ def manual(gui):
     frame_for_sc_label = LabelFrame(gui.frame_for_units, bg="gray10")
     frame_for_sc_label.pack(side=TOP, fill=BOTH, pady=1)
 
-    sc_label = Label(frame_for_sc_label, text="  ⮜   Вращатель образца", height=2, fg="white", bg="gray10", anchor="w",
-                     font=("Arial", 9, "bold"))
+    sc_label = Label(frame_for_sc_label, text="  ⮜   Автоматический вращатель образца", height=2, fg="white",
+                     bg="gray10", anchor="w", font=("Arial", 9, "bold"))
     sc_label.pack(side=TOP, padx=3, pady=1, fill=BOTH)
+
+    frame_for_auc_label = LabelFrame(gui.frame_for_units, bg="gray10")
+    frame_for_auc_label.pack(side=TOP, fill=BOTH, pady=1)
+
+    auc_label = Label(frame_for_auc_label, text="  ⮜   Автоматический пробоподатчик", height=2, fg="white",
+                     bg="gray10", anchor="w", font=("Arial", 9, "bold"))
+    auc_label.pack(side=TOP, padx=3, pady=1, fill=BOTH)
 
     frame_for_ck_label = LabelFrame(gui.frame_for_units, bg="gray10")
     frame_for_ck_label.pack(side=TOP, fill=BOTH, pady=2)
@@ -108,5 +116,5 @@ def manual(gui):
     upper_label = Label(frame_for_bottom_label,
                         text="\n 🡿 Кнопка ⭯ осуществляет автоматический поиск подключенного устройства без "
                              "последующей проверки",
-                        height=7, fg="white", bg="gray10", anchor="w", font=("Arial", 9, "bold"))
+                        height=4, fg="white", bg="gray10", anchor="w", font=("Arial", 9, "bold"))
     upper_label.pack(side=BOTTOM, padx=3, pady=8, fill=BOTH)

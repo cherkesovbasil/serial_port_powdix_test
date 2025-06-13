@@ -76,7 +76,7 @@ def transcript_status_l(gui, recieved_command=None):
         set_speed = int(gui.speed_engine_3_combobox.get())
         if gui.auto_sampler_last_command == "set_sample" or gui.auto_sampler_last_command == "engine3_right" or \
                 gui.auto_sampler_last_command == "engine3_left":
-            if set_speed - 6 < real_speed < set_speed + 6:
+            if set_speed - 12 < real_speed < set_speed + 6:
                 if gui.wait_status:
                     gui.speed_textbox.config(state="normal", bg="gray70")
                     gui.speed_textbox.delete('1.0', END)
