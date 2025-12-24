@@ -1,11 +1,15 @@
 from tkinter import *
 
 
-def back_to_manual_parameters(gui):
+def back_to_manual_parameters(gui, number_of_operations=int()):
     try:
         gui.info_text_box.delete('1.0', END)
         gui.info_text_box.insert(END, " ⫸ Ручной режим управления\n", 'tag_red_text')
         gui.info_text_box.yview(END)
+        if number_of_operations:
+            gui.info_text_box.insert(END,
+                                     "Количество успешно выполненных операций = " + str(number_of_operations) + "\n",
+                                     'tag_green_text')
     except:
         pass
 

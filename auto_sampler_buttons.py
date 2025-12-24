@@ -3,6 +3,7 @@ import auto_sampler_transcriptions
 import request_response
 import request_and_port_list
 from tkinter import *
+from tkinter.messagebox import askyesno
 import tkinter as tk
 
 
@@ -800,7 +801,7 @@ def auto_changer_engine2_base_command(gui, auto=False):
     gui.auto_sampler_last_command = "engine2_base"
     if not auto:
         all_grey(gui)
-        gui.info_text_box.insert(END, ">> Выполнение команды *Каретка в зону загрузки*\n")
+        gui.info_text_box.insert(END, ">> Выполнение команды *Лифт вниз*\n")
         gui.info_text_box.yview(END)
         gui.frame_for_units.update_idletasks()
     answer = request_response.command_sender(
@@ -824,7 +825,7 @@ def auto_changer_engine2_scan_command(gui, auto=False):
     gui.auto_sampler_last_command = "engine2_scan"
     if not auto:
         all_grey(gui)
-        gui.info_text_box.insert(END, ">> Выполнение команды *Каретка в зону загрузки*\n")
+        gui.info_text_box.insert(END, ">> Выполнение команды *Лифт вверх*\n")
         gui.info_text_box.yview(END)
         gui.frame_for_units.update_idletasks()
     answer = request_response.command_sender(
@@ -854,8 +855,6 @@ def auto_changer_set_load_command(gui, auto=False):
     answer = request_response.command_sender(
         accepted_request=request_and_port_list.autochanger_request_dictionary["load_sample_auc_package"])
     if answer:
-        print(request_and_port_list.autochanger_request_dictionary["load_sample_auc_package"])
-        print(answer)
         if not auto:
             gui.info_text_box.insert(END, "✔ Команда выполнена, ответ получен\n", 'tag_green_text')
             gui.info_text_box.yview(END)
@@ -870,30 +869,77 @@ def auto_changer_set_load_command(gui, auto=False):
             gui.load_sample_button.configure(bg="gray60")
 
 
-def auto_changer_set_scan_command(gui, auto=False):
-    gui.auto_sampler_last_command = "engine2_scan"
+def auto_changer_check_answer_command(gui, answer, auto):
+    device_hex = answer[0] + answer[1]
+    if device_hex != "50" and not auto:
+        result = askyesno(title="Некорректный ответ контроллера",
+                          message="Возникает во время перемещения двигателя каретки и по его окончанию, временами "
+                                  "возникает при перемещении прочих двигателей. Для сброса состояния ошибки требуется"
+                                  " выполнить команду Стоп. Выполнить команду?\n\n"
+                                  "<Да> - для отправки команды Стоп и повторного запроса статуса\n\n"
+                                  "<Нет> - для отмены выполнения команды Статус")
+        if result:
+            auto_sampler_stop_command(gui, True)
+            time.sleep(0.2)
+            auto_changer_status_command(gui, True)
+            return False
+        else:
+            return False
+    else:
+        return True
+
+
+def auto_changer_status_command(gui, auto=False):
     if not auto:
         all_grey(gui)
-        gui.info_text_box.insert(END, ">> Выполнение команды *Сценарий перемещения в зону сканирования*\n")
+        gui.info_text_box.insert(END, ">> Выполнение команды *Статус*\n")
         gui.info_text_box.yview(END)
         gui.frame_for_units.update_idletasks()
     answer = request_response.command_sender(
-        accepted_request=request_and_port_list.autochanger_request_dictionary["scan_sample_auc_package"])
+        accepted_request=request_and_port_list.samplechanger_request_dictionary["status_sc_package"])
     if answer:
-        print(request_and_port_list.autochanger_request_dictionary["scan_sample_auc_package"])
-        print(answer)
-        if not auto:
-            gui.info_text_box.insert(END, "✔ Команда выполнена, ответ получен\n", 'tag_green_text')
-            gui.info_text_box.yview(END)
+        if auto_changer_check_answer_command(gui, answer, auto):
+            device_hex = answer[0] + answer[1]
+            if not auto:
+                gui.info_text_box.insert(END, "✔ Команда выполнена, ответ получен\n", 'tag_green_text')
+                gui.info_text_box.yview(END)
+                auto_sampler_transcriptions.transcript_status_autochanger(gui, answer)
+            if auto and device_hex != "50":
+                pass
+            if auto and device_hex == "50":
+                auto_sampler_transcriptions.transcript_status_autochanger(gui, answer)
+        else:
+            pass
     else:
         if not auto:
             gui.info_text_box.insert(END, "❌ Нет ответа контроллера\n * проверьте подключение устройства *\n",
                                      'tag_red_text')
             gui.info_text_box.yview(END)
-            gui.scan_sample_button.configure(bg="salmon")
+            gui.status_button.configure(bg="salmon")
             gui.frame_for_units.update_idletasks()
             time.sleep(0.5)
-            gui.scan_sample_button.configure(bg="gray60")
+            gui.status_button.configure(bg="gray60")
 
-Загрузка работает из любого положения
-Скан работает только после перемещения картеки в положение загрузки командой перемещения в загрузку
+
+def auto_changer_status_l_command(gui, auto=False):
+    if not auto:
+        all_grey(gui)
+        gui.info_text_box.insert(END, ">> Выполнение команды *Статус_L*\n")
+        gui.info_text_box.yview(END)
+        gui.frame_for_units.update_idletasks()
+    answer = request_response.command_sender(
+        accepted_request=request_and_port_list.samplechanger_request_dictionary["status_l_sc_package"])
+    if answer:
+        if not auto:
+            gui.info_text_box.insert(END, "✔ Команда выполнена, ответ получен\n", 'tag_green_text')
+            gui.info_text_box.yview(END)
+        auto_sampler_transcriptions.transcript_status_l_autochanger(gui, answer)
+    else:
+        if not auto:
+            gui.info_text_box.insert(END, "❌ Нет ответа контроллера\n * проверьте подключение устройства *\n",
+                                     'tag_red_text')
+            gui.info_text_box.yview(END)
+            gui.status_l_button.configure(bg="salmon")
+            gui.frame_for_units.update_idletasks()
+            time.sleep(0.5)
+            gui.status_l_button.configure(bg="gray60")

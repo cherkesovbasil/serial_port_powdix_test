@@ -23,8 +23,8 @@ def reset_errors(gui):
     gui.ignore_speed = False
 
 
-def back_to_manual(gui):
-    back_to_manual_param.back_to_manual_parameters(gui)
+def back_to_manual(gui, number_of_operations=int()):
+    back_to_manual_param.back_to_manual_parameters(gui, number_of_operations)
     gui.sc_button.configure(bg="SeaGreen1", state='disabled', relief=RIDGE)
 
     gui.stop_button.configure(bg="gray60", state='normal', relief=GROOVE)
@@ -784,13 +784,14 @@ def lift_up(gui):
 
 def start_check(gui):
     # Запуск скрипта автоматической проверки системы охлаждения
-
+    number_of_ops = 0
     for function_number in range(1, 34):
         result = eval("step_" + str(function_number) + "(gui)")
+        number_of_ops += 1
         while result:
             result = eval("step_" + str(function_number) + "(gui)")
         if str(result) == "False":
-            back_to_manual(gui)
+            back_to_manual(gui, number_of_operations=number_of_ops)
             return ()
 
     result = askyesno(title="Проверка окончена",
@@ -803,25 +804,29 @@ def start_check(gui):
             random_speed = random.choice(["10", "20", "30", "35", "40", "45", "50", "55", "65", "70",
                                           "75", "80", "90", "100"])
             result = random_speed_left(gui, random_speed)
+            number_of_ops += 1
             if str(result) == "False":
-                back_to_manual(gui)
+                back_to_manual(gui, number_of_operations=number_of_ops)
                 return ()
             time.sleep(0.2)
             result = lift_down(gui)
+            number_of_ops += 1
             if str(result) == "False":
-                back_to_manual(gui)
+                back_to_manual(gui, number_of_operations=number_of_ops)
                 return ()
             time.sleep(0.2)
             result = random_speed_left(gui, random_speed)
+            number_of_ops += 1
             if str(result) == "False":
-                back_to_manual(gui)
+                back_to_manual(gui, number_of_operations=number_of_ops)
                 return ()
             time.sleep(0.2)
             result = lift_up(gui)
+            number_of_ops += 1
             if str(result) == "False":
-                back_to_manual(gui)
+                back_to_manual(gui, number_of_operations=number_of_ops)
                 return ()
             time.sleep(0.2)
     else:
-        back_to_manual(gui)
+        back_to_manual(gui, number_of_operations=number_of_ops)
         return ()

@@ -42,14 +42,14 @@ def transcript_status_l(gui, recieved_command=None):
         # расшифровка поля reserve
 
         reserve = recieved_command[4] + recieved_command[5]
-        gui.reserve_1_label.config(text="No check")
+        gui.reserve_1_label.config(text="--")
         gui.reserve_1_data.config(text=reserve.upper())
 
     def transcript_state_1():
         # расшифровка поля state_1
 
         state_1 = recieved_command[6] + recieved_command[7]
-        gui.state_1_label.config(text="No check")
+        gui.state_1_label.config(text="--")
         gui.state_1_data.config(text=state_1.upper())
 
     def transcript_rotate_low():
@@ -155,7 +155,7 @@ def transcript_status_l(gui, recieved_command=None):
         # расшифровка поля state_2
 
         state_2 = recieved_command[14] + recieved_command[15]
-        gui.state_2_label.config(text="No check")
+        gui.state_2_label.config(text="--")
         gui.state_2_data.config(text=state_2.upper())
 
     def transcript_state_set_sample():
@@ -420,7 +420,7 @@ def transcript_status(gui, recieved_command=None):
         position_number = position_numbers[position]
 
         if position_number:
-            gui.reserve_1_label.config(text="No check")
+            gui.reserve_1_label.config(text="--")
             gui.reserve_1_data.config(text=position.upper())
         else:
             gui.reserve_1_label.config(text="Между")
@@ -637,7 +637,7 @@ def transcript_status(gui, recieved_command=None):
         # расшифровка поля state_2
 
         state_2 = recieved_command[10] + recieved_command[11]
-        gui.rotate_high_label.config(text="No check")
+        gui.rotate_high_label.config(text="--")
         gui.rotate_high_data.config(text=state_2.upper())
 
     def transcript_errors():
@@ -705,6 +705,405 @@ def transcript_status(gui, recieved_command=None):
         else:
             gui.crc_label.config(bg="salmon", text=str(full_hex_summ))
             gui.auto_sampler_real_state["incorrect_answer"] = True
+        gui.crc_data.config(text=recieved_command[18].upper() + recieved_command[19].upper())
+
+    transcript_name_device()
+    transcript_command()
+    transcript_position()
+    transcript_divider()
+    transcript_state_set_sample()
+    transcript_state_2()
+    transcript_errors()
+    transcript_driver_fault()
+    transcript_status_3()
+    check_crc()
+
+
+def transcript_status_l_autochanger(gui, recieved_command=None):
+    # Расшифровка прочих параметров из полученной команды
+
+    gui.device_name.configure(text="Устройство")
+    gui.stat_request.configure(text="Статус")
+    gui.reserve_1.configure(text="Резерв")
+    gui.state_1.configure(text="Состояние 1")
+    gui.rotate_low.configure(text="Вращ. ШД3")
+    gui.rotate_high.configure(text="Вращ. ШД3")
+    gui.errors.configure(text="Ошибки")
+    gui.state_2.configure(text="Состояние 2")
+    gui.state_set_sample.configure(text="Уст. обр.")
+    gui.crc_name.configure(text="Сумм (CRC)")
+
+    def transcript_name_device():
+        # расшифровка поля device
+
+        device_hex = recieved_command[0] + recieved_command[1]
+        if device_hex == "50":
+            gui.device_name_label.config(text="OK", bg="PaleGreen3")
+        else:
+            gui.device_name_label.config(text="❌", bg="salmon")
+            gui.auto_changer_error.append("incorrect_answer")
+        gui.device_name_data.config(text=device_hex.upper())
+
+    def transcript_status_device():
+        # расшифровка поля status
+
+        status_hex = recieved_command[2] + recieved_command[3]
+        if status_hex == "78":
+            gui.stat_request_label.config(text="OK", bg="PaleGreen3")
+        else:
+            gui.stat_request_label.config(text="❌", bg="salmon")
+            gui.auto_changer_error.append("incorrect_answer")
+        gui.stat_request_data.config(text=status_hex.upper())
+
+    def transcript_reserve():
+        # расшифровка поля reserve
+
+        reserve = recieved_command[4] + recieved_command[5]
+        gui.reserve_1_label.config(text="--")
+        gui.reserve_1_data.config(text=reserve.upper())
+
+    def transcript_state_1():
+        # расшифровка поля state_1
+
+        state_1 = recieved_command[6] + recieved_command[7]
+        gui.state_1_label.config(text="--")
+        gui.state_1_data.config(text=state_1.upper())
+
+    def transcript_rotate_low():
+        # расшифровка поля rotate_low
+
+        rotate_low = recieved_command[8] + recieved_command[9]
+        gui.rotate_low_data.config(text=rotate_low.upper())
+
+    def transcript_rotate_high():
+        # расшифровка поля rotate_high
+
+        rotate_high = recieved_command[10] + recieved_command[11]
+        gui.rotate_high_data.config(text=rotate_high.upper())
+
+    def transcript_full_speed():
+        # расшифровка full_speed
+        speed_hex = recieved_command[10] + recieved_command[11] + recieved_command[8] + recieved_command[9]
+        speed_dec = int(speed_hex, 16)
+        if speed_dec != 0:
+            real_speed = int(60 / (7 * speed_dec * 64 * 0.000001))
+        else:
+            real_speed = 0
+        set_speed = int(gui.speed_engine_3_combobox.get())
+        if gui.auto_sampler_last_command == "engine3_right" or gui.auto_sampler_last_command == "engine3_left":
+            if set_speed - 6 < real_speed < set_speed + 6:
+                gui.speed_textbox.config(state="normal", bg="PaleGreen3")
+                gui.speed_textbox.delete('1.0', END)
+                gui.speed_textbox.insert(tk.END, real_speed)
+                gui.speed_textbox.config(state="disabled")
+                gui.rotate_low_label.config(text="OK", bg="PaleGreen3")
+                gui.rotate_high_label.config(text="OK", bg="PaleGreen3")
+            else:
+                gui.speed_textbox.config(state="normal", bg="salmon")
+                gui.speed_textbox.delete('1.0', END)
+                gui.speed_textbox.insert(tk.END, real_speed)
+                gui.speed_textbox.config(state="disabled")
+                gui.rotate_low_label.config(text="❌", bg="salmon")
+                gui.rotate_high_label.config(text="❌", bg="salmon")
+                if set_speed > real_speed:
+                    gui.auto_changer_error.append("Low speed")
+                else:
+                    gui.auto_changer_error.append("High speed")
+
+        else:
+            if real_speed == 0:
+                gui.speed_textbox.config(state="normal", bg="PaleGreen3")
+                gui.speed_textbox.delete('1.0', END)
+                gui.speed_textbox.insert(tk.END, real_speed)
+                gui.speed_textbox.config(state="disabled")
+                gui.rotate_low_label.config(text="OK", bg="PaleGreen3")
+                gui.rotate_high_label.config(text="OK", bg="PaleGreen3")
+            else:
+                gui.speed_textbox.config(state="normal", bg="salmon")
+                gui.speed_textbox.delete('1.0', END)
+                gui.speed_textbox.insert(tk.END, real_speed)
+                gui.speed_textbox.config(state="disabled")
+                gui.rotate_low_label.config(text="❌", bg="salmon")
+                gui.rotate_high_label.config(text="❌", bg="salmon")
+                if set_speed > real_speed:
+                    gui.auto_changer_error.append("Low speed")
+                else:
+                    gui.auto_changer_error.append("High speed")
+
+    def transcript_errors():
+        # расшифровка поля errors
+
+        errors = recieved_command[12] + recieved_command[13]
+        if errors == "00":
+            gui.errors_label.config(text="OK", bg="PaleGreen3")
+        else:
+            gui.errors_label.config(text="❌", bg="salmon")
+            gui.auto_changer_error.append("Movement error")
+        gui.errors_data.config(text=errors.upper())
+
+    def transcript_state_2():
+        # расшифровка поля state_2
+
+        state_2 = recieved_command[14] + recieved_command[15]
+        gui.state_2_label.config(text="--")
+        gui.state_2_data.config(text=state_2.upper())
+
+    def transcript_state_set_sample():
+        # расшифровка поля state_set_sample
+
+        state_set_sample = recieved_command[16] + recieved_command[17]
+        gui.state_set_sample_data.config(text=state_set_sample.upper())
+
+    def check_crc():
+        # Проверяет контрольную сумму
+
+        full_dec_summ = 0
+        full_hex_summ = 0
+        for bit in range(0, 20):
+            if bit % 2 != 0:
+                hex_bit = recieved_command[bit - 1] + recieved_command[bit]
+                full_dec_summ = full_dec_summ + int(hex_bit, 16)
+                full_hex_summ = hex(full_dec_summ)
+        if full_hex_summ[len(full_hex_summ) - 1] == "0":
+            gui.crc_label.config(bg="PaleGreen3", text="OK")
+        else:
+            gui.crc_label.config(bg="salmon", text=str(full_hex_summ))
+            gui.auto_changer_error.append("incorrect_answer")
+        gui.crc_data.config(text=recieved_command[18].upper() + recieved_command[19].upper())
+
+    transcript_name_device()
+    transcript_status_device()
+    transcript_reserve()
+    transcript_state_1()
+    transcript_rotate_low()
+    transcript_rotate_high()
+    transcript_errors()
+    transcript_state_2()
+    transcript_state_set_sample()
+    check_crc()
+    transcript_full_speed()
+
+
+def transcript_status_autochanger(gui, recieved_command=None):
+    # Расшифровка прочих параметров из полученной команды
+
+    gui.device_name.configure(text="Устройство")
+    gui.stat_request.configure(text="Команда")
+    gui.reserve_1.configure(text="Резерв")
+    gui.state_1.configure(text="Дробление")
+    gui.rotate_low.configure(text="Резерв")
+    gui.rotate_high.configure(text="Движение")
+    gui.errors.configure(text="Ошибки")
+    gui.state_2.configure(text="Лифт")
+    gui.state_set_sample.configure(text="Статус")
+    gui.crc_name.configure(text="Сумм (CRC)")
+
+    def transcript_name_device():
+        # расшифровка поля device
+
+        device_hex = recieved_command[0] + recieved_command[1]
+        if device_hex == "50":
+            gui.device_name_label.config(text="OK", bg="PaleGreen3")
+        else:
+            gui.device_name_label.config(text="❌", bg="salmon")
+            gui.auto_changer_error.append("incorrect_answer")
+        gui.device_name_data.config(text=device_hex.upper())
+
+    def transcript_command():
+        # расшифровка поля status
+
+        status_hex = recieved_command[2] + recieved_command[3]
+        if status_hex == "73":
+            gui.stat_request_label.config(text="OK", bg="PaleGreen3")
+        else:
+            gui.stat_request_label.config(text="❌", bg="salmon")
+            gui.auto_changer_error.append("incorrect_answer")
+        gui.stat_request_data.config(text=status_hex.upper())
+
+    def transcript_position():
+        # расшифровка поля reserve
+
+        reserve = recieved_command[4] + recieved_command[5]
+        gui.reserve_1_label.config(text="--")
+        gui.reserve_1_data.config(text=reserve.upper())
+
+    def transcript_divider():
+        # расшифровка поля divider
+        dividers = {
+            "00": 0,
+            "02": 2,
+            "04": 4,
+            "06": 8,
+            "08": 16,
+            "0A": 32
+        }
+
+        divider_hex = recieved_command[6] + recieved_command[7]
+        divider = dividers[divider_hex]
+
+        gui.state_1_label.config(text="/ " + str(divider))
+        gui.state_1_data.config(text=divider_hex.upper())
+
+    def transcript_state_set_sample():
+        # расшифровка поля reserve
+
+        reserve = recieved_command[8] + recieved_command[9]
+        gui.rotate_low_label.config(text="--")
+        gui.rotate_low_data.config(text=reserve.upper())
+
+    def transcript_state_2():
+        # расшифровка поля state_2
+
+        rotate_high = recieved_command[10] + recieved_command[11]
+        gui.rotate_high_data.config(text=rotate_high.upper())
+        d = int(rotate_high, 16)
+        b = str(bin(d)[2:])
+        while len(b) < 8:
+            b = "0" + b
+
+        gui.rotate_high_label.config(text="OK", bg="PaleGreen3")
+        if b[5] == "1":
+            gui.rotate_high_label.config(text="Вперёд", bg="gray90")
+            gui.auto_changer_state.append("Moving forward")
+        if b[4] == "1":
+            gui.rotate_high_label.config(text="Назад", bg="gray90")
+            gui.auto_changer_state.append("Moving backward")
+        if b[4] != "1" and b[5] != "1":
+            gui.rotate_high_label.config(text="Остановл.", bg="gray90")
+            gui.auto_changer_state.append("Not moving")
+
+    def transcript_errors():
+        # расшифровка поля errors
+
+        errors = recieved_command[12] + recieved_command[13]
+        if errors == "00":
+            gui.errors_label.config(text="OK", bg="PaleGreen3")
+        else:
+            gui.errors_label.config(text="❌", bg="salmon")
+            gui.auto_changer_error.append("Movement error")
+        gui.errors_data.config(text=errors.upper())
+
+    def transcript_driver_fault():
+        # расшифровка поля driver_fault
+
+        rotate_low = recieved_command[14] + recieved_command[15]
+        if str(rotate_low) == "10":
+            gui.state_2_label.config(text="Внизу", bg="gray90")
+            gui.state_2_data.config(text=rotate_low.upper())
+            gui.auto_changer_state.append("Lift down")
+        elif str(rotate_low) == "20":
+            gui.state_2_label.config(text="Вверху", bg="gray90")
+            gui.state_2_data.config(text=rotate_low.upper())
+            gui.auto_changer_state.append("Lift up")
+        elif str(rotate_low) == "30":
+            gui.state_2_label.config(text="Между", bg="gray90")
+            gui.state_2_data.config(text=rotate_low.upper())
+            gui.auto_changer_state.append("Lift between")
+        else:
+            gui.state_2_label.config(text="Fault", bg="salmon")
+            gui.state_2_data.config(text=rotate_low.upper())
+            gui.auto_changer_error.append("incorrect_answer")
+
+    def transcript_status_3():
+        # расшифровка поля датчиков
+        # расшифровка поля reserve
+
+        reserve = recieved_command[16] + recieved_command[17]
+        if str(reserve) == "02":
+            gui.auto_changer_state.append("Load")
+            gui.auto_changer_state.append("Cuvette")
+            gui.state_set_sample_label.config(text="+ Кювета", bg="gray90")
+            gui.state_set_sample_data.config(text=reserve.upper())
+
+            gui.full_set_textbox.config(state="normal", bg="PaleGreen3")
+            gui.full_set_textbox.delete('1.0', END)
+            gui.full_set_textbox.insert(tk.END, "В зоне загрузки")
+            gui.full_set_textbox.config(state="disabled")
+
+            gui.lift_textbox.config(state="normal", bg="gray70")
+            gui.lift_textbox.delete('1.0', END)
+            gui.lift_textbox.config(state="disabled")
+
+            gui.position_textbox.config(state="normal", bg="PaleGreen3")
+            gui.position_textbox.delete('1.0', END)
+            gui.position_textbox.insert(tk.END, "Образец установлен")
+            gui.position_textbox.config(state="disabled")
+        elif str(reserve) == "04":
+            gui.auto_changer_state.append("Moving")
+            gui.auto_changer_state.append("Lift between")
+            gui.state_set_sample_label.config(text="В движении", bg="gray90")
+            gui.state_set_sample_data.config(text=reserve.upper())
+
+            gui.full_set_textbox.config(state="normal", bg="gray70")
+            gui.full_set_textbox.delete('1.0', END)
+            gui.full_set_textbox.insert(tk.END, "В движении")
+            gui.full_set_textbox.config(state="disabled")
+
+            gui.lift_textbox.config(state="normal", bg="gray70")
+            gui.lift_textbox.delete('1.0', END)
+            gui.lift_textbox.insert(tk.END, "В движении")
+            gui.lift_textbox.config(state="disabled")
+
+            gui.position_textbox.config(state="normal", bg="gray70")
+            gui.position_textbox.delete('1.0', END)
+            gui.position_textbox.insert(tk.END, "Неизвестно")
+            gui.position_textbox.config(state="disabled")
+        elif str(reserve) == "05":
+            gui.auto_changer_state.append("Base")
+            gui.state_set_sample_label.config(text="База", bg="gray90")
+            gui.state_set_sample_data.config(text=reserve.upper())
+
+            gui.full_set_textbox.config(state="normal", bg="gray70")
+            gui.full_set_textbox.delete('1.0', END)
+            gui.full_set_textbox.config(state="disabled")
+
+            gui.lift_textbox.config(state="normal", bg="PaleGreen3")
+            gui.lift_textbox.delete('1.0', END)
+            gui.lift_textbox.insert(tk.END, "В базе")
+            gui.lift_textbox.config(state="disabled")
+
+            gui.position_textbox.config(state="normal", bg="gray70")
+            gui.position_textbox.delete('1.0', END)
+            gui.position_textbox.insert(tk.END, "Неизвестно")
+            gui.position_textbox.config(state="disabled")
+        elif str(reserve) == "06":
+            gui.auto_changer_state.append("Load")
+            gui.state_set_sample_label.config(text="Загрузка", bg="gray90")
+            gui.state_set_sample_data.config(text=reserve.upper())
+
+            gui.full_set_textbox.config(state="normal", bg="PaleGreen3")
+            gui.full_set_textbox.delete('1.0', END)
+            gui.full_set_textbox.insert(tk.END, "В зоне загрузки")
+            gui.full_set_textbox.config(state="disabled")
+
+            gui.lift_textbox.config(state="normal", bg="gray70")
+            gui.lift_textbox.delete('1.0', END)
+            gui.lift_textbox.config(state="disabled")
+
+            gui.position_textbox.config(state="normal", bg="gray70")
+            gui.position_textbox.delete('1.0', END)
+            gui.position_textbox.insert(tk.END, "Отсутствует")
+            gui.position_textbox.config(state="disabled")
+        else:
+            gui.state_set_sample_label.config(text="Ошибка", bg="salmon")
+            gui.state_set_sample_data.config(text=reserve.upper())
+            gui.auto_changer_error.append("incorrect_answer")
+
+    def check_crc():
+        # Проверяет контрольную сумму
+
+        full_dec_summ = 0
+        full_hex_summ = 0
+        for bit in range(0, 20):
+            if bit % 2 != 0:
+                hex_bit = recieved_command[bit - 1] + recieved_command[bit]
+                full_dec_summ = full_dec_summ + int(hex_bit, 16)
+                full_hex_summ = hex(full_dec_summ)
+        if full_hex_summ[len(full_hex_summ) - 1] == "0":
+            gui.crc_label.config(bg="PaleGreen3", text="OK")
+        else:
+            gui.crc_label.config(bg="salmon", text=str(full_hex_summ))
+            gui.auto_changer_error.append("incorrect_answer")
         gui.crc_data.config(text=recieved_command[18].upper() + recieved_command[19].upper())
 
     transcript_name_device()

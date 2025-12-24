@@ -22,8 +22,8 @@ def reset_errors(gui):
     gui.ignore_speed = False
 
 
-def back_to_manual(gui):
-    back_to_manual_param.back_to_manual_parameters(gui)
+def back_to_manual(gui, number_of_operations=int()):
+    back_to_manual_param.back_to_manual_parameters(gui, number_of_operations)
     gui.as_button.configure(bg="SeaGreen1", state='disabled', relief=RIDGE)
 
     gui.stop_button.configure(bg="gray60", state='normal', relief=GROOVE)
@@ -1259,13 +1259,14 @@ def random_position(gui, position):
 
 def start_check(gui):
     # Запуск скрипта автоматической проверки системы охлаждения
-
+    number_of_ops = 0
     for function_number in range(1, 59):
         result = eval("step_" + str(function_number) + "(gui)")
+        number_of_ops += 1
         while result:
             result = eval("step_" + str(function_number) + "(gui)")
         if str(result) == "False":
-            back_to_manual(gui)
+            back_to_manual(gui, number_of_operations=number_of_ops)
             return ()
 
     result = askyesno(title="Проверка окончена",
@@ -1277,28 +1278,32 @@ def start_check(gui):
         while True:
             random_sample = random.randint(1, 8)
             result = random_sample_auto(gui, random_sample)
+            number_of_ops += 1
             if str(result) == "False":
-                back_to_manual(gui)
+                back_to_manual(gui, number_of_operations=number_of_ops)
                 return ()
             time.sleep(0.2)
             random_speed = random.choice(["10", "20", "30", "35", "40", "45", "50", "55", "65", "70",
                                           "75", "80", "90", "100"])
             result = random_speed_left(gui, random_speed)
+            number_of_ops += 1
             if str(result) == "False":
-                back_to_manual(gui)
+                back_to_manual(gui, number_of_operations=number_of_ops)
                 return ()
             time.sleep(0.2)
             result = lift_down(gui)
+            number_of_ops += 1
             if str(result) == "False":
-                back_to_manual(gui)
+                back_to_manual(gui, number_of_operations=number_of_ops)
                 return ()
             time.sleep(0.2)
             position = random.randint(1, 8)
             result = random_position(gui, position)
+            number_of_ops += 1
             if str(result) == "False":
-                back_to_manual(gui)
+                back_to_manual(gui, number_of_operations=number_of_ops)
                 return ()
             time.sleep(0.2)
     else:
-        back_to_manual(gui)
+        back_to_manual(gui, number_of_operations=number_of_ops)
         return ()

@@ -10,6 +10,8 @@ import auto_sampler_buttons
 
 
 def auch(gui, auto=False):
+    gui.auto_changer_error = []
+    gui.auto_changer_state = []
     gui.auto_sampler_last_command = None
     gui.auto_sampler_real_state = {}
 
@@ -290,7 +292,7 @@ def auch(gui, auto=False):
 
     frame_for_set = LabelFrame(frame_for_set_indication, bg="gray10")
     frame_for_set.pack(side=TOP, padx=1, pady=1, fill=X)
-    full_set_label = Label(frame_for_set, text="Установка образца", width=17, height=1, bg="gray10",
+    full_set_label = Label(frame_for_set, text="Загрузка/выгрузка", width=17, height=1, bg="gray10",
                            fg="white")
     full_set_label.pack(side=LEFT, padx=1, pady=1)
     gui.full_set_textbox = Text(frame_for_set, width=17, height=1, state="disabled", bg="gray70")
@@ -298,7 +300,7 @@ def auch(gui, auto=False):
 
     frame_for_lift = LabelFrame(frame_for_set_indication, bg="gray10")
     frame_for_lift.pack(side=TOP, padx=1, pady=1, fill=X)
-    lift_label = Label(frame_for_lift, text="Лифт", width=17, height=1, bg="gray10",
+    lift_label = Label(frame_for_lift, text="База", width=17, height=1, bg="gray10",
                        fg="white")
     lift_label.pack(side=LEFT, padx=1, pady=1)
     gui.lift_textbox = Text(frame_for_lift, width=17, height=1, state="disabled", bg="gray70")
@@ -306,7 +308,7 @@ def auch(gui, auto=False):
 
     frame_for_position = LabelFrame(frame_for_set_indication, bg="gray10")
     frame_for_position.pack(side=TOP, padx=1, pady=1, fill=X)
-    position_label = Label(frame_for_position, text="Барабан", width=17, height=1, bg="gray10",
+    position_label = Label(frame_for_position, text="Наличие образца", width=17, height=1, bg="gray10",
                            fg="white")
     position_label.pack(side=LEFT, padx=1, pady=1)
     gui.position_textbox = Text(frame_for_position, width=17, height=1, state="disabled", bg="gray70")
@@ -325,10 +327,10 @@ def auch(gui, auto=False):
     frame_for_engine_3 = LabelFrame(frame_for_engines, bg="gray10", text="Двигатель №3 | вращатель |", fg="white")
     frame_for_engine_3.pack(side=LEFT, padx=15, pady=12, fill=X)
 
-    frame_for_set_sample = LabelFrame(frame_for_engines, bg="gray10", text="Установить образец", fg="white")
+    frame_for_set_sample = LabelFrame(frame_for_engines, bg="gray10", text="Установить в положение:", fg="white")
     frame_for_set_sample.pack(side=LEFT, padx=15, pady=12, fill=X)
 
-    speed = ["10", "20", "30", "35", "40", "45", "50", "55", "65", "70", "75", "80", "90", "100"]
+    speed = ["10", "20", "30", "35", "40", "45", "55", "65", "70", "75", "80", "90", "100"]
 
     # Двигатель №1
     frame_for_speed_engine_1 = LabelFrame(frame_for_engine_1, bg="gray10")
@@ -388,7 +390,7 @@ def auch(gui, auto=False):
                                                values=speed)
     gui.speed_engine_3_combobox.pack(side=RIGHT, padx=3, pady=1)
 
-    gui.speed_engine_3_combobox.set("50")
+    gui.speed_engine_3_combobox.set("40")
 
     frame_for_buttons_engine_3 = LabelFrame(frame_for_engine_3, bg="gray10")
     frame_for_buttons_engine_3.pack(side=TOP, padx=1, pady=1, fill=X)
@@ -410,17 +412,12 @@ def auch(gui, auto=False):
     frame_for_button_set_load = LabelFrame(frame_for_set_sample, bg="gray10")
     frame_for_button_set_load.pack(side=TOP, padx=1, pady=1, fill=X)
 
-    gui.load_sample_button = Button(frame_for_button_set_load, text="Загрузка", relief=GROOVE, width=20, height=1,
-                                    bg="gray60", state="normal",
-                                    command=lambda: auto_sampler_buttons.auto_changer_set_load_command(gui))
-    gui.load_sample_button.pack(side=LEFT, pady=1)
-
     frame_for_button_set_scan = LabelFrame(frame_for_set_sample, bg="gray10")
     frame_for_button_set_scan.pack(side=TOP, padx=1, pady=1, fill=X)
 
-    gui.scan_sample_button = Button(frame_for_button_set_scan, text="Сканирование", relief=GROOVE, width=20, height=1,
+    gui.scan_sample_button = Button(frame_for_button_set_scan, text="Загрузка", relief=GROOVE, width=20, height=1,
                                     bg="gray60", state="normal",
-                                    command=lambda: auto_sampler_buttons.auto_changer_set_scan_command(gui))
+                                    command=lambda: auto_sampler_buttons.auto_changer_set_load_command(gui))
     gui.scan_sample_button.pack(side=LEFT, pady=1)
 
     #
@@ -458,11 +455,11 @@ def auch(gui, auto=False):
     gui.info_button.pack(side=TOP, pady=4, padx=4)
 
     gui.status_button = Button(frame_for_status_l_buttons, text="Статус", relief=GROOVE, width=14, height=2,
-                               bg="gray60", command=lambda: auto_sampler_buttons.auto_sampler_status_command(gui))
+                               bg="gray60", command=lambda: auto_sampler_buttons.auto_changer_status_command(gui))
     gui.status_button.pack(side=TOP, pady=4, padx=4)
 
     gui.status_l_button = Button(frame_for_status_l_buttons, text="Статус_L", relief=GROOVE, width=14, height=2,
-                                 bg="gray60", command=lambda: auto_sampler_buttons.auto_sampler_status_l_command(gui))
+                                 bg="gray60", command=lambda: auto_sampler_buttons.auto_changer_status_l_command(gui))
     gui.status_l_button.pack(side=TOP, pady=4, padx=4)
 
     gui.stop_base_button = Button(frame_for_stop_base_buttons, text="Стоп-База", relief=GROOVE, width=14, height=2,
@@ -485,7 +482,6 @@ def auch(gui, auto=False):
         gui.status_button.configure(bg="gray60", state='disabled', relief=GROOVE)
         gui.status_l_button.configure(bg="gray60", state='disabled', relief=GROOVE)
         gui.scan_sample_button.configure(bg="gray60", state='disabled', relief=GROOVE)
-        gui.load_sample_button.configure(bg="gray60", state='disabled', relief=GROOVE)
         gui.right_engine_3_button.configure(bg="gray60", state='disabled', relief=GROOVE)
         gui.left_engine_3_button.configure(bg="gray60", state='disabled', relief=GROOVE)
         gui.right_engine_2_button.configure(bg="gray60", state='disabled', relief=GROOVE)
@@ -494,7 +490,8 @@ def auch(gui, auto=False):
         gui.base_engine_1_button.configure(bg="gray60", state='disabled', relief=GROOVE)
         gui.read_eeprom_button.configure(bg="gray60", state='disabled', relief=GROOVE)
         gui.write_eeprom_button.configure(bg="gray60", state='disabled', relief=GROOVE)
-
+        gui.auto_changer_error = []
+        gui.auto_changer_state = []
         auto_changer_auto_script.start_check(gui)
     else:
         back_to_manual_param.back_to_manual_parameters(gui)
@@ -507,7 +504,6 @@ def auch(gui, auto=False):
         gui.status_button.configure(bg="gray60", state='normal', relief=GROOVE)
         gui.status_l_button.configure(bg="gray60", state='normal', relief=GROOVE)
         gui.scan_sample_button.configure(bg="gray60", state='normal', relief=GROOVE)
-        gui.load_sample_button.configure(bg="gray60", state='normal', relief=GROOVE)
         gui.right_engine_3_button.configure(bg="gray60", state='normal', relief=GROOVE)
         gui.left_engine_3_button.configure(bg="gray60", state='normal', relief=GROOVE)
         gui.right_engine_2_button.configure(bg="gray60", state='normal', relief=GROOVE)
